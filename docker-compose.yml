@@ -23,6 +23,15 @@ services:
       - "127.0.0.1:8025:8025"
     restart: unless-stopped
 
+  # Local stand-in for OpenRouter: the assistant works here without real accounts or keys.
+  # Its authorization page is at http://127.0.0.1:8091/auth. Not for production.
+  openrouter-sim:
+    build: ./dev/openrouter-sim
+    ports:
+      - "127.0.0.1:8091:8091"
+    mem_limit: 64m
+    restart: unless-stopped
+
   api:
     build: ./backend
     depends_on:
@@ -34,6 +43,14 @@ services:
       DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
       JWT_SECRET: ${JWT_SECRET:?Define JWT_SECRET (at least 32 bytes)}
       AI_KEY_SECRET: ${AI_KEY_SECRET:?Define AI_KEY_SECRET (32 random bytes in base64)}
+      # Locally the assistant talks to the simulator; production leaves these unset (real OpenRouter).
+      APP_AI_BASE_URL: ${APP_AI_BASE_URL:-http://openrouter-sim:8091/api/v1}
+      APP_AI_AUTH_URL: ${APP_AI_AUTH_URL:-http://127.0.0.1:8091/auth}
+      APP_AI_MODELS: ${APP_AI_MODELS:-google/gemma-4-31b-it:free,google/gemma-4-26b-a4b-it:free,openrouter/free}
+      APP_AI_REQUESTS_PER_MINUTE: ${APP_AI_REQUESTS_PER_MINUTE:-6}
+      APP_AI_MAX_MESSAGE_CHARS: ${APP_AI_MAX_MESSAGE_CHARS:-4000}
+      APP_AI_MAX_OUTPUT_TOKENS: ${APP_AI_MAX_OUTPUT_TOKENS:-800}
+      APP_AI_TIMEOUT: ${APP_AI_TIMEOUT:-60s}
       APP_PUBLIC_URL: ${APP_PUBLIC_URL:?Define APP_PUBLIC_URL}
       APP_CORS_ORIGINS: ${APP_CORS_ORIGINS:?Define APP_CORS_ORIGINS}
       APP_COOKIE_SECURE: ${APP_COOKIE_SECURE:-true}

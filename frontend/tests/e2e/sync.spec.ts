@@ -139,7 +139,7 @@ test("exports everything, turns the cloud off and deletes the account leaving no
   await page.getByTestId("delete-account").click();
   await expect(page).toHaveURL(/#\/ingresar$/, { timeout: 15_000 });
   expect(sql(`SELECT count(*) FROM user_account WHERE id = '${userId}' OR email = '${email}';`)).toBe("0");
-  for (const table of ["user_session", "email_token", "consent_record", "project", "program_state"]) {
+  for (const table of ["user_session", "email_token", "consent_record", "project", "program_state", "ai_connection"]) {
     expect(sql(`SELECT count(*) FROM ${table} WHERE user_id = '${userId}';`), table).toBe("0");
   }
   const keyList = keys.split(",").filter(Boolean).map((k) => `'${k.replace(/'/g, "")}'`).join(",");
