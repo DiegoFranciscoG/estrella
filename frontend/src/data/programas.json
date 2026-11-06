@@ -33,7 +33,7 @@
       "license": "MIT",
       "source": "https://github.com/gdsestimating/dxf-parser"
     },
-    "honestNote": "Hecho para planos 2D sencillos con medidas exactas. No tiene bloques, sombreados, recortes ni impresión a escala todavía, y no abre DWG (eso llega con Visor)."
+    "honestNote": "Hecho para planos 2D sencillos con medidas exactas. No tiene bloques, sombreados, recortes ni impresión a escala todavía, y no abre DWG: para eso, abre el DWG en Visor y descárgalo como DXF."
   },
   {
     "id": "lienzo",
@@ -99,18 +99,22 @@
   {
     "id": "visor",
     "name": "Visor",
-    "summary": "Abre el archivo que te mandaron: DWG, DXF, PSD, PDF, SVG, RAW, OBJ, STL, IFC.",
+    "summary": "Abre el archivo que te mandaron y conviértelo: DWG, DXF, PDF, PSD, SVG, fotos y RAW de cámara, OBJ, STL, 3MF, glTF e IFC.",
     "replaces": [
       "varios formatos"
     ],
     "availability": "web",
-    "status": "en-construccion",
-    "sizeKb": null,
+    "status": "disponible",
+    "sizeKb": 12,
     "demand": "media",
-    "phase": "Llega en la fase 4",
-    "appPath": null,
-    "basedOn": null,
-    "honestNote": "Todo se abre en tu equipo. SKP e INDD todavía no se pueden leer; te diremos qué pedir en su lugar."
+    "phase": "Disponible",
+    "appPath": "/apps/visor/index.html",
+    "basedOn": {
+      "name": "LibreDWG (DWG), web-ifc (IFC), three.js (3D), ag-psd (PSD) y PDF.js",
+      "license": "GPL-3.0 (solo el lector de DWG), MPL-2.0, MIT y Apache-2.0",
+      "source": "https://github.com/mlightcad/libredwg-web/tree/v0.7.5"
+    },
+    "honestNote": "Todo se abre en tu equipo; el archivo no se sube. Cada lector se descarga solo la primera vez que lo necesitas (DWG 1,7 MB; IFC 1,1 MB). En DWG, tramas, cotas y textos especiales pueden verse distintos. SKP e INDD no se pueden leer: Visor te dice qué pedir en su lugar."
   },
   {
     "id": "trazo",

@@ -71,10 +71,32 @@ server {
         try_files $uri =404;
     }
 
+    # The DWG reader's glue code (Emscripten embind) builds small functions with new Function(),
+    # so this one worker, and nothing else, may evaluate strings. It is a dedicated worker: no
+    # page, no DOM, no panel storage, no network beyond this site; it only sees the DWG it is given.
+    location ~ ^/apps/assets/dwg\.worker-[A-Za-z0-9_-]+\.js$ {
+        include /etc/nginx/snippets/security-headers.conf;
+        add_header Content-Security-Policy "default-src 'none'; script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval'; connect-src 'self'; base-uri 'none'" always;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        try_files $uri =404;
+    }
+
     # Hashed build files never change: cache them for a year so programs open instantly next time.
+    # A CSP header on a script only matters when the script starts a worker. Workers here (DWG
+    # reader, font subsetting) compile WebAssembly, so they may; they still reach only this site.
     location /apps/assets/ {
         include /etc/nginx/snippets/security-headers.conf;
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; connect-src 'self' data: blob:; object-src 'none'; base-uri 'none'" always;
         add_header Cache-Control "public, max-age=31536000, immutable";
+        try_files $uri =404;
+    }
+
+    # Visor compiles WebAssembly readers (IFC on the page, DWG in a worker), the only program that
+    # needs 'wasm-unsafe-eval'. It allows compiling wasm served by this site, not eval().
+    location /apps/visor/ {
+        include /etc/nginx/snippets/security-headers.conf;
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; worker-src 'self' blob:; connect-src 'self' data: blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors ${PANEL_ORIGIN}" always;
+        add_header Cache-Control "no-cache";
         try_files $uri =404;
     }
 
