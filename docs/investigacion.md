@@ -34,8 +34,8 @@ Etiquetas: **VERIFICADO** (fuente primaria leída o medición propia) · **SECUN
 | miniPaint / Excalidraw | Demos medidas | https://viliusle.github.io/miniPaint/ · https://excalidraw.com/ | 354 KB y 651 KB | VERIFICADO (solo apertura) |
 | Límites de IA | Documentación de OpenRouter | https://openrouter.ai/docs/api_reference/limits · https://openrouter.ai/pricing | 20 solicitudes/min y **50/día**; 1.000/día tras comprar 10 créditos; los intentos fallidos cuentan | VERIFICADO |
 | OAuth de IA | OpenRouter | https://openrouter.ai/docs/use-cases/oauth-pkce | PKCE con llave del usuario | VERIFICADO |
-| Llamadas desde navegador | OpenRouter | https://openrouter.ai/docs/use-cases/oauth-pkce | Hay ejemplos con `fetch`, pero CORS no está documentado | SUPUESTO: probar en F7 |
-| Registro de prompts | OpenRouter | https://openrouter.ai/docs/guides/privacy/data-collection | No guarda prompts por defecto; cada proveedor gratuito tiene su política | VERIFICADO (proveedores: pendiente) |
+| Llamadas desde navegador | OpenRouter | https://openrouter.ai/docs/use-cases/oauth-pkce | Hay ejemplos con `fetch`, pero CORS no está documentado | YA NO APLICA: en la fase 7 el navegador no llama a OpenRouter (sección 10) |
+| Registro de prompts | OpenRouter | https://openrouter.ai/docs/guides/privacy/data-collection | No guarda prompts por defecto; cada proveedor gratuito tiene su política | VERIFICADO; por proveedor, ver sección 10 |
 | Datos personales | LOPDP, texto de Ediciones Legales con reforma R.O. 290-5S del 22-V-2026 | https://www.dspace.espol.edu.ec/bitstream/123456789/57303/1/LEY%20ORG%C3%81NICA%20DE%20PROTECCI%C3%93N%20DE%20DATOS%20PERSONALES.pdf | Ver sección 3 | VERIFICADO (copia no oficial; cotejar con el Registro Oficial) |
 | Funciones y formatos | TJUE C-406/10 SAS v. WPL (comentarios) | https://www.europeanlawblog.eu/pub/c-40610-sas-institute-v-world-programming-ltd-wpl | En la UE, funcionalidad, lenguaje y formato de datos no se protegen como programa | SECUNDARIA; no aplica directo en Ecuador |
 | Marcas y DWG | EFF, sobre Autodesk contra ODA | https://www.eff.org/deeplinks/2006/12/using-trademark-stymie-interoperability | El conflicto histórico fue por **marca**, no por leer el formato | SECUNDARIA |
@@ -225,7 +225,51 @@ Los pasos de Lienzo y Plano se tomaron de su interfaz real (menús de miniPaint 
 3. **Transferencia internacional:** se pide consentimiento explícito (art. 60.2), pero la lista de proveedores y sus garantías debe revisarla un abogado antes de publicar.
 4. **Delegado de protección de datos (art. 48):** sigue sin confirmar si un proyecto gratuito pequeño debe designarlo.
 
-## 10. Conclusiones de diseño
+## 10. Fase 7: asistente de IA (2026-11-06)
+
+| Tema | Fuente | URL | Qué sale de ahí |
+|---|---|---|---|
+| Conectar sin copiar la llave | OpenRouter, OAuth PKCE | https://openrouter.ai/docs/guides/overview/auth/oauth | `/auth` con `callback_url`, `code_challenge` (S256), `state` y `key_label`. El código se canjea en `POST /api/v1/auth/keys`, sirve una sola vez y vence a los 10 minutos. Errores 400, 403 y 405. `localhost` funciona en cualquier puerto |
+| PKCE | RFC 7636, §4.1, §4.2 y apéndice B | https://www.rfc-editor.org/rfc/rfc7636 | Verificador de 43 a 128 caracteres; S256 obligatorio si el cliente puede usarlo; el vector del apéndice B se usa en las pruebas |
+| Que nunca cueste | OpenRouter, variante `:free` | https://openrouter.ai/docs/guides/routing/model-variants/free | Un modelo de pago en la lista de respaldo **se cobra**. Para que la petición sea gratis, solo modelos `:free` o `openrouter/free` |
+| Respaldo entre modelos | OpenRouter, Free Models Router y Model Fallbacks | https://openrouter.ai/docs/guides/routing/routers/free-router · https://openrouter.ai/docs/guides/routing/model-fallbacks | `models` en orden de prioridad; `openrouter/free` solo elige entre gratuitos y su documentación lo recomienda para educación |
+| Proveedores que no guardan | OpenRouter, Provider Routing | https://openrouter.ai/docs/guides/routing/provider-selection | `provider.data_collection: "deny"` usa solo proveedores que no recogen datos |
+| Qué guarda cada uno | OpenRouter, Data Collection y Provider Logging | https://openrouter.ai/docs/guides/privacy/data-collection · https://openrouter.ai/docs/guides/privacy/provider-logging | OpenRouter no guarda prompts salvo que el usuario lo active. Cada proveedor tiene su política, con ajustes separados para modelos gratis y de pago |
+| Errores | OpenRouter, Errors and Debugging | https://openrouter.ai/docs/api/reference/errors-and-debugging | 401 llave inválida, 402 sin saldo, 403 bloqueo o moderación, 408 tiempo agotado, 429 límite (con `Retry-After`), 502 modelo caído, 503 ningún proveedor cumple las condiciones pedidas |
+| Edad y obligaciones | Términos de OpenRouter, actualizados el 31-ago-2026, §2, §5.2 y §6.2 | https://openrouter.ai/terms | 18 años o más. Quien integra el servicio debe exigir a sus usuarios esos mismos términos. El registro de prompts con licencia amplia existe solo si el usuario lo activa en su cuenta |
+| Atribución de la app | OpenRouter, App Attribution | https://openrouter.ai/docs/app-attribution | Encabezados `HTTP-Referer` y `X-OpenRouter-Title` |
+| Modelos disponibles hoy | API pública de modelos | https://openrouter.ai/api/v1/models | 453 modelos; 11 con `:free` más `openrouter/free`. Cambian seguido, así que la lista va en una variable de entorno |
+| Riesgos de aplicaciones con LLM | OWASP Top 10 for LLM Applications 2025 | https://genai.owasp.org/llm-top-10/ | LLM01 a LLM10, con su medida en la tabla de abajo |
+
+| Hallazgo | Decisión |
+|---|---|
+| El plan aprobado dejaba la llave de IA en el navegador, pero tu regla global dice: "Nada de API keys en el frontend: si una API necesita key, crea un endpoint proxy en el backend con rate limiting" | El servidor canjea el código PKCE, guarda la llave cifrada (AES-256-GCM con `AI_KEY_SECRET`, atada a la cuenta) y hace de proxy con límites. La llave nunca llega al navegador. La prueba de CORS prevista para esta fase ya no hace falta |
+| OpenRouter exige 18 años; ESTRELLA admite desde los 15 | El asistente pide declarar 18 años o más al conectar (consentimiento `AI_ASSISTANT`). Para todos hay "Guía (sin IA)" dentro de cada programa |
+| Un modelo de pago en la lista de respaldo se cobra | El servidor no arranca si un modelo de la lista no es `:free` u `openrouter/free` |
+| Los modelos gratuitos suelen servirlos proveedores que pueden guardar o entrenar con lo enviado, y la tabla de políticas por proveedor se dibuja en el navegador, así que no se pudo leer | Por defecto se pide `data_collection: "deny"`. Si ningún proveedor cumple (503), se dice tal cual, y el estudiante puede aceptar proveedores que guardan solo para esa pregunta |
+| El cliente reintenta los 502 a 504 para esperar a que despierte el servidor gratuito | Solo se reintenta si la respuesta no es un error propio de la API (`application/problem+json`), para no repetir seis veces un error del proveedor |
+| Cada estudiante tiene su cuenta y su cupo gratuito (50 por día) | No hay una llave compartida del proyecto: no se agota para todos ni cuesta dinero al responsable |
+
+| Riesgo OWASP (2025) | Medida en ESTRELLA |
+|---|---|
+| LLM01 Inyección de prompt | El modelo no tiene herramientas ni acceso a datos: lo peor que puede pasar es una respuesta engañosa. Las instrucciones fijas dicen que el texto del proyecto son datos, no órdenes |
+| LLM02 Divulgación de información sensible | Solo sale lo que el estudiante ve en la vista previa, sin correo ni identificadores. Nada de preguntas ni respuestas en los registros del servidor; `data_collection: "deny"` por defecto |
+| LLM03 Cadena de suministro | Un solo intermediario (OpenRouter) y una lista de modelos fijada en el entorno |
+| LLM04 Envenenamiento de datos y modelos | ESTRELLA no entrena modelos ni guarda conversaciones |
+| LLM05 Manejo inseguro de la salida | La respuesta se muestra como texto (`textContent`), nunca como HTML, y sus enlaces no se activan |
+| LLM06 Agencia excesiva | El modelo no puede tocar proyectos ni llamar funciones; el estudiante copia lo que le sirva |
+| LLM07 Fuga del prompt de sistema | No contiene secretos y se le muestra al estudiante |
+| LLM08 Debilidades de vectores y embeddings | No hay búsqueda por embeddings; la guía se busca por palabras en el equipo |
+| LLM09 Desinformación | Aviso de que puede equivocarse y, al lado, la guía con fuentes oficiales |
+| LLM10 Consumo sin límites | Por estudiante: preguntas por minuto, una a la vez, máximo de caracteres de entrada y de tokens de salida, tiempo máximo. Encima, los límites gratuitos de OpenRouter |
+
+**SUPUESTOS de esta fase:**
+1. **No probé con una cuenta real de OpenRouter:** requiere iniciar sesión y ser mayor de edad. El flujo se probó contra un simulador local que sigue la documentación.
+2. **Qué modelos gratuitos aceptan `data_collection: "deny"`:** no se pudo verificar; puede que ninguno. Por eso existe la opción explícita de aceptar proveedores que guardan.
+3. **La vuelta de OpenRouter** agrega `code` y `state` a una `callback_url` sin fragmento (`https://dominio/`), según la documentación. Falta confirmarlo con la cuenta real.
+4. **Transferencia internacional:** las preguntas van a OpenRouter (EE. UU.) y al proveedor del modelo. Se pide consentimiento explícito al conectar (art. 60), pero debe revisarlo un abogado.
+
+## 11. Conclusiones de diseño
 
 - **La línea legal se mantiene:** cambiar el nombre no legaliza una copia. Código, interfaz, nombre e íconos propios, y programas libres con su licencia.
 - **"Todas las opciones de los 19 programas" no es alcanzable.** ESTRELLA debe decir qué hace cada herramienta y qué no.
