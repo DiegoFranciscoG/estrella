@@ -3,56 +3,57 @@ Línea con longitud escrita (LINE),dibujo,must,yes,yes,
 Polilínea (PLINE),dibujo,must,yes,yes,
 Rectángulo con ancho y alto (RECTANG),dibujo,must,yes,yes,
 Círculo por centro y radio (CIRCLE),dibujo,must,yes,yes,
-Arco (ARC),dibujo,must,yes,partial,se leen y dibujan desde DXF pero no hay herramienta para trazarlos
+Arco (ARC),dibujo,must,yes,yes,por tres puntos
 Elipse (ELLIPSE),dibujo,should,yes,no,
 Polígono regular (POLYGON),dibujo,should,yes,no,
 Coordenadas escritas absolutas y relativas (x;y y @dx;dy),dibujo,should,yes,yes,
-Ángulo escrito junto a la longitud (polar <),dibujo,should,yes,no,
+Ángulo escrito junto a la longitud (polar <),dibujo,should,yes,yes,
 Spline (SPLINE),dibujo,could,yes,no,
 Punto (POINT),dibujo,could,yes,no,
 Línea infinita de construcción (XLINE),dibujo,could,yes,no,
 Seleccionar por clic y por ventana,edición,must,yes,yes,
 Borrar (ERASE),edición,must,yes,yes,
-Mover con punto base y distancia escrita (MOVE),edición,must,yes,partial,solo arrastrando; no admite distancia escrita
-Copiar (COPY),edición,must,yes,no,
-Rotar (ROTATE),edición,must,yes,no,
-Desfase o paralela (OFFSET),edición,must,yes,no,
-Recortar (TRIM),edición,must,yes,no,
+Mover con punto base y distancia escrita (MOVE),edición,must,yes,yes,punto base y destino; distancia escrita; @dx;dy; longitud<ángulo
+Copiar (COPY),edición,must,yes,yes,varias copias seguidas
+Rotar (ROTATE),edición,must,yes,yes,
+Desfase o paralela (OFFSET),edición,must,yes,yes,líneas; polilíneas con esquinas a inglete; círculos y arcos
+Recortar (TRIM),edición,must,yes,yes,modo rápido: todos los objetos son aristas de corte
 Deshacer y rehacer,edición,must,yes,yes,
 Alargar (EXTEND),edición,should,yes,no,
-Simetría (MIRROR),edición,should,yes,no,
-Escala (SCALE),edición,should,yes,no,
+Simetría (MIRROR),edición,should,yes,yes,conserva los originales; el texto se mantiene legible
+Escala (SCALE),edición,should,yes,yes,factor escrito; sin escala por referencia
 Empalme y chaflán (FILLET / CHAMFER),edición,should,yes,no,
 Matriz rectangular y polar (ARRAY),edición,should,yes,no,
-Copiar y pegar con Ctrl+C / Ctrl+V,edición,should,yes,no,
-Seleccionar todo con Ctrl+A,edición,should,yes,no,
+Copiar y pegar con Ctrl+C / Ctrl+V,edición,should,yes,yes,
+Seleccionar todo con Ctrl+A,edición,should,yes,yes,
 Estirar (STRETCH),edición,could,yes,no,
 Partir y unir (BREAK / JOIN),edición,could,yes,no,
 Rejilla y forzado a la rejilla (GRID / SNAP),ayudas,must,yes,yes,
-Referencia a objetos (OSNAP),ayudas,must,yes,partial,extremo medio y centro; falta intersección perpendicular cuadrante y tangente
+Referencia a objetos (OSNAP),ayudas,must,yes,yes,extremo; medio; centro; cuadrante; intersección; perpendicular; tangente
 Modo orto (F8),ayudas,must,yes,yes,
 Zoom y encuadre (ZOOM / PAN),ayudas,must,yes,yes,
-Medir distancia y área (DIST / AREA),ayudas,should,yes,no,
+Línea de comandos con alias (L; PL; TR; O…),ayudas,must,yes,yes,
+Medir distancia y área (DIST / AREA),ayudas,should,yes,yes,
 Rastreo polar,ayudas,could,yes,no,
 Capas: crear ocultar y bloquear (LAYER),organizar,must,yes,yes,
-Bloques: crear e insertar (BLOCK / INSERT),organizar,must,yes,no,
+Bloques: crear e insertar (BLOCK / INSERT),organizar,must,yes,yes,se guardan como bloques reales en DXF
 Capas con color tipo y grosor de línea,organizar,should,yes,no,
 Propiedades del objeto (PROPERTIES),organizar,should,yes,no,
 Atributos de bloque (ATTDEF),organizar,could,yes,no,
 Grupos (GROUP),organizar,could,yes,no,
 Texto de una línea (TEXT),anotar,must,yes,yes,
-Cota lineal y alineada (DIMLINEAR / DIMALIGNED),anotar,must,yes,partial,solo alineada
-Sombreado (HATCH),anotar,must,yes,no,
+Cota lineal y alineada (DIMLINEAR / DIMALIGNED),anotar,must,yes,yes,
+Sombreado (HATCH),anotar,must,yes,yes,diagonal; cruzado; ladrillo y sólido; sin islas; en DXF se exporta como líneas
 Texto de varias líneas (MTEXT),anotar,should,yes,no,
 Cota de radio diámetro y ángulo,anotar,should,yes,no,
 Directriz (LEADER),anotar,should,yes,no,
 Tabla (TABLE),anotar,could,yes,no,
 Abrir y guardar DXF,archivo,must,yes,yes,
-Abrir DWG,archivo,must,yes,partial,se abre en Visor y se convierte a DXF; Plano no abre DWG directamente
-Imprimir o PDF a escala (PLOT / EXPORTPDF),archivo,must,yes,no,
+Abrir DWG,archivo,must,yes,yes,directo en Plano con LibreDWG (R14 a 2018); tramas y textos especiales pueden variar
+Imprimir o PDF a escala (PLOT / EXPORTPDF),archivo,must,yes,yes,A4 a A1; escalas normalizadas o ajustada; vectorial
 Recuperar el trabajo tras un cierre brusco,archivo,must,yes,yes,
 Exportar SVG o imagen,archivo,should,yes,yes,
-Presentaciones con marco y rótulo (LAYOUT),archivo,should,yes,no,
+Presentaciones con marco y rótulo (LAYOUT),archivo,should,yes,partial,una hoja con marco y rótulo; sin varias presentaciones ni ventanas gráficas
 Referencias externas (XREF),archivo,could,yes,no,
 Modelado 3D y render,fuera de alcance,could,yes,skip,fuera del dibujo 2D; la guía remite a FreeCAD y Blender
 Programación y macros (LISP APPLOAD grabador de acciones),fuera de alcance,could,yes,skip,ecosistema de automatización propio del original
