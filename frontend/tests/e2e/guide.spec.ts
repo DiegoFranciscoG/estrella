@@ -18,9 +18,14 @@ test("the guide finds tasks by command name, filters, and keeps the search in a 
   await page.getByLabel("Qué quieres hacer").fill("trim");
   const first = page.locator(".guide-card").first();
   await expect(first.getByRole("heading", { level: 2 })).toHaveText("Recortar líneas que se pasan de una intersección");
-  await expect(first).toContainText("LibreCAD");
-  await expect(first.getByRole("link", { name: "LibreCAD — Tools (Modify: Trim)" })).toHaveAttribute("href", "https://docs.librecad.org/en/latest/ref/tools.html");
-  await expect(page).toHaveURL(/#\/guia\?q=trim$/);
+  await expect(first).toContainText("En ESTRELLA");
+  await expect(first).toContainText("Plano");
+  await expect(first.locator(".guide-source code")).toContainText("plano-edit.spec.ts");
+
+  // A card backed by an official manual links to it.
+  await page.getByLabel("Qué quieres hacer").fill("curvas libres");
+  await expect(page.locator(".guide-card").first().getByRole("link", { name: /FreeCAD Documentation/ })).toHaveAttribute("href", "https://wiki.freecad.org/Sketcher_CreateBSpline");
+  await expect(page).toHaveURL(/#\/guia\?q=curvas\+libres$/);
 
   // Accents and case do not matter; every word must match.
   await page.getByLabel("Qué quieres hacer").fill("PAGINAS maestras");

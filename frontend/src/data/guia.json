@@ -217,9 +217,8 @@
       ],
       "tool": "visor",
       "steps": [
-        "Abre Visor y pulsa Abrir archivo (o arrastra el DWG).",
-        "Revisa el plano y sus capas; el archivo no sale de tu equipo.",
-        "Para editarlo, elige Descargar como DXF y ábrelo en Plano con Importar DXF."
+        "Para ver el plano sin editarlo, ábrelo en Visor; el archivo no sale de tu equipo.",
+        "Para editarlo, en Plano pulsa Abrir DXF o DWG y elige el archivo: se agregan sus capas y bloques."
       ],
       "limits": "Lee DWG de 1998 a 2018. Tramas, tipos de línea, cotas y textos especiales pueden verse distintos.",
       "source": {
@@ -245,17 +244,18 @@
           "term": "comando TRIM"
         }
       ],
-      "tool": "librecad",
+      "tool": "plano",
       "steps": [
-        "Abre el DXF en LibreCAD (puedes obtenerlo de Plano o de Visor).",
-        "Activa Recortar (Trim): atajo tm en la línea de comandos.",
-        "Haz clic primero en la línea que sirve de límite y luego en el tramo que quieres quitar."
+        "En Plano elige Recortar (tecla X) o escribe TR en la línea de comandos.",
+        "Haz clic en la parte que quieres quitar: se corta en las intersecciones con los demás objetos.",
+        "Si no hay intersecciones a los lados, Plano te avisa y no borra nada."
       ],
       "source": {
-        "kind": "official",
-        "title": "LibreCAD — Tools (Modify: Trim)",
-        "url": "https://docs.librecad.org/en/latest/ref/tools.html"
-      }
+        "kind": "test",
+        "file": "frontend/tests/e2e/plano-edit.spec.ts",
+        "test": "Plano: offset, trim, hatch, arc, dimensions, copy, rotate, blocks and a PDF to scale"
+      },
+      "limits": "Todos los objetos sirven de borde de corte; no se eligen bordes uno por uno."
     },
     {
       "id": "bloques",
@@ -276,18 +276,18 @@
           "term": "bloques (BLOCK / INSERT)"
         }
       ],
-      "tool": "librecad",
+      "tool": "plano",
       "steps": [
-        "Dibuja el objeto con todas sus partes en la capa 0.",
-        "Selecciona todas las partes y pulsa el ícono Crear bloque (Create Block).",
-        "Marca el punto de referencia con el que se insertará.",
-        "Escribe un nombre único y pulsa OK: el bloque aparece en la lista de bloques para insertarlo cuantas veces quieras."
+        "Selecciona las partes del objeto (por ejemplo, una puerta) y pulsa Crear bloque en el panel derecho.",
+        "Escribe un nombre y haz clic en el punto base.",
+        "Para usarlo otra vez, pulsa Insertar junto a su nombre y haz clic donde va."
       ],
       "source": {
-        "kind": "official",
-        "title": "LibreCAD — Using Blocks",
-        "url": "https://docs.librecad.org/en/latest/guides/blocks.html"
-      }
+        "kind": "test",
+        "file": "frontend/tests/e2e/plano-edit.spec.ts",
+        "test": "Plano: offset, trim, hatch, arc, dimensions, copy, rotate, blocks and a PDF to scale"
+      },
+      "limits": "Sin atributos ni bloques dinámicos. Se exportan a DXF como bloques reales."
     },
     {
       "id": "sombreado",
@@ -306,17 +306,17 @@
           "term": "comando HATCH"
         }
       ],
-      "tool": "librecad",
+      "tool": "plano",
       "steps": [
-        "Asegúrate de que el contorno esté cerrado (polilínea, círculo, polígono).",
-        "Activa Sombreado (Hatch): atajo ha.",
-        "Selecciona el contorno, elige el patrón o relleno sólido y ajusta escala y ángulo."
+        "Elige Sombreado (tecla H) y, arriba, el patrón: diagonal, cruzado, ladrillo o sólido, y su escala.",
+        "Haz clic dentro de un contorno cerrado: rectángulo, círculo o polilínea cerrada."
       ],
       "source": {
-        "kind": "official",
-        "title": "LibreCAD — Tools (Hatch)",
-        "url": "https://docs.librecad.org/en/latest/ref/tools.html"
-      }
+        "kind": "test",
+        "file": "frontend/tests/e2e/plano-edit.spec.ts",
+        "test": "Plano: offset, trim, hatch, arc, dimensions, copy, rotate, blocks and a PDF to scale"
+      },
+      "limits": "No detecta islas (huecos dentro del área). En DXF se guarda como líneas."
     },
     {
       "id": "imprimir-a-escala",
@@ -337,17 +337,18 @@
           "term": "trazar (PLOT) a escala"
         }
       ],
-      "tool": "librecad",
+      "tool": "plano",
       "steps": [
-        "Define tamaño de hoja y escala del dibujo, y agrega el marco y el rótulo.",
-        "Abre Archivo → Vista previa de impresión (Print Preview) y revisa cómo cae en la hoja.",
-        "Imprime con Ctrl+P, o elige una impresora PDF para obtener la lámina en PDF."
+        "En Plano pulsa Imprimir / PDF (Ctrl+P).",
+        "Elige hoja (A4 a A1), orientación y escala (1:50, 1:100…) o Ajustar a la hoja. Si no cabe, Plano te dice qué escala usar.",
+        "Descarga el PDF, con marco y rótulo, e imprímelo al 100 %, sin \"ajustar a la página\"."
       ],
       "source": {
-        "kind": "official",
-        "title": "LibreCAD — Completing and Printing",
-        "url": "https://docs.librecad.org/en/latest/guides/completion.html"
-      }
+        "kind": "test",
+        "file": "frontend/tests/e2e/plano-edit.spec.ts",
+        "test": "Plano: offset, trim, hatch, arc, dimensions, copy, rotate, blocks and a PDF to scale"
+      },
+      "limits": "Una sola hoja por PDF; sin varias presentaciones."
     },
     {
       "id": "extruir-cara",

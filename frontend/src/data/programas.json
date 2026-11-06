@@ -18,7 +18,7 @@
   {
     "id": "plano",
     "name": "Plano",
-    "summary": "Dibujo técnico 2D: líneas, polilíneas, rectángulos, círculos, texto, cotas y capas. Abre y guarda DXF.",
+    "summary": "Dibujo técnico 2D con línea de comandos: dibujar, desfase, recortar, copiar, rotar, simetría, cotas, sombreados, bloques y capas. Abre DXF y DWG; imprime en PDF a escala.",
     "replaces": [
       "AutoCAD"
     ],
@@ -33,7 +33,7 @@
       "license": "MIT",
       "source": "https://github.com/gdsestimating/dxf-parser"
     },
-    "honestNote": "Hecho para planos 2D sencillos con medidas exactas. No tiene bloques, sombreados, recortes ni impresión a escala todavía, y no abre DWG: para eso, abre el DWG en Visor y descárgalo como DXF."
+    "honestNote": "Cubre el dibujo 2D de un estudiante con medidas exactas. No tiene varias presentaciones, cotas de radio o ángulo, empalmes, matrices ni sombreados con islas todavía."
   },
   {
     "id": "lienzo",
