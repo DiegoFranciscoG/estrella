@@ -30,7 +30,7 @@ export function licensesView(): HTMLElement {
 }
 
 /** Version of the privacy notice; consents are recorded with it (backend: app.privacy-notice-version). */
-export const PRIVACY_NOTICE_VERSION = "2026-11-06";
+export const PRIVACY_NOTICE_VERSION = "2026-11-06.2";
 
 const pending = (value: string | null) => value ?? "pendiente";
 
@@ -63,8 +63,9 @@ export function privacyView(): HTMLElement {
       li(h("strong", {}, "Foto de perfil (opcional): "), "solo si la subes."),
       li(h("strong", {}, "Nube de proyectos (opcional): "), "copias de tus proyectos para abrirlos en otros equipos. Se cifran en tu equipo antes de salir; no podemos leer ni su contenido ni sus nombres. Guardamos su tamaño, fechas y las últimas 5 versiones."),
       li(h("strong", {}, "Avisos de seguridad (opcional): "), "un correo cuando se inicia sesión en tu cuenta."),
+      li(h("strong", {}, "Asistente de IA (opcional, 18 años o más): "), "la llave que tu cuenta de OpenRouter crea para ESTRELLA, cifrada en el servidor, y cuándo conectaste el asistente y cuándo lo usaste por última vez. Tus preguntas, y lo que decidas incluir de tu proyecto, pasan por el servidor hacia OpenRouter sin guardarse."),
     ),
-    h("p", {}, "No pedimos teléfono, cédula, fecha de nacimiento ni ubicación. No hay publicidad, rastreadores, perfiles ni decisiones automatizadas sobre ti, y no vendemos ni cedemos datos."),
+    h("p", {}, "No pedimos teléfono, cédula, fecha de nacimiento ni ubicación. No hay publicidad, rastreadores ni perfiles, y no vendemos ni cedemos datos. El asistente solo responde lo que le preguntas: no toma decisiones sobre ti."),
     h("p", {}, "Origen: todos los datos los das tú. Base legal: tu consentimiento, uno por finalidad (art. 8). Tratamiento: recogerlos, guardarlos en una base de datos de ESTRELLA, usarlos solo para lo descrito y borrarlos."),
 
     h("h2", {}, "Por cuánto tiempo"),
@@ -72,11 +73,13 @@ export function privacyView(): HTMLElement {
       li("Cuenta, foto y nube: hasta que los borres o borres tu cuenta. Las cuentas sin confirmar se borran a los 7 días."),
       li("Sesiones: 30 días como máximo. Enlaces enviados por correo: vencen en 24 horas y se borran al día siguiente."),
       li("Versiones en la nube: las 5 más recientes de cada proyecto."),
+      li("Llave del asistente: hasta que lo desconectes, retires ese consentimiento o borres tu cuenta. Preguntas y respuestas: no se guardan en ESTRELLA."),
       li("Copias de seguridad del proveedor de base de datos: pueden conservar por un tiempo limitado datos ya borrados; el plazo exacto se publicará antes de abrir registros."),
     ),
 
     h("h2", {}, "Quién más interviene y dónde"),
     h("p", {}, "Usamos proveedores que guardan y procesan datos por encargo nuestro: el servidor de la aplicación, la base de datos, el envío de correos y el alojamiento de la página. Sus servidores pueden estar fuera de Ecuador (por ejemplo, en Estados Unidos o la Unión Europea), lo que es una transferencia internacional. Como garantía, tus proyectos viajan y se guardan cifrados con una llave que solo tienes tú. Al activar la nube aceptas esa transferencia de forma expresa (art. 60). La lista exacta de proveedores se publicará antes de abrir registros."),
+    h("p", {}, "Si conectas el asistente, cada pregunta que envías, con lo que tú decidas incluir de tu proyecto, va a OpenRouter (Estados Unidos) y al proveedor del modelo que responda. Es otra transferencia internacional, que aceptas de forma expresa al conectar (art. 60). OpenRouter la trata según sus propios términos y su política de privacidad, que aceptas al crear tu cuenta allí. Antes de cada envío ves el texto completo. Por defecto pedimos solo proveedores que no guardan lo enviado; si ninguno está disponible, te lo decimos y decides tú, pregunta por pregunta."),
 
     h("h2", {}, "Si no das tus datos o están mal"),
     h("p", {}, "Sin un correo no podemos crearte una cuenta. Sin la nube, tus proyectos quedan solo en tu equipo y no los verás en otro. Si escribes mal tu correo, no podrás confirmarlo ni recuperar tu contraseña."),
@@ -85,19 +88,19 @@ export function privacyView(): HTMLElement {
     h("ul", {},
       li(h("strong", {}, "Acceso y portabilidad: "), "en Mi cuenta, «Descargar todos mis datos» te da un ZIP con todo lo que guardamos y tus proyectos descifrados, en formatos comunes (JSON)."),
       li(h("strong", {}, "Eliminación: "), "en Mi cuenta, «Borrar mi cuenta» lo borra todo del servidor en el momento. Desactivar la nube borra la copia del servidor."),
-      li(h("strong", {}, "Revocar consentimientos: "), "en Mi cuenta puedes desactivar la nube y los avisos de seguridad cuando quieras."),
+      li(h("strong", {}, "Revocar consentimientos: "), "en Mi cuenta puedes desactivar la nube, los avisos de seguridad y el asistente cuando quieras. Al desconectar el asistente borramos su llave; en tu cuenta de OpenRouter puedes borrarla también."),
       li(h("strong", {}, "Rectificación, oposición, limitación o cualquier otra solicitud: "), `escríbenos (${pending(owner.correo)}). Respondemos en un máximo de 15 días.`),
     ),
     h("p", {}, "Si crees que no respetamos tus derechos, puedes reclamarnos a nosotros y también a la ", h("a", { href: "https://www.spdp.gob.ec/", target: "_blank", rel: "noopener noreferrer" }, "Superintendencia de Protección de Datos Personales"), "."),
 
     h("h2", {}, "Seguridad"),
-    h("p", {}, "Contraseñas que nunca llegan al servidor, cifrado de proyectos en tu equipo (AES-GCM), conexiones cifradas y borrado real en cascada. Si ocurriera una vulneración, avisaremos a la Autoridad en 5 días como máximo y a ti en 3 días cuando haya riesgo para tus derechos (arts. 43 y 46)."),
+    h("p", {}, "Contraseñas que nunca llegan al servidor, cifrado de proyectos en tu equipo (AES-GCM), la llave de OpenRouter cifrada en el servidor con una clave que no está en la base de datos, conexiones cifradas y borrado real en cascada. Si ocurriera una vulneración, avisaremos a la Autoridad en 5 días como máximo y a ti en 3 días cuando haya riesgo para tus derechos (arts. 43 y 46)."),
 
     h("h2", {}, "En tu navegador"),
     h("p", {}, "Tus proyectos se guardan en tu equipo (IndexedDB), junto con una llave de sincronización que el navegador no deja leer. Una cookie segura mantiene tu sesión. No usamos cookies de terceros."),
 
     h("h2", {}, "Menores de edad"),
-    h("p", {}, "Desde los 15 años puedes dar tu consentimiento. Si eres menor, tu representante legal debe acompañarte y conocer este aviso."),
+    h("p", {}, "Desde los 15 años puedes dar tu consentimiento. Si eres menor, tu representante legal debe acompañarte y conocer este aviso. El asistente de IA es solo para mayores de 18 años, porque así lo exigen los términos de OpenRouter; la Guía (sin IA) de cada programa es para todos."),
 
     h("h2", {}, "Contacto"),
     h("p", {}, `Correo: ${pending(owner.correo)}. Instagram `, h("a", { href: contact.instagram.url, target: "_blank", rel: "noopener noreferrer" }, contact.instagram.handle), "."),
