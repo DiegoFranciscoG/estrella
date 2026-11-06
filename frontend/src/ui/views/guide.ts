@@ -59,7 +59,8 @@ export function guideView(query: URLSearchParams): HTMLElement {
   );
 }
 
-function cardView(card: Card): HTMLElement {
+/** One card. Inside the program's help panel its title is one level lower than on the guide page. */
+export function cardView(card: Card, heading: "h2" | "h3" = "h2"): HTMLElement {
   const tool = resolveTool(card.tool);
   const where = tool.kind === "estrella"
     ? h("p", { class: "guide-tool" },
@@ -76,7 +77,7 @@ function cardView(card: Card): HTMLElement {
 
   return h("article", { class: "card guide-card", "data-card": card.id, "aria-labelledby": `g-${card.id}` },
     h("p", { class: "guide-area muted" }, card.area === "arquitectura" ? "Arquitectura" : "Diseño gráfico"),
-    h("h2", { id: `g-${card.id}` }, card.task),
+    h(heading, { id: `g-${card.id}` }, card.task),
     h("p", { class: "guide-from" }, "Antes: ", card.from.map((f) => `${f.program} (${f.term})`).join(" · ")),
     where,
     h("ol", { class: "guide-steps" }, ...card.steps.map((s) => h("li", {}, s))),

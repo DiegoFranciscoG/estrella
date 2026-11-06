@@ -1,4 +1,5 @@
 import { api, ApiError } from "../../core/api";
+import { assistantStatus, disconnect, safeAuthUrl, startConnection, takeConnectionResult } from "../../core/assistant";
 import { exportEverything } from "../../core/exporter";
 import { currentUser, deleteAccount } from "../../core/session";
 import { ProjectStore } from "../../core/store";
@@ -60,7 +61,7 @@ export function accountView(): HTMLElement {
       return;
     }
     const p = await api<Profile>("/me", { auth: true });
-    const names: Record<string, string> = { ACCOUNT: "cuenta", PROJECT_SYNC: "nube de proyectos", SECURITY_EMAIL: "avisos de seguridad" };
+    const names: Record<string, string> = { ACCOUNT: "cuenta", PROJECT_SYNC: "nube de proyectos", SECURITY_EMAIL: "avisos de seguridad", AI_ASSISTANT: "asistente de IA" };
     info.replaceChildren(
       h("dt", {}, "Correo"), h("dd", {}, p.email),
       h("dt", {}, "Espacio en la nube"), h("dd", {}, `${megabytes(p.storageUsedBytes)} de ${megabytes(p.storageQuotaBytes)}`),
@@ -153,6 +154,77 @@ export function accountView(): HTMLElement {
     }
   });
 
+  // Assistant: 18+ only (OpenRouter's terms), with its own consent (LOPDP art. 8), revocable here.
+  const aiBox = h("div", { "data-testid": "ai-card-body" });
+  const aiMessage = h("p", { role: "status", "data-testid": "ai-message" });
+  const flash = takeConnectionResult();
+  if (flash) {
+    aiMessage.textContent = flash.message;
+    aiMessage.className = flash.ok ? "" : "error";
+  }
+  const renderAssistant = async () => {
+    if (user.offline) {
+      aiBox.replaceChildren(h("p", { class: "muted" }, "Sin conexión: el asistente se configura cuando vuelvas a tener internet."));
+      return;
+    }
+    const s = await assistantStatus();
+    if (s.connected) {
+      const when = (iso: string | null) => (iso ? new Date(iso).toLocaleString("es-EC", { dateStyle: "medium", timeStyle: "short" }) : "todavía no");
+      const off = h("button", { type: "button", class: "ghost", "data-testid": "ai-disconnect" }, "Desconectar y borrar la llave de ESTRELLA");
+      off.addEventListener("click", async () => {
+        off.disabled = true;
+        try {
+          const r = await disconnect();
+          aiMessage.className = "";
+          aiMessage.replaceChildren("Desconectado: ESTRELLA borró la llave. La llave sigue existiendo en tu cuenta de OpenRouter");
+          let link: URL | null = null;
+          try {
+            link = r.keySettingsUrl ? safeAuthUrl(r.keySettingsUrl) : null;
+          } catch {
+            link = null;
+          }
+          aiMessage.append(link
+            ? h("span", {}, "; puedes borrarla allí: ", h("a", { href: link.toString(), target: "_blank", rel: "noopener noreferrer", "data-testid": "ai-key-link" }, "abrir la llave en OpenRouter"), ".")
+            : ", en su página de llaves.");
+          await renderAssistant();
+        } catch (e) {
+          aiMessage.textContent = e instanceof Error ? e.message : "No se pudo desconectar";
+          off.disabled = false;
+        }
+      });
+      aiBox.replaceChildren(
+        h("p", { "data-testid": "ai-connected" }, `Conectado desde ${when(s.connectedAt)}. Último uso: ${when(s.lastUsedAt)}.`),
+        off,
+      );
+      return;
+    }
+    const adult = h("input", { type: "checkbox", id: "ai-adult", "data-testid": "ai-adult" });
+    const connect = h("button", { type: "button", class: "primary", disabled: true, "data-testid": "ai-connect" }, "Conectar mi cuenta de OpenRouter");
+    adult.addEventListener("change", () => { connect.disabled = !adult.checked; });
+    connect.addEventListener("click", async () => {
+      connect.disabled = true;
+      try {
+        location.assign(await startConnection(s, "#/cuenta", location.origin));
+      } catch (e) {
+        aiMessage.textContent = e instanceof Error ? e.message : "No se pudo iniciar la conexión";
+        connect.disabled = !adult.checked;
+      }
+    });
+    aiBox.replaceChildren(
+      h("ul", { class: "tips" },
+        h("li", {}, "Al conectar, OpenRouter crea una llave para ESTRELLA en tu cuenta. ESTRELLA la guarda cifrada en el servidor y nunca llega a este navegador."),
+        h("li", {}, "Cada pregunta, solo con lo que tú revisas antes de enviar, va a OpenRouter (Estados Unidos) y al proveedor del modelo. ESTRELLA no guarda preguntas ni respuestas."),
+        h("li", {}, "Solo se usan modelos gratuitos: tu cuenta nunca gasta créditos por ESTRELLA. El plan gratuito permite unas 50 preguntas al día."),
+      ),
+      h("label", { class: "check" }, adult,
+        "Tengo 18 años o más. Acepto que mis preguntas se envíen a OpenRouter (Estados Unidos) y al proveedor del modelo, y cumpliré los términos de OpenRouter."),
+      connect,
+      h("p", { class: "hint" }, "Si tienes menos de 18 años, usa la Guía (sin IA) dentro de cada programa: OpenRouter no admite menores. ",
+        h("a", { href: "https://openrouter.ai/terms", target: "_blank", rel: "noopener noreferrer" }, "Términos de OpenRouter"), " · ",
+        h("a", { href: "#/privacidad" }, "Aviso de privacidad")),
+    );
+  };
+
   // Portability (LOPDP arts. 13 and 17): everything, decrypted here, in common formats.
   const exportMessage = h("p", { role: "status" });
   const exportButton = h("button", { type: "button", "data-testid": "export-all" }, "Descargar todos mis datos (ZIP)");
@@ -199,6 +271,7 @@ export function accountView(): HTMLElement {
   });
 
   void load().catch((e) => { message.textContent = e instanceof Error ? e.message : "No se pudo cargar tu cuenta"; });
+  void renderAssistant().catch((e) => { aiMessage.textContent = e instanceof Error ? e.message : "No se pudo cargar el asistente"; });
 
   return h("main", { class: "narrow", id: "main" },
     h("h1", {}, "Mi cuenta"),
@@ -219,6 +292,12 @@ export function accountView(): HTMLElement {
       syncBar(),
       cloudButton,
       cloudMessage,
+    ),
+    h("section", { class: "card", "aria-labelledby": "ai-title" },
+      h("h2", { id: "ai-title" }, "Asistente de IA (opcional, 18 años o más)"),
+      h("p", {}, "Responde dudas dentro de cada programa, desde el botón «Ayuda», con modelos de IA gratuitos y tu propia cuenta de OpenRouter."),
+      aiBox,
+      aiMessage,
     ),
     h("section", { class: "card" },
       h("h2", {}, "Tus datos"),

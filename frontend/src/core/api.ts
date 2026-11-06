@@ -106,13 +106,21 @@ const WAKING = new Set([502, 503, 504]);
 export const WAKE_RETRIES = 6;
 export const WAKE_DELAY_MS = 2500;
 
+/**
+ * A sleeping server answers through its proxy, never with the API's own problem details. A 502-504
+ * that is a problem (for example, the assistant's provider is down) is a real answer: no retries.
+ */
+function waking(response: Response): boolean {
+  return WAKING.has(response.status) && !(response.headers.get("Content-Type") ?? "").includes("application/problem+json");
+}
+
 async function sendWaiting(path: string, opts: Options, wait: (ms: number) => Promise<void>): Promise<Response> {
   let response = await send(path, opts);
-  for (let i = 0; i < WAKE_RETRIES && WAKING.has(response.status); i++) {
+  for (let i = 0; i < WAKE_RETRIES && waking(response); i++) {
     await wait(WAKE_DELAY_MS);
     response = await send(path, opts);
   }
-  if (WAKING.has(response.status)) {
+  if (waking(response)) {
     throw new ApiError(response.status, "WAKING", "El servidor está despertando. Intenta de nuevo en unos segundos; tu trabajo local sigue guardado.");
   }
   return response;

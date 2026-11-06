@@ -1,5 +1,6 @@
 import "./styles.css";
-import { isSignedIn, onUserChange, restore } from "./core/session";
+import { finishConnection } from "./core/assistant";
+import { currentUser, isSignedIn, onUserChange, restore } from "./core/session";
 import { h } from "./ui/dom";
 import { header, liteActive, page } from "./ui/shell";
 import { starSpinner } from "./ui/star";
@@ -71,6 +72,9 @@ async function start(): Promise<void> {
   document.documentElement.classList.toggle("lite", liteActive());
   root.replaceChildren(h("div", { class: "boot" }, starSpinner("Cargando ESTRELLA")));
   await restore();
+  // OpenRouter sends the student back to this site's root with ?code=…&state=…: the code is
+  // handed to the server and removed from the address bar before anything renders.
+  await finishConnection(isSignedIn() && !currentUser()?.offline);
   window.addEventListener("hashchange", render);
   onUserChange((u) => { if (!u && !PUBLIC.has(parseHash().route)) location.replace("#/ingresar"); });
   render();

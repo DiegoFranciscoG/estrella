@@ -5,6 +5,7 @@ import { currentUser } from "../../core/session";
 import { ProjectStore } from "../../core/store";
 import { markProjectClosed, markProjectOpen, requestSync } from "../../core/syncManager";
 import { announce, h, relativeTime } from "../dom";
+import { helpPanel } from "../helpPanel";
 import { liteActive } from "../shell";
 import { starSpinner } from "../star";
 import { effectiveTheme, onThemeChange } from "../theme";
@@ -32,14 +33,18 @@ export function programView(projectId: string): HTMLElement {
   const banner = h("div", { class: "banner", hidden: true, role: "status", "data-testid": "recovered" });
   const overlay = h("div", { class: "overlay", hidden: true, role: "alertdialog", "aria-modal": "false", "data-testid": "frozen" });
   const frameBox = h("div", { class: "frame-box" }, starSpinner("Cargando el programa"));
+  const helpToggle = h("button", { type: "button", class: "ghost small help-toggle", "aria-expanded": "false", disabled: true, "data-testid": "help-toggle" }, "Ayuda");
+  // The program and its help side by side, so the student can follow the steps while working.
+  const body = h("div", { class: "program-body" }, frameBox);
   const main = h("main", { class: "program-view", id: "main" },
     h("div", { class: "program-bar" },
       h("a", { class: "ghost", href: "#/", "data-testid": "back", onclick: (e: Event) => void leave(e) }, "Volver al panel"),
       title,
       status,
+      helpToggle,
     ),
     banner,
-    frameBox,
+    body,
     overlay,
   );
 
@@ -136,6 +141,36 @@ export function programView(projectId: string): HTMLElement {
     post({ type: "estrella:flush" });
   });
 
+  /** Built on first use, so opening a program never waits for the assistant. */
+  let help: HTMLElement | null = null;
+  const closeHelp = () => {
+    if (help) help.hidden = true;
+    helpToggle.setAttribute("aria-expanded", "false");
+    helpToggle.focus();
+  };
+  helpToggle.addEventListener("click", () => {
+    if (!program) return;
+    if (!help) {
+      const p = program;
+      help = helpPanel({
+        program: p,
+        // The excerpt is read after the program saved its last keystrokes.
+        snapshot: async () => {
+          await flush();
+          const project = await store?.get(projectId);
+          return project ? { title: project.title, data: project.data } : null;
+        },
+        onClose: closeHelp,
+      });
+      body.append(help);
+      helpToggle.setAttribute("aria-controls", "help-panel");
+    } else {
+      help.hidden = !help.hidden;
+    }
+    helpToggle.setAttribute("aria-expanded", String(!help.hidden));
+    if (!help.hidden) help.querySelector<HTMLElement>("#help-title")?.focus();
+  });
+
   /** Leaving with the panel's own button: the last keystrokes are saved before the frame goes away. */
   const leave = async (e: Event) => {
     if (closed) return;
@@ -213,6 +248,7 @@ export function programView(projectId: string): HTMLElement {
       statusTimer = window.setInterval(showStatus, 10000);
       unsubscribeTheme = onThemeChange((t) => post({ type: "estrella:theme", theme: t }));
       mountFrame();
+      helpToggle.disabled = false;
       maybeShowThanks(program, main);
     } catch (e) {
       frameBox.replaceChildren(h("p", { class: "error" }, e instanceof Error ? e.message : "No se pudo abrir el proyecto"));

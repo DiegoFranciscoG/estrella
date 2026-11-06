@@ -125,7 +125,11 @@ input[type="text"], input[type="email"], input[type="password"], input[type="sea
   width: 100%; min-height: 44px; padding: 10px 12px; color: var(--fg); background: var(--field);
   border: 1px solid var(--line); border-radius: 8px;
 }
-input:focus-visible, select:focus-visible { border-color: var(--strong-line); }
+input:focus-visible, select:focus-visible, textarea:focus-visible { border-color: var(--strong-line); }
+textarea {
+  width: 100%; min-height: 88px; padding: 10px 12px; color: var(--fg); background: var(--field);
+  border: 1px solid var(--line); border-radius: 8px; font: inherit; resize: vertical;
+}
 .field { margin-bottom: 14px; }
 .field label, label[for] { display: block; font-weight: 600; margin-bottom: 4px; }
 fieldset { border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; margin: 0 0 14px; }
@@ -198,7 +202,25 @@ legend { font-weight: 700; padding: 0 6px; }
 .save-status { font-size: 0.85rem; color: var(--muted); }
 .app-program { height: 100vh; height: 100dvh; overflow: hidden; }
 .app-program .program-view { flex: 1; min-height: 0; }
-.frame-box { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.program-body { flex: 1; min-height: 0; display: flex; position: relative; }
+.frame-box { flex: 1; min-width: 0; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.help-panel { flex: none; width: min(420px, 45%); overflow-y: auto; padding: 12px 16px 24px; background: var(--surface); border-left: 1px solid var(--strong-line); }
+.help-toggle[aria-expanded="true"] { border-color: var(--strong-line); font-weight: 700; }
+.help-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.help-panel details { margin: 4px 0 12px; }
+.help-head h2 { margin: 0; font-size: 1.1rem; }
+.tabs { display: flex; gap: 4px; margin: 10px 0 12px; border-bottom: 1px solid var(--line); }
+.tabs [role="tab"] { border: 0; border-bottom: 3px solid transparent; border-radius: 0; background: transparent; }
+.tabs [role="tab"][aria-selected="true"] { border-bottom-color: var(--strong-line); font-weight: 700; }
+.help-panel .guide-list { grid-template-columns: 1fr; }
+.help-panel .guide-card h3 { margin: 0; font-size: 1rem; }
+.ai-heading { margin: 16px 0 4px; font-size: 1rem; }
+.ai-preview { margin: 6px 0; padding: 10px; max-height: 240px; overflow-y: auto; white-space: pre-wrap; overflow-wrap: anywhere; font: 0.85rem/1.45 ui-monospace, "Cascadia Mono", Consolas, monospace; background: var(--bg); border: 1px dashed var(--line); border-radius: 8px; }
+.ai-answer { margin-top: 12px; }
+.ai-text { white-space: pre-wrap; overflow-wrap: anywhere; border-left: 3px solid var(--strong-line); padding-left: 10px; }
+@media (max-width: 760px) {
+  .help-panel { position: absolute; inset: 0; z-index: 4; width: auto; border-left: 0; }
+}
 .frame-box iframe { flex: 1; align-self: stretch; width: 100%; min-height: 0; border: 0; background: var(--surface); }
 .banner { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 14px; border-bottom: 2px solid var(--strong-line); background: var(--surface); }
 .overlay { position: absolute; inset: 60px 16px auto; max-width: 520px; margin: 0 auto; background: var(--surface); border: 2px solid var(--strong-line); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow-raised); }
