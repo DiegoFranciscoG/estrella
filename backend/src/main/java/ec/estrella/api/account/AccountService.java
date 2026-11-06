@@ -1,9 +1,11 @@
 package ec.estrella.api.account;
 
 import ec.estrella.api.account.PersonalDataRepository.AccountData;
+import ec.estrella.api.account.PersonalDataRepository.AssistantData;
 import ec.estrella.api.account.PersonalDataRepository.ProgramData;
 import ec.estrella.api.account.PersonalDataRepository.ProjectData;
 import ec.estrella.api.account.PersonalDataRepository.SessionData;
+import ec.estrella.api.ai.AiConnectionRepository;
 import ec.estrella.api.common.ApiException;
 import ec.estrella.api.config.AppProperties;
 import ec.estrella.api.mail.MailService;
@@ -26,9 +28,13 @@ public class AccountService {
     }
 
     /** Everything the server keeps about the account, in a common machine-readable format (LOPDP arts. 13 and 17). */
+    /**
+     * @param assistant when the OpenRouter connection was made and last used, or null; the key
+     *                  itself is never exported (it is a credential, not data about the student)
+     */
     public record Export(String format, Instant generatedAt, String note, AccountData account,
                          List<ConsentRepository.Entry> consents, List<SessionData> sessions, List<ProgramData> programs,
-                         List<ProjectData> projects) {
+                         List<ProjectData> projects, AssistantData assistant) {
     }
 
     private final UserRepository users;
@@ -36,19 +42,22 @@ public class AccountService {
     private final ProgramStateRepository programStates;
     private final PersonalDataRepository personalData;
     private final ProjectService projects;
+    private final AiConnectionRepository aiConnections;
     private final PasswordEncoder encoder;
     private final MailService mail;
     private final AppProperties properties;
     private final Clock clock;
 
     public AccountService(UserRepository users, ConsentRepository consents, ProgramStateRepository programStates,
-                          PersonalDataRepository personalData, ProjectService projects, PasswordEncoder encoder,
+                          PersonalDataRepository personalData, ProjectService projects,
+                          AiConnectionRepository aiConnections, PasswordEncoder encoder,
                           MailService mail, AppProperties properties, Clock clock) {
         this.users = users;
         this.consents = consents;
         this.programStates = programStates;
         this.personalData = personalData;
         this.projects = projects;
+        this.aiConnections = aiConnections;
         this.encoder = encoder;
         this.mail = mail;
         this.properties = properties;
@@ -94,14 +103,19 @@ public class AccountService {
         if (purpose == Consent.ACCOUNT) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "BAD_REQUEST", "Ese consentimiento se da al crear la cuenta");
         }
+        if (purpose == Consent.AI_ASSISTANT) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "BAD_REQUEST",
+                    "Ese consentimiento se da al conectar el asistente, con la declaración de mayoría de edad");
+        }
         if (!consents.active(userId).contains(purpose)) {
             consents.grant(userId, purpose, properties.privacyNoticeVersion());
         }
     }
 
     /**
-     * Revokes an optional consent. Revoking sync deletes the encrypted copies on the server
-     * (LOPDP art. 15.6); the projects stay on the student's devices.
+     * Revokes an optional consent and deletes what depended on it (LOPDP art. 15.6): sync deletes
+     * the encrypted copies on the server (the projects stay on the student's devices), and the
+     * assistant deletes the stored OpenRouter key.
      *
      * @return projects deleted from the server
      */
@@ -113,6 +127,9 @@ public class AccountService {
                     "Para retirar este consentimiento, borra tu cuenta");
         }
         consents.revoke(userId, purpose, clock.instant());
+        if (purpose == Consent.AI_ASSISTANT) {
+            aiConnections.delete(userId);
+        }
         return purpose == Consent.PROJECT_SYNC ? projects.deleteAll(userId) : 0;
     }
 
@@ -122,7 +139,7 @@ public class AccountService {
                 "Los nombres y el contenido de tus proyectos están cifrados en tu equipo y el servidor no puede leerlos; "
                         + "la app los descifra y los agrega a este archivo al exportar.",
                 personalData.account(userId), consents.history(userId), personalData.sessions(userId),
-                personalData.programs(userId), personalData.projects(userId));
+                personalData.programs(userId), personalData.projects(userId), personalData.assistant(userId));
     }
 
     /** Real deletion (LOPDP art. 15): every row of the user goes through ON DELETE CASCADE. */

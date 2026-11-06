@@ -28,6 +28,9 @@ public class PersonalDataRepository {
                               List<VersionData> versions) {
     }
 
+    public record AssistantData(Instant connectedAt, Instant lastUsedAt) {
+    }
+
     private final JdbcClient jdbc;
 
     public PersonalDataRepository(JdbcClient jdbc) {
@@ -78,6 +81,15 @@ public class PersonalDataRepository {
                             versions.stream().filter(v -> v.projectId().equals(id)).map(VersionRow::data).toList());
                 })
                 .list();
+    }
+
+    /** The OpenRouter connection, without the key; null if the student never connected it. */
+    public AssistantData assistant(UUID userId) {
+        return jdbc.sql("SELECT created_at, last_used_at FROM ai_connection WHERE user_id = :id")
+                .param("id", userId)
+                .query((rs, n) -> new AssistantData(instant(rs.getTimestamp(1)), instant(rs.getTimestamp(2))))
+                .optional()
+                .orElse(null);
     }
 
     private record VersionRow(UUID projectId, VersionData data) {

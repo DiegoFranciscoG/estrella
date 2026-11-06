@@ -374,7 +374,8 @@ class AuthFlowIntegrationTest extends IntegrationTest {
         mvc.perform(json(post("/api/v1/me/delete"), "{\"authKey\":\"" + account.authKey() + "\"}").header("Authorization", auth))
                 .andExpect(status().isNoContent());
 
-        for (String table : new String[] {"user_session", "email_token", "consent_record", "project", "program_state"}) {
+        for (String table : new String[] {"user_session", "email_token", "consent_record", "project", "program_state",
+            "ai_connection"}) {
             Integer rows = jdbc.sql("SELECT count(*) FROM " + table + " WHERE user_id = :id").param("id", id)
                     .query(Integer.class).single();
             assertThat(rows).as(table).isZero();

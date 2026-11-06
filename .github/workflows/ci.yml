@@ -59,7 +59,8 @@ jobs:
       - name: Throwaway secrets for this run only
         run: |
           sed -e "s/^POSTGRES_PASSWORD=CAMBIAR/POSTGRES_PASSWORD=$(openssl rand -hex 24)/" \
-              -e "s/^JWT_SECRET=CAMBIAR/JWT_SECRET=$(openssl rand -hex 48)/" .env.example > .env
+              -e "s/^JWT_SECRET=CAMBIAR/JWT_SECRET=$(openssl rand -hex 48)/" \
+              -e "s|^AI_KEY_SECRET=CAMBIAR|AI_KEY_SECRET=$(openssl rand -base64 32)|" .env.example > .env
       - run: docker compose up --build -d
       - name: Wait for the API
         run: curl -s --retry 60 --retry-delay 2 --retry-all-errors -o /dev/null -X POST http://localhost:8088/api/v1/auth/logout -H 'X-Estrella-Client: web'

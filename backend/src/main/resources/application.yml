@@ -65,6 +65,19 @@ app:
     versions-kept: ${APP_SYNC_VERSIONS_KEPT:5}
     max-projects: ${APP_SYNC_MAX_PROJECTS:500}
     uploads-per-minute: ${APP_SYNC_UPLOADS_PER_MINUTE:60}
+  # Assistant through each student's own OpenRouter key (OAuth PKCE). The key never reaches the
+  # browser: this server stores it encrypted and calls OpenRouter on the student's behalf.
+  ai:
+    # 32 random bytes in base64, for example: openssl rand -base64 32. No default on purpose.
+    key-secret: ${AI_KEY_SECRET}
+    base-url: ${APP_AI_BASE_URL:https://openrouter.ai/api/v1}
+    auth-url: ${APP_AI_AUTH_URL:https://openrouter.ai/auth}
+    # Only ":free" models or the free router: a paid model in this list would be billed to the student.
+    models: "${APP_AI_MODELS:google/gemma-4-31b-it:free,google/gemma-4-26b-a4b-it:free,openrouter/free}"
+    requests-per-minute: ${APP_AI_REQUESTS_PER_MINUTE:6}
+    max-message-chars: ${APP_AI_MAX_MESSAGE_CHARS:4000}
+    max-output-tokens: ${APP_AI_MAX_OUTPUT_TOKENS:800}
+    timeout: ${APP_AI_TIMEOUT:60s}
   privacy-notice-version: "2026-11-06"
   unverified-account-retention: 7d
 

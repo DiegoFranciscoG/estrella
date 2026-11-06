@@ -10,3 +10,9 @@ app:
   cookie-same-site: Strict
   mail-from: no-reply@example.com
   storage-quota-bytes: 52428800
+  ai:
+    # The browser never reaches it in these tests; the server half points at FakeOpenRouter.
+    auth-url: http://127.0.0.1:9/auth
+    requests-per-minute: 5
+    max-message-chars: 500
+    timeout: 2s

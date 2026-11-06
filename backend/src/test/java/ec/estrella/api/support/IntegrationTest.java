@@ -1,10 +1,12 @@
 package ec.estrella.api.support;
 
+import com.jayway.jsonpath.JsonPath;
 import ec.estrella.api.mail.MailService;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,12 +21,16 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /** Boots the whole API against a real PostgreSQL in a container, with outgoing email recorded. */
 @SpringBootTest
@@ -44,12 +50,17 @@ public abstract class IntegrationTest {
         POSTGRES.start();
     }
 
+    /** OpenRouter on a local port, shared like the database so every test class reuses one context. */
+    protected static final FakeOpenRouter OPENROUTER = FakeOpenRouter.start();
+
     private static final SecureRandom RANDOM = new SecureRandom();
 
     /** Secrets are generated per run so none is ever written in the repository. */
     @DynamicPropertySource
     static void runtimeProperties(DynamicPropertyRegistry registry) {
         registry.add("app.jwt-secret", () -> randomKey(48));
+        registry.add("app.ai.key-secret", () -> randomKey(32));
+        registry.add("app.ai.base-url", OPENROUTER::baseUrl);
         // Placeholders only; the service connection supplies the real container credentials.
         registry.add("spring.datasource.url", POSTGRES::getJdbcUrl);
         registry.add("spring.datasource.username", POSTGRES::getUsername);
@@ -71,6 +82,7 @@ public abstract class IntegrationTest {
     void setUpMvc() {
         mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
         mail.clear();
+        OPENROUTER.clearScript();
     }
 
     protected static String randomKey(int bytes) {
@@ -81,6 +93,37 @@ public abstract class IntegrationTest {
 
     protected static String uniqueEmail() {
         return "estudiante-" + System.nanoTime() + "@example.com";
+    }
+
+    public record Student(UUID id, String email, String authKey, String bearer) {
+    }
+
+    /**
+     * Registers, confirms and signs in a new student from {@code ip}, as the app does.
+     *
+     * @param consents JSON strings of the purposes accepted at sign-up, for example {@code "ACCOUNT"}
+     */
+    protected Student signUp(String ip, String... consents) throws Exception {
+        String email = uniqueEmail();
+        String key = randomKey(32);
+        RequestPostProcessor from = r -> {
+            r.setRemoteAddr(ip);
+            return r;
+        };
+        mvc.perform(post("/api/v1/auth/register").with(from).contentType(MediaType.APPLICATION_JSON).content("""
+                {"email":"%s","authKey":"%s","ageConfirmed":true,"consents":[%s],
+                 "keyBundle":{"kdfSalt":"%s","wrappedKeyPassword":"%s","wrappedKeyRecovery":"%s"}}
+                """.formatted(email, key, String.join(",", consents), randomKey(16), randomKey(60), randomKey(60))))
+                .andExpect(status().isAccepted());
+        mvc.perform(post("/api/v1/auth/verify-email").with(from).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"token\":\"" + mail.lastToken(email) + "\"}"))
+                .andExpect(status().isOk());
+        String body = mvc.perform(post("/api/v1/auth/login").with(from).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"%s\",\"authKey\":\"%s\"}".formatted(email, key)))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        String token = JsonPath.read(body, "$.accessToken");
+        UUID id = jdbc.sql("SELECT id FROM user_account WHERE email = :e").param("e", email).query(UUID.class).single();
+        return new Student(id, email, key, "Bearer " + token);
     }
 
     @TestConfiguration

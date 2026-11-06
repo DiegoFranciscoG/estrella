@@ -31,12 +31,10 @@ class ProjectSyncIntegrationTest extends IntegrationTest {
 
     private static final AtomicInteger IP = new AtomicInteger(1);
     private static final SecureRandom RANDOM = new SecureRandom();
-    private static final String[] USER_TABLES = {"user_session", "email_token", "consent_record", "project", "program_state"};
+    private static final String[] USER_TABLES = {"user_session", "email_token", "consent_record", "project", "program_state",
+        "ai_connection"};
 
     private final String ip = "10.6." + (IP.get() / 250) + "." + (IP.getAndIncrement() % 250 + 1);
-
-    private record Student(UUID id, String email, String authKey, String bearer) {
-    }
 
     private MockHttpServletRequestBuilder as(Student s, MockHttpServletRequestBuilder b) {
         return b.header("Authorization", s.bearer()).with(r -> {
@@ -53,21 +51,7 @@ class ProjectSyncIntegrationTest extends IntegrationTest {
     }
 
     private Student student(boolean sync) throws Exception {
-        String email = uniqueEmail();
-        String key = randomKey(32);
-        String consents = sync ? "\"ACCOUNT\",\"PROJECT_SYNC\"" : "\"ACCOUNT\"";
-        mvc.perform(json(post("/api/v1/auth/register"), """
-                {"email":"%s","authKey":"%s","ageConfirmed":true,"consents":[%s],
-                 "keyBundle":{"kdfSalt":"%s","wrappedKeyPassword":"%s","wrappedKeyRecovery":"%s"}}
-                """.formatted(email, key, consents, randomKey(16), randomKey(60), randomKey(60))))
-                .andExpect(status().isAccepted());
-        mvc.perform(json(post("/api/v1/auth/verify-email"), "{\"token\":\"" + mail.lastToken(email) + "\"}"))
-                .andExpect(status().isOk());
-        String body = mvc.perform(json(post("/api/v1/auth/login"), "{\"email\":\"%s\",\"authKey\":\"%s\"}".formatted(email, key)))
-                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
-        String token = JsonPath.read(body, "$.accessToken");
-        UUID id = jdbc.sql("SELECT id FROM user_account WHERE email = :e").param("e", email).query(UUID.class).single();
-        return new Student(id, email, key, "Bearer " + token);
+        return sync ? signUp(ip, "\"ACCOUNT\"", "\"PROJECT_SYNC\"") : signUp(ip, "\"ACCOUNT\"");
     }
 
     /** What a device sends: a 12-byte nonce, then ciphertext and tag. Random bytes look the same to the server. */
