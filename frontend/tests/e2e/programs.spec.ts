@@ -115,6 +115,8 @@ test("Pizarra: shapes drawn on the whiteboard are kept", async ({ page }) => {
 test("Lienzo: painting is saved as layers and restored", async ({ page }) => {
   const { app, projectId } = await openNew(page, "lienzo");
   const canvas = app.locator("#canvas_minipaint");
+  // miniPaint opens in Spanish (apps/static/lienzo/es.js).
+  await expect(app.locator("#main_menu")).toContainText("Archivo", { timeout: 30_000 });
   await expect(canvas).toBeVisible({ timeout: 30_000 });
   await app.locator("#tools_container #brush").click();
   const box = (await canvas.boundingBox())!;
