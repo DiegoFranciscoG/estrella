@@ -54,15 +54,18 @@ Para comparar: el panel de ESTRELLA tiene como límite 300 KB.
 
 ## 4. Conversor: qué se puede prometer
 
-| Formato | Biblioteca | Expectativa | Estado |
+| Formato | Biblioteca | Qué hace Visor | Estado (2026-11-06) |
 |---|---|---|---|
-| DXF | MLightCAD | Abrir y ver | Probar en F4 |
-| DWG | LibreDWG (GPL-3.0) en módulo aparte | Abrir con pérdidas posibles; archivos grandes pueden agotar memoria | Probar en F4 |
-| PSD | ag-psd (MIT) | Capas y píxeles; efectos parciales | Probar en F4 |
-| PDF, SVG, PNG, JPG, WebP | PDF.js, navegador | Bien | Probar en F4 |
-| RAW | libraw-wasm (ISC) | Vista previa | Probar en F4 |
-| OBJ, STL, 3MF | three.js (MIT) | Ver | Probar en F4 |
-| IFC | web-ifc (MPL-2.0) | Ver | Probar en F4 |
-| AI | PDF.js | Solo si el archivo guarda una copia PDF | Probar en F4 |
-| SKP | Sin lector web comprobado | **No se promete** | Investigar |
-| INDD | Sin lector libre encontrado | **No se promete.** Aviso: pide un PDF o IDML | Mensaje honesto |
+| DXF | dxf-parser (MIT), lector de Plano | Ver y convertir a SVG o PNG; avisa qué elementos no dibuja | Probado (T-07) |
+| DWG R14–2018 | LibreDWG 0.7.5 (GPL-3.0) en un worker aparte | Ver, convertir a DXF, SVG o PNG. Tramas, cotas y textos especiales pueden variar | Probado con 7 archivos de ejemplo; e2e con uno real |
+| PSD / PSB | ag-psd 31.0.3 (MIT) | Imagen combinada y lista de capas; si falta la combinada, se rearma con aviso | Probado (T-07) |
+| PDF | PDF.js | Ver por páginas; página a PNG | Probado (T-07) |
+| PNG, JPG, WebP, GIF, AVIF, BMP | Navegador | Ver y convertir entre PNG, JPG y WebP | Probado (T-07) |
+| SVG | Navegador (dentro de `<img>`) | Ver sin ejecutar scripts ni cargar nada externo; a PNG | Probado (T-07) |
+| RAW de cámara | Código propio | Vista previa JPG incrustada; se descarga sin recomprimir | Probado con un RAW simulado; falta con fotos reales |
+| OBJ, STL, 3MF, PLY, glTF/GLB | three.js 0.186.1 (MIT) | Ver en 3D; convertir a GLB, OBJ, STL o captura PNG | OBJ y STL probados; 3MF, PLY y glTF sin archivo de prueba |
+| IFC | web-ifc 0.0.78 (MPL-2.0) | Ver en 3D y contar muros, losas, puertas, ventanas…; a GLB, OBJ o STL | Probado (T-07) |
+| AI | PDF.js | Solo si guarda copia PDF; si no, explica qué pedir | Detección probada |
+| SKP, RVT, 3DM, MAX, FBX, BLEND | Sin lector libre en la web | **No se promete.** Visor dice qué exportación pedir | Mensaje probado |
+| INDD, IDML, XD | Sin lector libre | **No se promete.** Pide PDF o IDML | Mensaje probado |
+| TIFF, HEIC | — | Todavía no; Visor lo dice | Pendiente |

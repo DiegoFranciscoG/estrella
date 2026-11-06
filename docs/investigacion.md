@@ -103,7 +103,53 @@ Etiquetas: **VERIFICADO** (fuente primaria leída o medición propia) · **SECUN
 | Folio | 334 KB | El worker de pdf.js se baja al abrir el primer PDF |
 | Pizarra | 430 KB | Las fuentes (14 MB en total) se bajan solo las que se usan |
 
-## 7. Conclusiones de diseño
+## 7. Hallazgos de la fase 4: Visor (2026-11-06)
+
+Regla de versiones: solo se instalan versiones publicadas hace al menos dos semanas, para no ser de los primeros en recibir un paquete comprometido. Fechas leídas del registro npm el 2026-11-06.
+
+| Biblioteca | Versión elegida | Más nueva | Licencia | Motivo |
+|---|---|---|---|---|
+| three.js | 0.186.1 (24-sep) | 0.187.0 (30-oct) | MIT | Regla de dos semanas |
+| ag-psd | 31.0.3 (07-oct) | 34.1.0 (28-oct) | MIT | Cuatro versiones mayores en una semana: se espera a que se estabilice |
+| web-ifc | 0.0.78 (21-sep) | la misma | MPL-2.0 | |
+| @mlightcad/libredwg-web | 0.7.5 (20-jun) | 0.8.4 (04-nov) | GPL-3.0 | Ver la prueba siguiente |
+
+**Prueba del lector de DWG** con los siete archivos de ejemplo del proyecto LibreDWG (versiones R14, 2000, 2004, 2007, 2010, 2013 y 2018; descargados solo para probar, no se guardan en el repositorio):
+
+| Versión del lector | Archivos que abre | Falla |
+|---|---|---|
+| 0.8.0, 0.8.1, 0.8.2 | 6 de 7 | DWG 2000: `memory access out of bounds` |
+| 0.7.10, 0.7.14 | 5 de 7 | R14 y 2000 |
+| 0.7.17 | — | Lee 2000 pero falla al dibujarlo |
+| **0.7.0 y 0.7.5** | **7 de 7** | — |
+
+Se eligió la 0.7.5. Antes de subir de versión, hay que repetir esta prueba.
+
+| Hallazgo | Cómo se detectó | Decisión |
+|---|---|---|
+| El lector de DWG trae su conversión a SVG y también a DXF (`dwg_write_dxf`), pero no lee DXF | Prueba en Node | DWG → SVG para ver y DWG → DXF para editar en Plano. DXF se lee con el lector de Plano |
+| El SVG que genera inserta los textos del plano sin escapar | Lectura de su código (`svgConverter.js`) | Se muestra siempre dentro de `<img>`: ahí un SVG no ejecuta código ni carga nada externo |
+| Las líneas de construcción infinitas (XLINE, RAY) inflan la extensión del plano y lo abren como un punto | Ejemplo 2018: extensión de 3,5 millones de unidades | El encuadre se calcula solo con la geometría finita (`cad-bounds.ts`) |
+| El código de Emscripten del lector usa `new Function`; la política de seguridad lo bloqueó en el navegador | Prueba de extremo a extremo: `EvalError` en el worker | `unsafe-eval` **solo** para ese worker, que no tiene página, almacenamiento ni red externa. Recompilarlo sin eso exigiría modificar y volver a publicar código GPL |
+| WebAssembly necesita `'wasm-unsafe-eval'` | Documentación de CSP (W3C) | Solo en `/apps/visor/` y en los workers; permite compilar wasm del propio sitio, no `eval()` |
+| El lector avisa del resultado por consola, no como valor de retorno | Prueba en Node | El worker lee ese aviso; desde 128 el archivo no se pudo leer (umbral crítico de LibreDWG) |
+| web-ifc con hilos exige aislamiento entre orígenes, que rompe los editores integrados | Documentación de web-ifc | Modo de un solo hilo |
+| Las fotos RAW guardan una vista previa JPG completa | Formatos TIFF/EP y DNG | Se extrae esa vista previa con código propio (sin biblioteca) en vez de revelar el sensor |
+| La auditoría de dependencias marcó 12 fallas conocidas (9 altas) en paquetes que trae Excalidraw: lodash-es, nanoid, katex | `npm audit` al instalar | Versiones parchadas forzadas con `overrides`; queda en 0 vulnerabilidades y Pizarra pasa sus pruebas |
+| El paquete publicado de Excalidraw (desde la fase 3) incrusta su llave web de Firebase para colaboración en vivo, que ESTRELLA no usa | gitleaks sobre la carpeta compilada | Se quita al compilar y la compilación falla si queda cualquier llave con ese patrón. El escaneo de gitleaks del repositorio no lo veía porque revisa el código, no lo compilado |
+
+### Peso de Visor (comprimido)
+
+| Parte | Cuándo se descarga | Peso |
+|---|---|---|
+| Visor | Al abrirlo | 12 KB |
+| PDF | Al abrir un PDF o AI | 128 KB más el worker |
+| PSD | Al abrir un PSD | 81 KB |
+| 3D | Al abrir OBJ, STL, 3MF, PLY o glTF | 178 KB |
+| IFC | Al abrir un IFC | 1,1 MB (3D + 364 KB + wasm 583 KB) |
+| DWG | Al abrir un DWG | 1,75 MB (worker 52 KB + wasm 1,7 MB) |
+
+## 8. Conclusiones de diseño
 
 - **La línea legal se mantiene:** cambiar el nombre no legaliza una copia. Código, interfaz, nombre e íconos propios, y programas libres con su licencia.
 - **"Todas las opciones de los 19 programas" no es alcanzable.** ESTRELLA debe decir qué hace cada herramienta y qué no.

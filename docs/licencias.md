@@ -37,7 +37,24 @@ Verificado el **2026-11-05**. El detalle de cada obligación debe revisarse cont
 
 En total se publican 265 paquetes, todos con licencias permitidas. El archivo `THIRD-PARTY-NOTICES.txt` se genera en cada compilación y queda enlazado desde la página de licencias.
 
-## 4. Controles obligatorios
+## 4. Lo que se agrega en la fase 4 (Visor)
+
+| Componente | Versión | Licencia | Cómo llega |
+|---|---|---|---|
+| three.js | 0.186.1 | MIT | npm, compilado aparte; se baja al abrir un modelo 3D |
+| ag-psd (y pako, base64-js) | 31.0.3 | MIT | npm; se baja al abrir un PSD |
+| web-ifc | 0.0.78 | MPL-2.0 | npm, sin modificar; su wasm se sirve con nombre versionado |
+| @mlightcad/libredwg-web (LibreDWG) | 0.7.5 | **GPL-3.0** | npm, sin modificar; solo dentro del worker de DWG |
+
+**Cómo se cumple la GPL del lector de DWG:**
+
+1. **Programa aparte:** corre en su propio Web Worker y Visor solo le pasa bytes y recibe un SVG o un DXF por mensajes. El worker completo (el envoltorio GPL más `cad-bounds.ts`, que es MIT y compatible) se distribuye bajo GPL-3.0. El resto de ESTRELLA sigue siendo MIT.
+2. **Licencia y fuente junto al binario:** `/apps/visor/licencias/` publica el texto de la GPL-3.0, el de la MPL-2.0 de web-ifc y `SOURCE.txt` con la versión, el hash del wasm, el tarball de npm y la etiqueta exacta del código fuente (v0.7.5, commit `5144ff4`).
+3. **Control T-02:** el script de licencias acepta GPL solo para paquetes de la lista `ISOLATED_GPL`, con el motivo escrito. Cualquier otro paquete GPL rompe la compilación (así detectó este).
+
+**Pendiente antes de publicar (SUPUESTO legal):** hoy la fuente se ofrece enlazando al repositorio del autor. La GPL-3.0 (sección 6) pide que la fuente siga disponible mientras se distribuya el binario; un enlace a un servidor ajeno puede desaparecer. Antes de "VOY A SUBIR", conviene guardar una copia del código fuente de esa etiqueta junto a la publicación (por ejemplo, como archivo de la versión en GitHub).
+
+## 5. Controles obligatorios
 
 - Lista permitida: MIT, ISC, BSD, Apache-2.0, MPL-2.0, LGPL, GPL (solo programas aislados).
 - Lista prohibida: BSL, SSPL, licencias "source available", licencias propias que exijan clave.
