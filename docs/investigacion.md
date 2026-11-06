@@ -149,7 +149,51 @@ Se eligió la 0.7.5. Antes de subir de versión, hay que repetir esta prueba.
 | IFC | Al abrir un IFC | 1,1 MB (3D + 364 KB + wasm 583 KB) |
 | DWG | Al abrir un DWG | 1,75 MB (worker 52 KB + wasm 1,7 MB) |
 
-## 8. Conclusiones de diseño
+## 8. Fase 5: guía de equivalencias (2026-11-06)
+
+**Regla:** cada ficha cita el manual oficial del programa libre, o la prueba automática del proyecto que demuestra que un programa de ESTRELLA hace esa tarea. La validación (`src/core/guide.ts`) rechaza fuentes fuera de los manuales oficiales, y una prueba unitaria comprueba que cada prueba citada existe.
+
+**Cómo se verificó:** se leyó el texto de cada página, no solo su código de respuesta. Dos sitios engañan a una verificación automática:
+- La wiki de FreeCAD responde 200 con una página antirobots; su contenido se leyó en un navegador.
+- La wiki de Scribus responde 404 aunque la página exista; se leyó el contenido igual.
+
+Los pasos de Lienzo y Plano se tomaron de su interfaz real (menús de miniPaint en español y botones de Plano).
+
+37 fichas: 20 de arquitectura y 17 de diseño gráfico. 22 manuales oficiales y 13 fichas respaldadas por pruebas.
+
+| Fuente oficial | URL | Fichas |
+|---|---|---|
+| LibreCAD — Tools (Modify: Trim) | https://docs.librecad.org/en/latest/ref/tools.html | recortar-lineas, sombreado |
+| LibreCAD — Using Blocks | https://docs.librecad.org/en/latest/guides/blocks.html | bloques |
+| LibreCAD — Completing and Printing | https://docs.librecad.org/en/latest/guides/completion.html | imprimir-a-escala |
+| Manual de Blender — Extrude Region | https://docs.blender.org/manual/en/latest/modeling/meshes/tools/extrude_region.html | extruir-cara |
+| FreeCAD Documentation — PartDesign Pad | https://wiki.freecad.org/PartDesign_Pad | solido-desde-croquis |
+| FreeCAD Documentation — Arch Wall | https://wiki.freecad.org/Arch_Wall | muros-bim |
+| FreeCAD Documentation — Arch IFC | https://wiki.freecad.org/Arch_IFC | editar-ifc |
+| Manual de Blender — Cycles | https://docs.blender.org/manual/es/latest/render/cycles/index.html | render-realista |
+| Manual de Blender — EEVEE | https://docs.blender.org/manual/es/latest/render/eevee/index.html | render-tiempo-real |
+| FreeCAD Documentation — Sketcher CreateBSpline | https://wiki.freecad.org/Sketcher_CreateBSpline | curvas-libres |
+| Blender Extensions — Sun Position | https://extensions.blender.org/add-ons/sun-position/ | asoleamiento |
+| miniPaint — Features | https://github.com/viliusle/miniPaint#features | recortar-imagen, cambiar-tamano |
+| Manual de GIMP 3.0 — Selección del primer plano | https://docs.gimp.org/3.0/es/gimp-tool-foreground-select.html | quitar-fondo |
+| Manual de GIMP 3.0 — Saneado | https://docs.gimp.org/3.0/es/gimp-tool-heal.html | corregir-manchas |
+| Manual de GIMP 3.0 — Curvas | https://docs.gimp.org/3.0/es/gimp-tool-curves.html | curvas-color |
+| Inkscape Beginners' Guide — The Pen Tool | https://inkscape-manuals.readthedocs.io/en/latest/pen-tool.html | pluma-vector |
+| Inkscape Beginners' Guide — Tracing an Image | https://inkscape-manuals.readthedocs.io/en/latest/tracing-an-image.html | vectorizar |
+| Scribus Wiki — Get Started With Scribus (6) | https://wiki.scribus.net/canvas/Get_Started_With_Scribus%3A6 | paginas-maestras |
+| Scribus Wiki — Get Started With Scribus (10): PDF for Press | https://wiki.scribus.net/canvas/Get_Started_With_Scribus%3A10 | pdf-imprenta |
+| darktable user manual — process | https://docs.darktable.org/usermanual/stable/en/overview/workflow/process/ | revelar-raw |
+| digiKam Manual — Captions View (Tags Tree) | https://docs.digikam.org/en/right_sidebar/captions_view.html | etiquetar-fotos |
+| Kdenlive Manual — Editing | https://docs.kdenlive.org/en/cutting_and_assembling/editing.html | cortar-video |
+
+| Hallazgo | Cómo se detectó | Decisión |
+|---|---|---|
+| miniPaint trae traducción al español y la elige con `?lang=es` | Lectura de su código y prueba en el navegador | Lienzo abre en español con un script previo (`apps/static/lienzo/es.js`). Algunos nombres de herramientas siguen en inglés y algunas traducciones son literales ("Abierto", "Rebautizar") |
+| docs.excalidraw.com ahora redirige a la página comercial de Excalidraw+ | Lectura de la página | Las fichas de Pizarra citan la prueba del proyecto, no esa página |
+| La guía de Scribus es de la versión 1.3 | Texto del tutorial | Las fichas lo avisan: los nombres del menú pueden variar |
+| **SUPUESTO:** los nombres en español de los menús de GIMP, Inkscape y Scribus | Los manuales consultados muestran los menús en inglés | Las fichas dan el nombre en inglés entre paréntesis cuando hay duda |
+
+## 9. Conclusiones de diseño
 
 - **La línea legal se mantiene:** cambiar el nombre no legaliza una copia. Código, interfaz, nombre e íconos propios, y programas libres con su licencia.
 - **"Todas las opciones de los 19 programas" no es alcanzable.** ESTRELLA debe decir qué hace cada herramienta y qué no.
