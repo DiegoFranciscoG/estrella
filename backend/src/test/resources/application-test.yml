@@ -1,0 +1,12 @@
+spring:
+  mail:
+    host: localhost
+    port: 2525
+
+app:
+  public-url: http://localhost:5173
+  cors-origins: http://localhost:5173
+  cookie-secure: true
+  cookie-same-site: Strict
+  mail-from: no-reply@example.com
+  storage-quota-bytes: 52428800

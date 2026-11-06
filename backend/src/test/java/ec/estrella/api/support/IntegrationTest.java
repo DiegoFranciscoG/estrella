@@ -1,0 +1,147 @@
+package ec.estrella.api.support;
+
+import ec.estrella.api.mail.MailService;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
+import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.postgresql.PostgreSQLContainer;
+
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+
+/** Boots the whole API against a real PostgreSQL in a container, with outgoing email recorded. */
+@SpringBootTest
+@Import(IntegrationTest.MailConfig.class)
+@ActiveProfiles("test")
+@Testcontainers
+public abstract class IntegrationTest {
+
+    @Container
+    @ServiceConnection
+    static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:18.6-alpine");
+
+    private static final SecureRandom RANDOM = new SecureRandom();
+
+    /** Secrets are generated per run so none is ever written in the repository. */
+    @DynamicPropertySource
+    static void runtimeProperties(DynamicPropertyRegistry registry) {
+        registry.add("app.jwt-secret", () -> randomKey(48));
+        // Placeholders only; the service connection supplies the real container credentials.
+        registry.add("spring.datasource.url", POSTGRES::getJdbcUrl);
+        registry.add("spring.datasource.username", POSTGRES::getUsername);
+        registry.add("spring.datasource.password", POSTGRES::getPassword);
+    }
+
+    @Autowired
+    protected WebApplicationContext context;
+
+    @Autowired
+    protected RecordingMailService mail;
+
+    @Autowired
+    protected JdbcClient jdbc;
+
+    protected MockMvc mvc;
+
+    @BeforeEach
+    void setUpMvc() {
+        mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+        mail.clear();
+    }
+
+    protected static String randomKey(int bytes) {
+        byte[] b = new byte[bytes];
+        RANDOM.nextBytes(b);
+        return Base64.getEncoder().encodeToString(b);
+    }
+
+    protected static String uniqueEmail() {
+        return "estudiante-" + System.nanoTime() + "@example.com";
+    }
+
+    @TestConfiguration
+    public static class MailConfig {
+        @Bean
+        @Primary
+        RecordingMailService recordingMailService() {
+            return new RecordingMailService();
+        }
+    }
+
+    /** Keeps the emails in memory so tests can follow the links, as a student would. */
+    public static class RecordingMailService implements MailService {
+
+        public record Sent(String kind, String to, String body) {
+        }
+
+        private static final Pattern TOKEN = Pattern.compile("token=([A-Za-z0-9_-]{43})");
+        private final List<Sent> sent = new ArrayList<>();
+
+        public synchronized void clear() {
+            sent.clear();
+        }
+
+        public synchronized List<Sent> sent() {
+            return List.copyOf(sent);
+        }
+
+        public synchronized String lastToken(String to) {
+            for (int i = sent.size() - 1; i >= 0; i--) {
+                Sent s = sent.get(i);
+                Matcher m = TOKEN.matcher(s.body());
+                if (s.to().equals(to) && m.find()) {
+                    return m.group(1);
+                }
+            }
+            throw new AssertionError("No email with a token was sent to " + to);
+        }
+
+        private synchronized void add(String kind, String to, String body) {
+            sent.add(new Sent(kind, to, body));
+        }
+
+        @Override
+        public void sendVerification(String to, String link) {
+            add("verification", to, link);
+        }
+
+        @Override
+        public void sendAlreadyRegistered(String to, String loginLink) {
+            add("already-registered", to, loginLink);
+        }
+
+        @Override
+        public void sendNewSession(String to, String device) {
+            add("new-session", to, device);
+        }
+
+        @Override
+        public void sendPasswordReset(String to, String link) {
+            add("password-reset", to, link);
+        }
+
+        @Override
+        public void sendAccountDeleted(String to) {
+            add("deleted", to, "");
+        }
+    }
+}
