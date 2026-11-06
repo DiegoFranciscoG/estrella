@@ -22,8 +22,6 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -32,12 +30,19 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 @SpringBootTest
 @Import(IntegrationTest.MailConfig.class)
 @ActiveProfiles("test")
-@Testcontainers
 public abstract class IntegrationTest {
 
-    @Container
+    /**
+     * One database for the whole run. Spring caches the application context across test classes,
+     * so a per-class container would leave the cached context pointing at a stopped database.
+     * Testcontainers' Ryuk removes it when the JVM ends.
+     */
     @ServiceConnection
     static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:18.6-alpine");
+
+    static {
+        POSTGRES.start();
+    }
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
