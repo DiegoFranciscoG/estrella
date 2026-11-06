@@ -26,6 +26,7 @@ export function header(): HTMLElement {
   return h("header", { class: "topbar" },
     h("a", { class: "brand", href: "#/" }, starIcon(22, true), h("span", {}, "ESTRELLA")),
     h("nav", { class: "topnav", "aria-label": "Principal" },
+      h("a", { class: "ghost", href: "#/guia" }, "Guía"),
       themeButton,
       user ? h("a", { class: "ghost", href: "#/cuenta" }, "Mi cuenta") : null,
       user ? h("button", { class: "ghost", type: "button", onclick: () => { void logout().then(() => (location.hash = "#/ingresar")); } }, "Salir") : null,

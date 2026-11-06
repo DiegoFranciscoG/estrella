@@ -221,3 +221,24 @@ legend { font-weight: 700; padding: 0 6px; }
 table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
 th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
 .prose { max-width: 70ch; }
+
+/* Guide */
+.guide { max-width: 980px; }
+.guide .lead { max-width: 70ch; }
+.guide-filters { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr); gap: 12px; align-items: end; }
+.guide-filters .field { margin-bottom: 0; }
+.guide-list { list-style: none; padding: 0; margin: 8px 0 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); gap: 16px; }
+.guide-card { margin: 0; height: 100%; display: flex; flex-direction: column; gap: 6px; }
+.guide-card h2 { font-size: 1.1rem; margin: 0; }
+.guide-card p { margin: 0; }
+.guide-area { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; }
+.guide-from { color: var(--muted); }
+.guide-tool { display: flex; flex-wrap: wrap; gap: 6px; align-items: baseline; }
+.guide-steps { margin: 4px 0; padding-left: 1.3rem; }
+.guide-steps li { margin: 2px 0; }
+.guide-limits { border-left: 3px solid var(--strong-line); padding-left: 8px; }
+.guide-source { font-size: 0.85rem; color: var(--muted); margin-top: auto !important; overflow-wrap: anywhere; }
+.guide-source code { font-size: 0.8rem; }
+@media (max-width: 760px) {
+  .guide-filters { grid-template-columns: 1fr; }
+}

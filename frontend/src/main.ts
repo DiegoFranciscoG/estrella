@@ -5,13 +5,14 @@ import { header, liteActive, page } from "./ui/shell";
 import { starSpinner } from "./ui/star";
 import { applyTheme } from "./ui/theme";
 import { accountView } from "./ui/views/account";
+import { guideView } from "./ui/views/guide";
 import { forgotView, loginView, registerView, resetView, verifyView } from "./ui/views/auth";
 import { licensesView, privacyView } from "./ui/views/legal";
 import { panelView } from "./ui/views/panel";
 import { programView } from "./ui/views/program";
 
 const root = document.getElementById("root")!;
-const PUBLIC = new Set(["ingresar", "registro", "verificar", "olvide", "restablecer", "licencias", "privacidad"]);
+const PUBLIC = new Set(["ingresar", "registro", "verificar", "olvide", "restablecer", "licencias", "privacidad", "guia"]);
 
 function parseHash(): { route: string; param: string | null; query: URLSearchParams } {
   const raw = location.hash.replace(/^#\/?/, "");
@@ -39,6 +40,7 @@ function render(): void {
     case "restablecer": main = resetView(query.get("token")); break;
     case "licencias": main = licensesView(); break;
     case "privacidad": main = privacyView(); break;
+    case "guia": main = guideView(query); break;
     case "cuenta": main = accountView(); break;
     case "p": main = param && /^[0-9a-f-]{36}$/i.test(param) ? programView(param) : notFound(); break;
     case "": main = panelView(); break;
