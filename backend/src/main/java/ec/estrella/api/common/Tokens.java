@@ -21,8 +21,12 @@ public final class Tokens {
     }
 
     public static byte[] sha256(String value) {
+        return sha256(value.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public static byte[] sha256(byte[] value) {
         try {
-            return MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8));
+            return MessageDigest.getInstance("SHA-256").digest(value);
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException(e);
         }

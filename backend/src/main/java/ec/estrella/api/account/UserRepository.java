@@ -85,6 +85,35 @@ public class UserRepository {
                 .optional();
     }
 
+    /**
+     * Adds stored bytes (or frees them, with a negative delta). False, and nothing changes, if it
+     * would go over the account's quota.
+     */
+    public boolean addStorage(UUID id, long delta) {
+        return jdbc.sql("""
+                UPDATE user_account SET storage_used_bytes = storage_used_bytes + :delta
+                 WHERE id = :id AND storage_used_bytes + :delta BETWEEN 0 AND storage_quota_bytes
+                """)
+                .param("delta", delta)
+                .param("id", id)
+                .update() == 1;
+    }
+
+    public void setStorageUsed(UUID id, long bytes) {
+        jdbc.sql("UPDATE user_account SET storage_used_bytes = :bytes WHERE id = :id")
+                .param("bytes", bytes)
+                .param("id", id)
+                .update();
+    }
+
+    public UUID syncEpoch(UUID id) {
+        return jdbc.sql("SELECT sync_epoch FROM user_account WHERE id = :id").param("id", id).query(UUID.class).single();
+    }
+
+    public void renewSyncEpoch(UUID id) {
+        jdbc.sql("UPDATE user_account SET sync_epoch = gen_random_uuid() WHERE id = :id").param("id", id).update();
+    }
+
     public boolean delete(UUID id) {
         return jdbc.sql("DELETE FROM user_account WHERE id = :id").param("id", id).update() == 1;
     }

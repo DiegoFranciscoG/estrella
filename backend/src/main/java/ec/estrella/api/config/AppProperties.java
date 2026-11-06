@@ -1,5 +1,8 @@
 package ec.estrella.api.config;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -23,5 +26,17 @@ public record AppProperties(
         @NotBlank String mailFrom,
         @Positive long storageQuotaBytes,
         @NotBlank String privacyNoticeVersion,
-        @NotNull Duration unverifiedAccountRetention) {
+        @NotNull Duration unverifiedAccountRetention,
+        @NotNull @Valid Sync sync) {
+
+    /**
+     * Limits of encrypted project sync. They keep a free database (Neon: 0.5 GB per project) usable
+     * by many students and bound what one account can make the server store or process.
+     */
+    public record Sync(
+            @Min(1024) @Max(64L * 1024 * 1024) long maxVersionBytes,
+            @Min(1) @Max(50) int versionsKept,
+            @Min(1) @Max(10_000) int maxProjects,
+            @Min(1) @Max(1_000) int uploadsPerMinute) {
+    }
 }

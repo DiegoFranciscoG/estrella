@@ -6,6 +6,7 @@ import ec.estrella.api.account.UserRecord;
 import ec.estrella.api.account.UserRepository;
 import ec.estrella.api.auth.EmailTokenRepository.Purpose;
 import ec.estrella.api.auth.dto.AuthDtos.KeyBundle;
+import ec.estrella.api.project.ProjectService;
 import ec.estrella.api.auth.dto.AuthDtos.LoginKeys;
 import ec.estrella.api.auth.dto.AuthDtos.RegisterRequest;
 import ec.estrella.api.auth.dto.AuthDtos.ResetBundleResponse;
@@ -58,11 +59,13 @@ public class AuthService {
     private final AppProperties properties;
     private final Clock clock;
     private final String dummyHash;
+    private final ProjectService projects;
 
     public AuthService(UserRepository users, ConsentRepository consents, EmailTokenRepository emailTokens,
                        TokenService tokens, PasswordEncoder encoder, MailService mail, AttemptLimiter limiter,
-                       AppProperties properties, Clock clock) {
+                       AppProperties properties, Clock clock, ProjectService projects) {
         this.users = users;
+        this.projects = projects;
         this.consents = consents;
         this.emailTokens = emailTokens;
         this.tokens = tokens;
@@ -198,7 +201,10 @@ public class AuthService {
         users.updateCredentials(user.id(), encoder.encode(request.authKey()), decode(bundle.kdfSalt()),
                 decode(bundle.wrappedKeyPassword()), decode(bundle.wrappedKeyRecovery()));
         tokens.revokeAll(user.id());
-        // discardEncryptedData: synced projects (phase 6) are deleted because nobody can decrypt them anymore.
+        if (request.discardEncryptedData()) {
+            // Without the recovery code the device made a new key: nobody can decrypt the old copies anymore.
+            projects.deleteAll(user.id());
+        }
     }
 
     private UserRecord userForResetToken(String token) {

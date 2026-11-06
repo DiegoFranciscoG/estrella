@@ -14,6 +14,7 @@ import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -32,7 +33,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ApiException.class)
     ProblemDetail handleApi(ApiException e) {
-        return problem(e.status(), e.code(), e.getMessage());
+        ProblemDetail p = problem(e.status(), e.code(), e.getMessage());
+        e.properties().forEach(p::setProperty);
+        return p;
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -45,7 +48,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({HttpMessageNotReadableException.class, MissingRequestHeaderException.class,
             MissingRequestCookieException.class, MissingServletRequestPartException.class,
-            HandlerMethodValidationException.class, ConstraintViolationException.class})
+            HandlerMethodValidationException.class, ConstraintViolationException.class,
+            MethodArgumentTypeMismatchException.class})
     ProblemDetail handleBadRequest(Exception e) {
         return problem(HttpStatus.BAD_REQUEST, "BAD_REQUEST", "Solicitud mal formada");
     }

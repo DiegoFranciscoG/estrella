@@ -38,6 +38,9 @@ public class AccountController {
     public record ThanksResponse(List<String> programs) {
     }
 
+    public record RevokeResponse(int deletedProjects) {
+    }
+
     private final AccountService accounts;
 
     public AccountController(AccountService accounts) {
@@ -85,6 +88,22 @@ public class AccountController {
     void markThanks(@AuthenticationPrincipal Jwt jwt,
                     @PathVariable @Pattern(regexp = "^[a-z0-9-]{1,40}$") String programId) {
         accounts.markThanksSeen(userId(jwt), programId);
+    }
+
+    @PutMapping("/consents/{purpose}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void grant(@AuthenticationPrincipal Jwt jwt, @PathVariable Consent purpose) {
+        accounts.grant(userId(jwt), purpose);
+    }
+
+    @DeleteMapping("/consents/{purpose}")
+    RevokeResponse revoke(@AuthenticationPrincipal Jwt jwt, @PathVariable Consent purpose) {
+        return new RevokeResponse(accounts.revoke(userId(jwt), purpose));
+    }
+
+    @GetMapping("/export")
+    ResponseEntity<AccountService.Export> export(@AuthenticationPrincipal Jwt jwt) {
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(accounts.export(userId(jwt)));
     }
 
     @PostMapping("/delete")

@@ -57,7 +57,10 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(properties.corsOrigins());
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Estrella-Client"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Estrella-Client", "If-Match", "If-None-Match",
+                "X-Content-SHA256"));
+        // Sync reads the version and integrity of downloaded content from these response headers.
+        config.setExposedHeaders(List.of("ETag", "X-Content-SHA256"));
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
