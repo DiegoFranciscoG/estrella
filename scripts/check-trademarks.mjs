@@ -11,6 +11,7 @@ const BRANDS = [
 // Descriptive (nominative) use is legitimate only in these places.
 const ALLOWED = [
   "frontend/src/data/programas.json",
+  "frontend/src/data/guia.json",
   "docs/",
   "scripts/check-trademarks.mjs",
   // Third-party program files (provenance in SOURCE.txt): their own text, not ESTRELLA's.

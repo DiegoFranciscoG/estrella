@@ -1,0 +1,1191 @@
+{
+  "consulted": "2026-11-06",
+  "tools": {
+    "librecad": {
+      "name": "LibreCAD",
+      "where": "escritorio",
+      "site": "https://librecad.org/"
+    },
+    "freecad": {
+      "name": "FreeCAD",
+      "where": "escritorio",
+      "site": "https://www.freecad.org/"
+    },
+    "blender": {
+      "name": "Blender",
+      "where": "escritorio",
+      "site": "https://www.blender.org/"
+    },
+    "gimp": {
+      "name": "GIMP",
+      "where": "escritorio",
+      "site": "https://www.gimp.org/"
+    },
+    "inkscape": {
+      "name": "Inkscape",
+      "where": "escritorio",
+      "site": "https://inkscape.org/"
+    },
+    "scribus": {
+      "name": "Scribus",
+      "where": "escritorio",
+      "site": "https://www.scribus.net/"
+    },
+    "darktable": {
+      "name": "darktable",
+      "where": "escritorio",
+      "site": "https://www.darktable.org/"
+    },
+    "digikam": {
+      "name": "digiKam",
+      "where": "escritorio",
+      "site": "https://www.digikam.org/"
+    },
+    "kdenlive": {
+      "name": "Kdenlive",
+      "where": "escritorio",
+      "site": "https://kdenlive.org/"
+    }
+  },
+  "cards": [
+    {
+      "id": "linea-con-medida",
+      "area": "arquitectura",
+      "task": "Dibujar una línea con una longitud exacta",
+      "keywords": [
+        "line",
+        "línea",
+        "longitud",
+        "medida",
+        "distancia",
+        "orto"
+      ],
+      "from": [
+        {
+          "program": "AutoCAD",
+          "term": "comando LINE con longitud escrita"
+        }
+      ],
+      "tool": "plano",
+      "steps": [
+        "Abre Plano y elige Línea (tecla L).",
+        "Haz clic donde empieza la línea.",
+        "Apunta con el cursor hacia donde debe ir, escribe la longitud en milímetros en la casilla de medida y pulsa Enter.",
+        "Para que quede horizontal o vertical, activa Orto (F8) o mantén Mayús mientras apuntas."
+      ],
+      "source": {
+        "kind": "test",
+        "file": "frontend/tests/e2e/programs.spec.ts",
+        "test": "Plano: draws with clicks and typed measures, exports DXF, survives a lost tab"
+      }
+    },
+    {
+      "id": "rectangulo-con-medidas",
+      "area": "arquitectura",
+      "task": "Dibujar un rectángulo con ancho y alto exactos",
+      "keywords": [
+        "rectang",
+        "rectángulo",
+        "ancho",
+        "alto",
+        "habitación",
+        "medidas"
+      ],
+      "from": [
+        {
+          "program": "AutoCAD",
+          "term": "comando RECTANG con dimensiones"
+        }
+      ],
+      "tool": "plano",
+      "steps": [
+        "En Plano elige Rectángulo (tecla R).",
+        "Haz clic en la primera esquina.",
+        "Escribe ancho y alto separados por coma, por ejemplo 300,200, y pulsa Enter."
+      ],
+      "source": {
+        "kind": "test",
+        "file": "frontend/tests/e2e/programs.spec.ts",
+        "test": "Plano: draws with clicks and typed measures, exports DXF, survives a lost tab"
+      }
+    },
+    {
+      "id": "circulo-con-radio",
+      "area": "arquitectura",
+      "task": "Dibujar un círculo con un radio exacto",
+      "keywords": [
+        "circle",
+        "círculo",
+        "radio",
+        "columna"
+      ],
+      "from": [
+        {
+          "program": "AutoCAD",
+          "term": "comando CIRCLE"
+        }
+      ],
+      "tool": "plano",
+      "steps": [
+        "En Plano elige Círculo (tecla C).",
+        "Haz clic en el centro.",
+        "Escribe el radio en milímetros y pulsa Enter."
+      ],
+      "source": {
+        "kind": "test",
+        "file": "frontend/tests/e2e/programs.spec.ts",
+        "test": "Plano: draws with clicks and typed measures, exports DXF, survives a lost tab"
+      }
+    },
+    {
+      "id": "capas",
+      "area": "arquitectura",
+      "task": "Ordenar el dibujo en capas (muros, mobiliario, cotas)",
+      "keywords": [
+        "layer",
+        "capas",
+        "ocultar",
+        "bloquear",
+        "organizar"
+      ],
+      "from": [
+        {
+          "program": "AutoCAD",
+          "term": "administrador de capas (LAYER)"
+        }
+      ],
+      "tool": "plano",
+      "steps": [
+        "En el panel Capas de Plano, pulsa Nueva capa; haz doble clic en su nombre para cambiarlo.",
+        "Haz clic en una capa para dibujar en ella: lo nuevo queda ahí.",
+        "Usa Ver para ocultarla y Fija para que no se pueda mover ni borrar."
+      ],
+      "limits": "Las capas no tienen color ni grosor de línea propios todavía.",
+      "source": {
+        "kind": "test",
+        "file": "frontend/tests/unit/plano.test.ts",
+        "test": "writes millimetre units, escapes text and skips hidden layers"
+      }
+    },
+    {
+      "id": "cotas",
+      "area": "arquitectura",
+      "task": "Acotar una distancia",
+      "keywords": [
+        "dim",
+        "dimlinear",
+        "cota",
+        "acotar",
+        "medir"
+      ],
+      "from": [
+        {
+          "program": "AutoCAD",
+          "term": "cota lineal (DIMLINEAR)"
+        }
+      ],
+      "tool": "plano",
+      "steps": [
+        "En Plano elige Cota (tecla D).",
+        "Haz clic en el primer punto y en el segundo; con Imán (tecla S) se pegan a extremos, puntos medios y centros.",
+        "Haz un tercer clic a la distancia a la que quieres que quede la línea de cota."
+      ],
+      "limits": "Solo cotas alineadas entre dos puntos; no hay cotas de ángulo ni de radio.",
+      "source": {
+        "kind": "test",
+        "file": "frontend/tests/unit/plano.test.ts",
+        "test": "measures dimensions and formats lengths without noise"
+      }
+    },
+    {
+      "id": "abrir-dwg",
+      "area": "arquitectura",
+      "task": "Abrir un plano DWG que te mandaron",
+      "keywords": [
+        "dwg",
+        "abrir",
+        "plano",
+        "convertir",
+        "dxf",
+        "archivo"
+      ],
+      "from": [
+        {
+          "program": "AutoCAD",
+          "term": "archivo DWG"
+        }
+      ],
+      "tool": "visor",
+      "steps": [
+        "Abre Visor y pulsa Abrir archivo (o arrastra el DWG).",
+        "Revisa el plano y sus capas; el archivo no sale de tu equipo.",
+        "Para editarlo, elige Descargar como DXF y ábrelo en Plano con Importar DXF."
+      ],
+      "limits": "Lee DWG de 1998 a 2018. Tramas, tipos de línea, cotas y textos especiales pueden verse distintos.",
+      "source": {
+        "kind": "test",
+        "file": "frontend/tests/e2e/visor.spec.ts",
+        "test": "Visor: opens a real DWG and converts it to DXF"
+      }
+    },
+    {
+      "id": "recortar-lineas",
+      "area": "arquitectura",
+      "task": "Recortar líneas que se pasan de una intersección",
+      "keywords": [
+        "trim",
+        "recortar",
+        "cortar",
+        "sobrante",
+        "intersección"
+      ],
+      "from": [
+        {
+          "program": "AutoCAD",
+          "term": "comando TRIM"
+        }
+      ],
+      "tool": "librecad",
+      "steps": [
+        "Abre el DXF en LibreCAD (puedes obtenerlo de Plano o de Visor).",
+        "Activa Recortar (Trim): atajo tm en la línea de comandos.",
+        "Haz clic primero en la línea que sirve de límite y luego en el tramo que quieres quitar."
+      ],
+      "source": {
+        "kind": "official",
+        "title": "LibreCAD — Tools (Modify: Trim)",
+        "url": "https://docs.librecad.org/en/latest/ref/tools.html"
+      }
+    },
+    {
+      "id": "bloques",
+      "area": "arquitectura",
+      "task": "Guardar un objeto como bloque para reutilizarlo (puertas, muebles)",
+      "keywords": [
+        "block",
+        "insert",
+        "bloque",
+        "símbolo",
+        "puerta",
+        "mueble",
+        "reutilizar"
+      ],
+      "from": [
+        {
+          "program": "AutoCAD",
+          "term": "bloques (BLOCK / INSERT)"
+        }
+      ],
+      "tool": "librecad",
+      "steps": [
+        "Dibuja el objeto con todas sus partes en la capa 0.",
+        "Selecciona todas las partes y pulsa el ícono Crear bloque (Create Block).",
+        "Marca el punto de referencia con el que se insertará.",
+        "Escribe un nombre único y pulsa OK: el bloque aparece en la lista de bloques para insertarlo cuantas veces quieras."
+      ],
+      "source": {
+        "kind": "official",
+        "title": "LibreCAD — Using Blocks",
+        "url": "https://docs.librecad.org/en/latest/guides/blocks.html"
+      }
+    },
+    {
+      "id": "sombreado",
+      "area": "arquitectura",
+      "task": "Rellenar un área con un sombreado o trama",
+      "keywords": [
+        "hatch",
+        "sombreado",
+        "trama",
+        "relleno",
+        "achurado"
+      ],
+      "from": [
+        {
+          "program": "AutoCAD",
+          "term": "comando HATCH"
+        }
+      ],
+      "tool": "librecad",
+      "steps": [
+        "Asegúrate de que el contorno esté cerrado (polilínea, círculo, polígono).",
+        "Activa Sombreado (Hatch): atajo ha.",
+        "Selecciona el contorno, elige el patrón o relleno sólido y ajusta escala y ángulo."
+      ],
+      "source": {
+        "kind": "official",
+        "title": "LibreCAD — Tools (Hatch)",
+        "url": "https://docs.librecad.org/en/latest/ref/tools.html"
+      }
+    },
+    {
+      "id": "imprimir-a-escala",
+      "area": "arquitectura",
+      "task": "Imprimir o sacar a PDF un plano a escala con rótulo",
+      "keywords": [
+        "plot",
+        "imprimir",
+        "escala",
+        "lámina",
+        "rótulo",
+        "formato",
+        "pdf"
+      ],
+      "from": [
+        {
+          "program": "AutoCAD",
+          "term": "trazar (PLOT) a escala"
+        }
+      ],
+      "tool": "librecad",
+      "steps": [
+        "Define tamaño de hoja y escala del dibujo, y agrega el marco y el rótulo.",
+        "Abre Archivo → Vista previa de impresión (Print Preview) y revisa cómo cae en la hoja.",
+        "Imprime con Ctrl+P, o elige una impresora PDF para obtener la lámina en PDF."
+      ],
+      "source": {
+        "kind": "official",
+        "title": "LibreCAD — Completing and Printing",
+        "url": "https://docs.librecad.org/en/latest/guides/completion.html"
+      }
+    },
+    {
+      "id": "extruir-cara",
+      "area": "arquitectura",
+      "task": "Levantar volumen desde una cara (empujar y tirar)",
+      "keywords": [
+        "push",
+        "pull",
+        "empujar",
+        "tirar",
+        "extruir",
+        "volumen",
+        "maqueta"
+      ],
+      "from": [
+        {
+          "program": "SketchUp",
+          "term": "Empujar/Tirar"
+        },
+        {
+          "program": "3ds Max",
+          "term": "extruir polígono"
+        }
+      ],
+      "tool": "blender",
+      "steps": [
+        "Selecciona el objeto y entra en modo Edición (Tab).",
+        "Selecciona la cara que quieres levantar.",
+        "Pulsa E (Extruir región), mueve el ratón o escribe la distancia y confirma con Enter."
+      ],
+      "source": {
+        "kind": "official",
+        "title": "Manual de Blender — Extrude Region",
+        "url": "https://docs.blender.org/manual/en/latest/modeling/meshes/tools/extrude_region.html"
+      }
+    },
+    {
+      "id": "solido-desde-croquis",
+      "area": "arquitectura",
+      "task": "Crear un sólido paramétrico desde un croquis con medidas",
+      "keywords": [
+        "pad",
+        "extrusión",
+        "croquis",
+        "sketch",
+        "paramétrico",
+        "familia"
+      ],
+      "from": [
+        {
+          "program": "Revit",
+          "term": "extrusión en el editor de familias"
+        },
+        {
+          "program": "Rhino",
+          "term": "ExtrudeCrv"
+        }
+      ],
+      "tool": "freecad",
+      "steps": [
+        "En el banco Part Design, dibuja un croquis cerrado con sus restricciones de medida.",
+        "Selecciona el croquis y elige Part Design → Additive Features → Pad.",
+        "Escribe la longitud en el panel y pulsa OK. Si cambias el croquis, el sólido se actualiza."
+      ],
+      "source": {
+        "kind": "official",
+        "title": "FreeCAD Documentation — PartDesign Pad",
+        "url": "https://wiki.freecad.org/PartDesign_Pad"
+      }
+    },
+    {
+      "id": "muros-bim",
+      "area": "arquitectura",
+      "task": "Dibujar muros con espesor y altura (BIM)",
+      "keywords": [
+        "wall",
+        "muro",
+        "pared",
+        "bim",
+        "espesor",
+        "altura"
+      ],
+      "from": [
+        {
+          "program": "Revit",
+          "term": "herramienta Muro"
+        }
+      ],
+      "tool": "freecad",
+      "steps": [
+        "Activa el banco de trabajo BIM.",
+        "Elige 3D/BIM → Wall (atajo W y luego A).",
+        "Haz clic en el punto inicial y en el final, o escribe las coordenadas; ajusta ancho y altura en el panel."
+      ],
+      "source": {
+        "kind": "official",
+        "title": "FreeCAD Documentation — Arch Wall",
+        "url": "https://wiki.freecad.org/Arch_Wall"
+      }
+    },
+    {
+      "id": "ver-ifc",
+      "area": "arquitectura",
+      "task": "Revisar un modelo IFC: muros, losas, puertas y ventanas",
+      "keywords": [
+        "ifc",
+        "bim",
+        "modelo",
+        "revisar",
+        "edificio",
+        "3d"
+      ],
+      "from": [
+        {
+          "program": "Revit",
+          "term": "modelo exportado a IFC"
+        }
+      ],
+      "tool": "visor",
+      "steps": [
+        "Abre Visor y elige el archivo .ifc.",
+        "Gira el modelo arrastrando; la rueda acerca y Encuadrar lo centra.",
+        "A la derecha ves cuántos muros, losas, puertas y ventanas tiene. Puedes descargarlo como GLB, OBJ o STL."
+      ],
+      "limits": "Solo para ver y convertir; para editar el modelo usa FreeCAD.",
+      "source": {
+        "kind": "test",
+        "file": "frontend/tests/e2e/visor.spec.ts",
+        "test": "Visor: shows 3D models and a building model, exports them, and keeps the file after a lost tab"
+      }
+    },
+    {
+      "id": "editar-ifc",
+      "area": "arquitectura",
+      "task": "Abrir y editar un modelo IFC",
+      "keywords": [
+        "ifc",
+        "bim",
+        "editar",
+        "importar",
+        "exportar"
+      ],
+      "from": [
+        {
+          "program": "Revit",
+          "term": "importar y exportar IFC"
+        }
+      ],
+      "tool": "freecad",
+      "steps": [
+        "Comprueba que FreeCAD tenga IfcOpenShell: en la consola de Python escribe import ifcopenshell; si no aparece error, está listo.",
+        "Abre el .ifc con Archivo → Abrir.",
+        "Edita con el banco BIM y exporta de nuevo a IFC."
+      ],
+      "source": {
+        "kind": "official",
+        "title": "FreeCAD Documentation — Arch IFC",
+        "url": "https://wiki.freecad.org/Arch_IFC"
+      }
+    },
+    {
+      "id": "render-realista",
+      "area": "arquitectura",
+      "task": "Hacer un render fotorrealista",
+      "keywords": [
+        "render",
+        "fotorrealista",
+        "iluminación",
+        "materiales",
+        "imagen final"
+      ],
+      "from": [
+        {
+          "program": "V-Ray",
+          "term": "render"
+        },
+        {
+          "program": "3ds Max",
+          "term": "render"
+        }
+      ],
+      "tool": "blender",
+      "steps": [
+        "Importa el modelo (OBJ, glTF o IFC convertido en Visor).",
+        "En Propiedades de render, elige el motor Cycles.",
+        "Asigna materiales y luces, y pulsa F12 para renderizar."
+      ],
+      "limits": "Los materiales de otros motores de render no se traen: hay que rehacerlos. En equipos sin tarjeta gráfica, Cycles es lento.",
+      "source": {
+        "kind": "official",
+        "title": "Manual de Blender — Cycles",
+        "url": "https://docs.blender.org/manual/es/latest/render/cycles/index.html"
+      }
+    },
+    {
+      "id": "render-tiempo-real",
+      "area": "arquitectura",
+      "task": "Ver el proyecto renderizado en tiempo real",
+      "keywords": [
+        "tiempo real",
+        "recorrido",
+        "vista previa",
+        "render rápido",
+        "eevee"
+      ],
+      "from": [
+        {
+          "program": "Enscape",
+          "term": "render en tiempo real"
+        }
+      ],
+      "tool": "blender",
+      "steps": [
+        "En Propiedades de render, elige el motor EEVEE.",
+        "En la vista 3D, cambia el sombreado a Render (tecla Z) para ver luces y materiales mientras te mueves."
+      ],
+      "limits": "No hay sincronía en vivo con un modelo BIM: hay que reimportar si cambia.",
+      "source": {
+        "kind": "official",
+        "title": "Manual de Blender — EEVEE",
+        "url": "https://docs.blender.org/manual/es/latest/render/eevee/index.html"
+      }
+    },
+    {
+      "id": "curvas-libres",
+      "area": "arquitectura",
+      "task": "Dibujar curvas libres precisas (B-spline)",
+      "keywords": [
+        "nurbs",
+        "curva",
+        "spline",
+        "bspline",
+        "forma libre"
+      ],
+      "from": [
+        {
+          "program": "Rhino",
+          "term": "curvas NURBS"
+        }
+      ],
+      "tool": "freecad",
+      "steps": [
+        "Abre un croquis (Sketcher).",
+        "Elige Sketch → Geometries → B-Spline, o pulsa G, luego B y B.",
+        "Haz clic para los puntos de control y cierra o termina la curva."
+      ],
+      "limits": "Para superficies libres complejas no hay un equivalente completo en programas libres.",
+      "source": {
+        "kind": "official",
+        "title": "FreeCAD Documentation — Sketcher CreateBSpline",
+        "url": "https://wiki.freecad.org/Sketcher_CreateBSpline"
+      }
+    },
+    {
+      "id": "asoleamiento",
+      "area": "arquitectura",
+      "task": "Estudiar sol y sombras por fecha y hora",
+      "keywords": [
+        "sol",
+        "sombra",
+        "asoleamiento",
+        "orientación",
+        "hora"
+      ],
+      "from": [
+        {
+          "program": "Autodesk Forma",
+          "term": "análisis de sol y sombras"
+        }
+      ],
+      "tool": "blender",
+      "steps": [
+        "Instala la extensión Sun Position desde Editar → Preferencias → Obtener extensiones (Get Extensions).",
+        "Indica la ubicación, la fecha y la hora.",
+        "Mueve la hora para ver cómo cambian las sombras sobre el modelo."
+      ],
+      "limits": "Muestra sombras, no calcula energía, viento ni confort.",
+      "source": {
+        "kind": "official",
+        "title": "Blender Extensions — Sun Position",
+        "url": "https://extensions.blender.org/add-ons/sun-position/"
+      }
+    },
+    {
+      "id": "pizarra-ideas",
+      "area": "arquitectura",
+      "task": "Esquematizar ideas en una pizarra: cajas, flechas y notas",
+      "keywords": [
+        "pizarra",
+        "diagrama",
+        "lluvia de ideas",
+        "esquema",
+        "flechas",
+        "mapa"
+      ],
+      "from": [
+        {
+          "program": "Miro",
+          "term": "pizarra"
+        }
+      ],
+      "tool": "pizarra",
+      "steps": [
+        "Abre Pizarra y elige rectángulo, elipse, flecha o texto en la barra superior.",
+        "Dibuja y escribe; las flechas se pegan a las formas.",
+        "Se guarda sola en tu proyecto; desde el menú puedes exportar a PNG o SVG."
+      ],
+      "limits": "No hay colaboración en vivo con otras personas.",
+      "source": {
+        "kind": "test",
+        "file": "frontend/tests/e2e/programs.spec.ts",
+        "test": "Pizarra: shapes drawn on the whiteboard are kept"
+      }
+    },
+    {
+      "id": "recortar-imagen",
+      "area": "diseno",
+      "task": "Recortar una imagen",
+      "keywords": [
+        "crop",
+        "recortar",
+        "encuadre",
+        "imagen"
+      ],
+      "from": [
+        {
+          "program": "Photoshop",
+          "term": "herramienta Recortar"
+        },
+        {
+          "program": "Adobe Express",
+          "term": "recortar"
+        }
+      ],
+      "tool": "lienzo",
+      "steps": [
+        "Abre la imagen en Lienzo (Archivo → Abierto).",
+        "Elige la herramienta de recorte (ícono Crop) y marca el área.",
+        "Confirma con Imagen → Recortar… (tecla T)."
+      ],
+      "source": {
+        "kind": "official",
+        "title": "miniPaint — Features",
+        "url": "https://github.com/viliusle/miniPaint#features"
+      }
+    },
+    {
+      "id": "cambiar-tamano",
+      "area": "diseno",
+      "task": "Cambiar el tamaño de una imagen",
+      "keywords": [
+        "resize",
+        "tamaño",
+        "redimensionar",
+        "píxeles",
+        "escalar"
+      ],
+      "from": [
+        {
+          "program": "Photoshop",
+          "term": "Tamaño de imagen"
+        }
+      ],
+      "tool": "lienzo",
+      "steps": [
+        "En Lienzo abre Imagen → Cambiar el tamaño… (tecla R).",
+        "Escribe el nuevo ancho o alto; mantén la proporción para no deformarla.",
+        "Para agrandar el área sin estirar la imagen, usa Imagen → Tamaño del lienzo…"
+      ],
+      "source": {
+        "kind": "official",
+        "title": "miniPaint — Features",
+        "url": "https://github.com/viliusle/miniPaint#features"
+      }
+    },
+    {
+      "id": "capas-imagen",
+      "area": "diseno",
+      "task": "Trabajar con capas y opacidad",
+      "keywords": [
+        "capas",
+        "layers",
+        "opacidad",
+        "transparencia",
+        "duplicar",
+        "fusionar"
+      ],
+      "from": [
+        {
+          "program": "Photoshop",
+          "term": "panel Capas"
+        }
+      ],
+      "tool": "lienzo",
+      "steps": [
+        "Crea una capa con Capa → Nuevo (tecla N) o duplica la actual (tecla D).",
+        "Cambia su opacidad con Imagen → Opacidad…",
+        "Une capas con Capa → Fusionar, o todas con Capa → Imagen aplanada."
+      ],
+      "limits": "Algunos nombres del menú son traducciones automáticas del programa original.",
+      "source": {
+        "kind": "test",
+        "file": "frontend/tests/e2e/programs.spec.ts",
+        "test": "Lienzo: painting is saved as layers and restored"
+      }
+    },
+    {
+      "id": "quitar-fondo",
+      "area": "diseno",
+      "task": "Separar a una persona u objeto del fondo",
+      "keywords": [
+        "quitar fondo",
+        "recorte",
+        "seleccionar sujeto",
+        "máscara",
+        "selección"
+      ],
+      "from": [
+        {
+          "program": "Photoshop",
+          "term": "Seleccionar sujeto / quitar fondo"
+        },
+        {
+          "program": "Adobe Express",
+          "term": "quitar fondo"
+        }
+      ],
+      "tool": "gimp",
+      "steps": [
+        "En GIMP elige Tools → Selection Tools → Foreground Select.",
+        "Rodea a grandes rasgos el objeto.",
+        "Pinta sobre el objeto para marcar lo que quieres conservar y pulsa Enter para obtener la selección.",
+        "Invierte la selección y borra, o copia el objeto a otra imagen."
+      ],
+      "limits": "No es automático de un clic: pide unos trazos tuyos.",
+      "source": {
+        "kind": "official",
+        "title": "Manual de GIMP 3.0 — Selección del primer plano",
+        "url": "https://docs.gimp.org/3.0/es/gimp-tool-foreground-select.html"
+      }
+    },
+    {
+      "id": "corregir-manchas",
+      "area": "diseno",
+      "task": "Corregir manchas o imperfecciones",
+      "keywords": [
+        "pincel corrector",
+        "sanear",
+        "clonar",
+        "retoque",
+        "manchas",
+        "heal"
+      ],
+      "from": [
+        {
+          "program": "Photoshop",
+          "term": "Pincel corrector"
+        },
+        {
+          "program": "Lightroom",
+          "term": "eliminar manchas"
+        }
+      ],
+      "tool": "gimp",
+      "steps": [
+        "Activa la herramienta Heal (tecla H).",
+        "Haz Ctrl+clic en una zona limpia para tomarla como origen.",
+        "Pinta sobre la mancha; GIMP mezcla la textura con lo que la rodea."
+      ],
+      "source": {
+        "kind": "official",
+        "title": "Manual de GIMP 3.0 — Saneado",
+        "url": "https://docs.gimp.org/3.0/es/gimp-tool-heal.html"
+      }
+    },
+    {
+      "id": "curvas-color",
+      "area": "diseno",
+      "task": "Ajustar luces, sombras y contraste con curvas",
+      "keywords": [
+        "curvas",
+        "niveles",
+        "contraste",
+        "tono",
+        "color"
+      ],
+      "from": [
+        {
+          "program": "Photoshop",
+          "term": "Curvas"
+        },
+        {
+          "program": "Lightroom",
+          "term": "curva de tonos"
+        }
+      ],
+      "tool": "gimp",
+      "steps": [
+        "En GIMP abre Colors → Curves…",
+        "Arrastra la curva: arriba aclara, abajo oscurece; una S suave sube el contraste.",
+        "Puedes ajustar cada canal de color por separado."
+      ],
+      "source": {
+        "kind": "official",
+        "title": "Manual de GIMP 3.0 — Curvas",
+        "url": "https://docs.gimp.org/3.0/es/gimp-tool-curves.html"
+      }
+    },
+    {
+      "id": "pluma-vector",
+      "area": "diseno",
+      "task": "Dibujar trazos vectoriales con la pluma",
+      "keywords": [
+        "pluma",
+        "pen",
+        "bezier",
+        "trazado",
+        "vector",
+        "logo"
+      ],
+      "from": [
+        {
+          "program": "Illustrator",
+          "term": "herramienta Pluma"
+        }
+      ],
+      "tool": "inkscape",
+      "steps": [
+        "En Inkscape activa la Pluma (tecla B o Mayús+F6).",
+        "Haz clic para puntos rectos; haz clic y arrastra para curvas.",
+        "Edita los nodos después con la herramienta de nodos."
+      ],
+      "source": {
+        "kind": "official",
+        "title": "Inkscape Beginners' Guide — The Pen Tool",
+        "url": "https://inkscape-manuals.readthedocs.io/en/latest/pen-tool.html"
+      }
+    },
+    {
+      "id": "vectorizar",
+      "area": "diseno",
+      "task": "Convertir una imagen en vector (calcar)",
+      "keywords": [
+        "calco",
+        "vectorizar",
+        "trace",
+        "trazar mapa de bits",
+        "logo"
+      ],
+      "from": [
+        {
+          "program": "Illustrator",
+          "term": "Calco de imagen"
+        }
+      ],
+      "tool": "inkscape",
+      "steps": [
+        "Importa la imagen con Archivo → Importar y selecciónala.",
+        "Abre Trayecto → Vectorizar mapa de bits (Path → Trace Bitmap, Mayús+Alt+B).",
+        "Ajusta las opciones, pulsa Actualizar para ver la vista previa y luego Aceptar."
+      ],
+      "limits": "Funciona mejor con logos y dibujos de pocos colores que con fotos.",
+      "source": {
+        "kind": "official",
+        "title": "Inkscape Beginners' Guide — Tracing an Image",
+        "url": "https://inkscape-manuals.readthedocs.io/en/latest/tracing-an-image.html"
+      }
+    },
+    {
+      "id": "paginas-maestras",
+      "area": "diseno",
+      "task": "Usar páginas maestras en una revista o catálogo",
+      "keywords": [
+        "maquetación",
+        "páginas maestras",
+        "plantilla",
+        "revista",
+        "editorial"
+      ],
+      "from": [
+        {
+          "program": "InDesign",
+          "term": "páginas maestras"
+        }
+      ],
+      "tool": "scribus",
+      "steps": [
+        "En Scribus abre Edición → Páginas maestras (Edit → Master Pages).",
+        "Pulsa Nueva, ponle nombre y elige si es página izquierda o derecha.",
+        "Coloca guías, números de página y elementos fijos; luego aplícala a las páginas del documento."
+      ],
+      "limits": "El tutorial oficial es de una versión anterior; algunos nombres del menú pueden variar.",
+      "source": {
+        "kind": "official",
+        "title": "Scribus Wiki — Get Started With Scribus (6)",
+        "url": "https://wiki.scribus.net/canvas/Get_Started_With_Scribus%3A6"
+      }
+    },
+    {
+      "id": "pdf-imprenta",
+      "area": "diseno",
+      "task": "Exportar un PDF listo para imprenta",
+      "keywords": [
+        "pdf/x",
+        "imprenta",
+        "preimpresión",
+        "exportar pdf",
+        "cmyk"
+      ],
+      "from": [
+        {
+          "program": "InDesign",
+          "term": "exportar PDF/X"
+        }
+      ],
+      "tool": "scribus",
+      "steps": [
+        "Pulsa el ícono PDF de la barra superior.",
+        "En la pestaña General, elige PDF/X-3 en Compatibilidad.",
+        "En Fuentes, incrusta todas; en Color, revisa los perfiles ICC que pide la imprenta."
+      ],
+      "limits": "Pregunta siempre a la imprenta qué variante de PDF/X y qué perfil de color usa.",
+      "source": {
+        "kind": "official",
+        "title": "Scribus Wiki — Get Started With Scribus (10): PDF for Press",
+        "url": "https://wiki.scribus.net/canvas/Get_Started_With_Scribus%3A10"
+      }
+    },
+    {
+      "id": "unir-pdf",
+      "area": "diseno",
+      "task": "Unir varios PDF en uno",
+      "keywords": [
+        "combinar",
+        "unir",
+        "juntar",
+        "pdf"
+      ],
+      "from": [
+        {
+          "program": "Acrobat",
+          "term": "Combinar archivos"
+        }
+      ],
+      "tool": "folio",
+      "steps": [
+        "Abre el primer PDF en Folio.",
+        "Pulsa Unir otro PDF y elige uno o varios archivos.",
+        "Reordena con Mover antes y Mover después, y pulsa Descargar PDF."
+      ],
+      "source": {
+        "kind": "test",
+        "file": "frontend/tests/unit/folio.test.ts",
+        "test": "merges two documents in order"
+      }
+    },
+    {
+      "id": "ordenar-paginas-pdf",
+      "area": "diseno",
+      "task": "Girar, borrar o extraer páginas de un PDF",
+      "keywords": [
+        "organizar páginas",
+        "girar",
+        "rotar",
+        "borrar",
+        "extraer",
+        "pdf"
+      ],
+      "from": [
+        {
+          "program": "Acrobat",
+          "term": "Organizar páginas"
+        }
+      ],
+      "tool": "folio",
+      "steps": [
+        "Abre el PDF en Folio y marca las páginas en la columna de miniaturas.",
+        "Usa Girar o Borrar; Deshacer (Ctrl+Z) corrige errores.",
+        "Para sacar solo algunas páginas, pulsa Descargar páginas marcadas."
+      ],
+      "source": {
+        "kind": "test",
+        "file": "frontend/tests/e2e/programs.spec.ts",
+        "test": "Folio: opens, rotates, deletes and downloads a PDF without uploading it"
+      }
+    },
+    {
+      "id": "anotar-pdf",
+      "area": "diseno",
+      "task": "Resaltar o escribir texto sobre un PDF",
+      "keywords": [
+        "resaltar",
+        "comentar",
+        "anotar",
+        "texto",
+        "firmar",
+        "pdf"
+      ],
+      "from": [
+        {
+          "program": "Acrobat",
+          "term": "Comentar y resaltar"
+        }
+      ],
+      "tool": "folio",
+      "steps": [
+        "En Folio elige Resaltar y arrastra sobre el área, o elige Texto y haz clic donde quieres escribir.",
+        "Pulsa Descargar PDF: los cambios quedan dentro del documento."
+      ],
+      "limits": "El texto se escribe sobre la página; no edita el texto original del PDF.",
+      "source": {
+        "kind": "test",
+        "file": "frontend/tests/unit/folio.test.ts",
+        "test": "adds Spanish text and highlights without failing"
+      }
+    },
+    {
+      "id": "revelar-raw",
+      "area": "diseno",
+      "task": "Revelar fotos RAW",
+      "keywords": [
+        "raw",
+        "revelado",
+        "exposición",
+        "balance de blancos",
+        "fotografía"
+      ],
+      "from": [
+        {
+          "program": "Lightroom",
+          "term": "módulo Revelar"
+        }
+      ],
+      "tool": "darktable",
+      "steps": [
+        "Importa las fotos y abre una en la vista de cuarto oscuro (darkroom).",
+        "Ajusta la exposición; los módulos exposure y filmic rgb vienen activos por defecto.",
+        "Corrige el color con calibración de color y exporta a JPG."
+      ],
+      "limits": "Para solo mirar un RAW sin instalar nada, Visor muestra la vista previa que guarda la cámara.",
+      "source": {
+        "kind": "official",
+        "title": "darktable user manual — process",
+        "url": "https://docs.darktable.org/usermanual/stable/en/overview/workflow/process/"
+      }
+    },
+    {
+      "id": "etiquetar-fotos",
+      "area": "diseno",
+      "task": "Organizar y etiquetar una colección de fotos",
+      "keywords": [
+        "etiquetas",
+        "palabras clave",
+        "organizar",
+        "catalogar",
+        "fotos"
+      ],
+      "from": [
+        {
+          "program": "Bridge",
+          "term": "palabras clave"
+        },
+        {
+          "program": "Lightroom",
+          "term": "catálogo"
+        }
+      ],
+      "tool": "digikam",
+      "steps": [
+        "En la vista de etiquetas, haz clic derecho y elige Nueva etiqueta.",
+        "Selecciona fotos y marca la etiqueta en el árbol de la barra lateral derecha.",
+        "Elige una etiqueta en la barra izquierda para ver todas las fotos que la tienen."
+      ],
+      "source": {
+        "kind": "official",
+        "title": "digiKam Manual — Captions View (Tags Tree)",
+        "url": "https://docs.digikam.org/en/right_sidebar/captions_view.html"
+      }
+    },
+    {
+      "id": "cortar-video",
+      "area": "diseno",
+      "task": "Cortar un clip de video en la línea de tiempo",
+      "keywords": [
+        "cuchilla",
+        "cortar",
+        "video",
+        "clip",
+        "edición",
+        "razor"
+      ],
+      "from": [
+        {
+          "program": "Premiere Pro",
+          "term": "herramienta Cuchilla"
+        }
+      ],
+      "tool": "kdenlive",
+      "steps": [
+        "Activa la herramienta Razor (tecla X) y haz clic donde quieres cortar.",
+        "O coloca el cabezal en el punto y pulsa Mayús+R para cortar ahí.",
+        "Vuelve a la herramienta de selección (S o Esc) para mover los trozos."
+      ],
+      "source": {
+        "kind": "official",
+        "title": "Kdenlive Manual — Editing",
+        "url": "https://docs.kdenlive.org/en/cutting_and_assembling/editing.html"
+      }
+    },
+    {
+      "id": "apuntes-tareas",
+      "area": "diseno",
+      "task": "Tomar apuntes con listas y tareas",
+      "keywords": [
+        "notas",
+        "apuntes",
+        "tareas",
+        "lista",
+        "markdown"
+      ],
+      "from": [
+        {
+          "program": "Notion",
+          "term": "páginas y listas de tareas"
+        }
+      ],
+      "tool": "apuntes",
+      "steps": [
+        "Abre Apuntes y usa Título, Lista, Tarea o Fecha para dar formato.",
+        "Se guarda solo mientras escribes.",
+        "Exporta a .md o .txt para llevarlo a otro programa."
+      ],
+      "limits": "No hay bases de datos ni páginas compartidas.",
+      "source": {
+        "kind": "test",
+        "file": "frontend/tests/e2e/student.spec.ts",
+        "test": "writes notes that save themselves and survive a closed tab"
+      }
+    }
+  ]
+}
