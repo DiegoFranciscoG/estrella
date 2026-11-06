@@ -1,4 +1,9 @@
 import { expect, test } from "@playwright/test";
+import { readFileSync } from "node:fs";
+
+// The PDF program students come from, read from the data: brand names stay in the equivalence data (T-01).
+const guide = JSON.parse(readFileSync(new URL("../../src/data/guia.json", import.meta.url), "utf8")) as { cards: { id: string; from: { program: string }[] }[] };
+const PDF_PROGRAM = guide.cards.find((c) => c.id === "unir-pdf")!.from[0].program;
 
 /** The guide is public: a student can check it before creating an account. */
 
@@ -23,14 +28,14 @@ test("the guide finds tasks by command name, filters, and keeps the search in a 
   await expect(page.locator(".guide-card")).toContainText("Scribus");
 
   await page.getByLabel("Qué quieres hacer").fill("");
-  await page.getByLabel("Vengo de").selectOption("Acrobat");
+  await page.getByLabel("Vengo de").selectOption(PDF_PROGRAM);
   await expect(page.locator(".guide-card").first()).toContainText("En ESTRELLA");
   await expect(page.locator(".guide-card")).toHaveCount(3);
   for (const card of await page.locator(".guide-card").all()) await expect(card).toContainText("Folio");
 
   // The link reproduces the same search after a reload, which is how a teacher would share it.
   await page.reload();
-  await expect(page.getByLabel("Vengo de")).toHaveValue("Acrobat");
+  await expect(page.getByLabel("Vengo de")).toHaveValue(PDF_PROGRAM);
   await expect(page.locator(".guide-card")).toHaveCount(3);
 
   await page.getByLabel("Vengo de").selectOption("");

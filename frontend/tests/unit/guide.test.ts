@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { programs } from "../../src/core/catalog";
 import { guide, normalize, paidPrograms, resolveTool, search, validateGuide, type Guide } from "../../src/core/guide";
 
 /** Every test file of the project, as text, keyed by its path from the repository root. */
@@ -36,12 +37,13 @@ describe("Guide data", () => {
     }
   });
 
-  it("covers every paid program the student asked about that has a task-level equivalent", () => {
+  it("covers every paid program the catalog says ESTRELLA replaces", () => {
+    // Names come from the data, not from here: brand names live only in the equivalence data (T-01).
     const covered = new Set(paidPrograms(guide.cards));
-    for (const p of ["AutoCAD", "SketchUp", "Revit", "Enscape", "V-Ray", "3ds Max", "Illustrator", "Photoshop", "InDesign", "Acrobat",
-      "Lightroom", "Bridge", "Adobe Express", "Rhino", "Notion", "Autodesk Forma", "Miro", "Premiere Pro"]) {
-      expect(covered.has(p), p).toBe(true);
-    }
+    const free = new Set(Object.values(guide.tools).map((t) => t.name));
+    const paid = [...new Set(programs.flatMap((p) => p.replaces))].filter((name) => !free.has(name) && name !== "varios formatos");
+    expect(paid.length).toBeGreaterThanOrEqual(18);
+    for (const p of paid) expect(covered.has(p), p).toBe(true);
   });
 
   it("resolves ESTRELLA programs and desktop tools", () => {
@@ -101,9 +103,11 @@ describe("Guide search", () => {
 
   it("filters by area and by the program the student comes from", () => {
     expect(search(guide.cards, { area: "diseno" }).every((c) => c.area === "diseno")).toBe(true);
-    const acrobat = search(guide.cards, { from: "Acrobat" });
-    expect(acrobat.length).toBeGreaterThanOrEqual(3);
-    expect(acrobat.every((c) => c.tool === "folio")).toBe(true);
+    // The PDF program students come from, read from the data (brand names stay out of the code).
+    const pdfProgram = guide.cards.find((c) => c.id === "unir-pdf")!.from[0].program;
+    const fromPdf = search(guide.cards, { from: pdfProgram });
+    expect(fromPdf.length).toBeGreaterThanOrEqual(3);
+    expect(fromPdf.every((c) => c.tool === "folio")).toBe(true);
     expect(search(guide.cards, { text: "pdf", area: "arquitectura" }).map((c) => c.id)).toContain("imprimir-a-escala");
   });
 
