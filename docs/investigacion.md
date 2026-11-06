@@ -68,7 +68,19 @@ Etiquetas: **VERIFICADO** (fuente primaria leída o medición propia) · **SECUN
 8. **Compilar LibreCAD web:** requiere Qt desde código fuente. No se ha intentado; no se puede enlazar la demo de un tercero como si fuera nuestra.
 9. **Licencias de GIMP, Inkscape, Scribus y digiKam:** su repositorio principal no está en GitHub. **Blender** aparece sin identificar en la API.
 
-## 5. Conclusiones de diseño
+## 5. Mediciones de la fase 2 (2026-11-05)
+
+| Pregunta | Medición | Resultado | Decisión |
+|---|---|---|---|
+| ¿Un marco `sandbox` del mismo sitio aísla un programa colgado? | Bucle infinito en el marco; latidos del panel por consola | **No**: el panel se congeló | Los programas se sirven desde **otro sitio** |
+| ¿Y con los programas en otro sitio? | Igual, en Chrome 156 y Edge 156 instalados | **Sí**: 25 de 25 latidos del panel siguieron llegando | Producción: dominio aparte para programas (p. ej. un subdominio en una lista de sufijos públicos) |
+| ¿Sirve el Chromium que trae Playwright para probarlo? | Mismo caso | No: no separa procesos, y además no puede inspeccionar una página con un marco trabado | T-04 queda verificado con la medición manual y las pruebas unitarias del detector; no hay prueba automática de extremo a extremo |
+| Límite de envíos de correo por IP (5/h) | Prueba de extremo a extremo | Un laboratorio entero comparte IP: el quinto estudiante quedaba bloqueado | 60 por IP y 3 por correo, por hora |
+| Bloqueo de inicio de sesión por IP tras 5 fallos | Prueba de extremo a extremo | Un estudiante con errores bloqueaba a todo el laboratorio | 5 fallos por cuenta e IP; 100 por IP solo como freno masivo |
+| Servidor gratuito dormido | Reinicio de la API durante una prueba | El proxy devuelve 502 y la app decía "respuesta inesperada" | Reintento automático breve y mensaje "el servidor está despertando" |
+| Peso del panel | `vite build` | 20 KB comprimidos en total | Muy por debajo del límite de 300 KB |
+
+## 6. Conclusiones de diseño
 
 - **La línea legal se mantiene:** cambiar el nombre no legaliza una copia. Código, interfaz, nombre e íconos propios, y programas libres con su licencia.
 - **"Todas las opciones de los 19 programas" no es alcanzable.** ESTRELLA debe decir qué hace cada herramienta y qué no.
