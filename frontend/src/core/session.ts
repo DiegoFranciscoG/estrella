@@ -1,6 +1,8 @@
 import { api, ApiError, currentAccessToken, onSessionChange, refresh, setAccessToken, TokenResponse, userIdFromToken } from "./api";
 import { authKeyFrom, KeyBundle, masterSecret, prepareRegistration, rekey, unlockWithPassword, unlockWithRecovery } from "./crypto";
 import { safeStorage } from "./storage";
+import { forgetKeys, loadKeys, rememberKeys, startSync, stopSync } from "./syncManager";
+import { syncKeysFrom } from "./vault";
 
 export interface User {
   id: string;
@@ -13,8 +15,13 @@ export type Consent = "ACCOUNT" | "PROJECT_SYNC" | "SECURITY_EMAIL";
 const LAST_USER = "estrella:last-user";
 
 let user: User | null = null;
-/** Key that encrypts synced projects. Only in memory; after a reload the student unlocks it again. */
+/**
+ * Root key of the account's encryption. Only in memory: it is extractable (a password change must
+ * re-wrap it). What survives a reload are the derived, non-extractable sync keys (syncManager).
+ */
 let vaultKey: CryptoKey | null = null;
+/** Wrapped vault key from the last sign-in or refresh: lets the student unlock sync with the password. */
+let wrapped: TokenResponse["keys"] | null = null;
 const listeners = new Set<(u: User | null) => void>();
 
 function setUser(next: User | null): void {
@@ -24,12 +31,21 @@ function setUser(next: User | null): void {
 }
 
 onSessionChange((body: TokenResponse | null) => {
-  if (body) setUser({ id: userIdFromToken(body.accessToken), email: body.email, offline: false });
-  else if (user && !user.offline) {
+  if (body) {
+    wrapped = body.keys;
+    setUser({ id: userIdFromToken(body.accessToken), email: body.email, offline: false });
+  } else if (user && !user.offline) {
     vaultKey = null;
+    wrapped = null;
+    stopSync();
     setUser(null);
   }
 });
+
+/** Starts syncing on this device with the keys it kept, or asks for the password if it has none. */
+async function resumeSync(userId: string): Promise<void> {
+  await startSync(userId, await loadKeys(userId));
+}
 
 export function currentUser(): User | null {
   return user;
@@ -49,7 +65,10 @@ export async function restore(): Promise<User | null> {
   // Nobody has signed in on this device: there is no session cookie to try.
   if (!safeStorage.get(LAST_USER)) return null;
   try {
-    if (await refresh()) return user;
+    if (await refresh()) {
+      if (user) void resumeSync(user.id);
+      return user;
+    }
     return null;
   } catch (e) {
     if (e instanceof ApiError && e.code === "NETWORK") {
@@ -58,6 +77,7 @@ export async function restore(): Promise<User | null> {
         try {
           const parsed = JSON.parse(last) as { id: string; email: string };
           setUser({ id: parsed.id, email: parsed.email, offline: true });
+          void resumeSync(parsed.id);
           return user;
         } catch {
           return null;
@@ -83,7 +103,12 @@ export async function login(email: string, password: string): Promise<User> {
     const body = await api<TokenResponse>("/auth/login", { method: "POST", body: { email, authKey: await authKeyFrom(master) } });
     setAccessToken(body.accessToken);
     vaultKey = await unlockWithPassword(master, body.keys.kdfSalt, body.keys.wrappedKeyPassword);
-    setUser({ id: userIdFromToken(body.accessToken), email: body.email, offline: false });
+    wrapped = body.keys;
+    const id = userIdFromToken(body.accessToken);
+    setUser({ id, email: body.email, offline: false });
+    const keys = await syncKeysFrom(vaultKey);
+    await rememberKeys(id, keys).catch(() => undefined);
+    void startSync(id, keys);
     return user!;
   } finally {
     master.fill(0);
@@ -96,8 +121,11 @@ export async function logout(): Promise<void> {
   } catch {
     // Offline logout still clears this device.
   }
+  stopSync();
+  if (user) await forgetKeys(user.id);
   setAccessToken(null);
   vaultKey = null;
+  wrapped = null;
   safeStorage.remove(LAST_USER);
   setUser(null);
 }
@@ -110,10 +138,33 @@ export async function deleteAccount(password: string): Promise<void> {
   } finally {
     master.fill(0);
   }
+  stopSync();
   setAccessToken(null);
   vaultKey = null;
+  wrapped = null;
   safeStorage.remove(LAST_USER);
   setUser(null);
+}
+
+/**
+ * After a reload on a device that has no sync keys (or after clearing site data): the password
+ * unwraps the vault key again, here, and sync resumes. Nothing about the password is sent.
+ */
+export async function unlockSync(password: string): Promise<void> {
+  if (!user || !wrapped) throw new ApiError(0, "OFFLINE", "Necesitas conexión para desbloquear la sincronización.");
+  const master = await masterSecret(user.email, password);
+  let key: CryptoKey;
+  try {
+    key = await unlockWithPassword(master, wrapped.kdfSalt, wrapped.wrappedKeyPassword);
+  } catch {
+    throw new ApiError(400, "BAD_PASSWORD", "La contraseña no coincide.");
+  } finally {
+    master.fill(0);
+  }
+  vaultKey = key;
+  const keys = await syncKeysFrom(key);
+  await rememberKeys(user.id, keys);
+  await startSync(user.id, keys);
 }
 
 /** Password reset: with the recovery code the projects stay readable; without it they are discarded. */

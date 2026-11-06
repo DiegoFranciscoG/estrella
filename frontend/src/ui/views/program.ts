@@ -3,6 +3,7 @@ import { APPS_ISOLATED, APPS_ORIGIN } from "../../core/config";
 import { Heartbeat, HostMessage, MAX_SNAPSHOT, parseAppMessage } from "../../core/protocol";
 import { currentUser } from "../../core/session";
 import { ProjectStore } from "../../core/store";
+import { markProjectClosed, markProjectOpen, requestSync } from "../../core/syncManager";
 import { announce, h, relativeTime } from "../dom";
 import { liteActive } from "../shell";
 import { starSpinner } from "../star";
@@ -95,6 +96,7 @@ export function programView(projectId: string): HTMLElement {
         const s = store;
         saving = saving.then(() => s.saveSnapshot(projectId, msg.data, msg.title)).catch(() => undefined);
         await saving;
+        requestSync();
         lastSaved = Date.now();
         if (msg.title) title.textContent = msg.title;
         showStatus();
@@ -174,7 +176,7 @@ export function programView(projectId: string): HTMLElement {
     post({ type: "estrella:flush" });
     const s = store;
     window.setTimeout(() => {
-      void s?.markClosed(projectId);
+      void s?.markClosed(projectId).then(() => markProjectClosed(projectId));
     }, 300);
   };
   const onPageHide = () => {
@@ -190,6 +192,7 @@ export function programView(projectId: string): HTMLElement {
   void (async () => {
     try {
       store = await ProjectStore.open(user.id);
+      markProjectOpen(projectId);
       const opened = await store.open(projectId);
       program = findProgram(opened.project.programId);
       title.textContent = opened.project.title;

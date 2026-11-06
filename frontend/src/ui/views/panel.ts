@@ -1,8 +1,10 @@
 import { Program, programs } from "../../core/catalog";
 import { currentUser } from "../../core/session";
-import { Project, ProjectStore } from "../../core/store";
+import { needsUpload, Project, ProjectStore } from "../../core/store";
+import { onSyncStatus, requestSync, syncStatus } from "../../core/syncManager";
 import { h, relativeTime } from "../dom";
 import { starIcon } from "../star";
+import { syncBar } from "../syncBar";
 
 const AVAILABILITY: Record<Program["availability"], string> = {
   web: "En el navegador",
@@ -36,22 +38,35 @@ function card(p: Program, onNew: (p: Program) => void): HTMLElement {
   );
 }
 
+/** Where this project's latest version is, in words. */
+function placeOf(project: Project): string {
+  if (project.syncIssue === "quota") return "No cabe en tu espacio de la nube";
+  if (project.syncIssue === "too-large") return "Demasiado grande para la nube";
+  const state = syncStatus().state;
+  if (state === "off" || state === "locked") return "Solo en este equipo";
+  return typeof project.syncedVersion === "number" && !needsUpload(project) ? "En la nube" : "Cambios por subir";
+}
+
 function projectRow(project: Project, store: ProjectStore, refresh: () => void): HTMLElement {
   const program = programs.find((p) => p.id === project.programId);
+  const synced = typeof project.syncedVersion === "number";
   return h("li", { class: "project", "data-project": project.id },
     h("a", { href: `#/p/${project.id}` },
       starIcon(14, false),
       h("strong", {}, project.title),
       h("span", { class: "muted" }, ` · ${program?.name ?? project.programId} · ${relativeTime(project.updatedAt)}`),
     ),
+    h("span", { class: "place", "data-testid": "place" }, placeOf(project)),
     h("button", {
       type: "button",
       class: "ghost small",
       "aria-label": `Borrar ${project.title}`,
       onclick: async () => {
-        if (!window.confirm(`¿Borrar "${project.title}" de este equipo? No se puede deshacer.`)) return;
+        const where = synced ? "de este equipo y de la nube" : "de este equipo";
+        if (!window.confirm(`¿Borrar "${project.title}" ${where}? No se puede deshacer.`)) return;
         await store.remove(project.id);
         refresh();
+        if (synced) requestSync(300);
       },
     }, "Borrar"),
   );
@@ -68,7 +83,8 @@ export function panelView(): HTMLElement {
       h("ul", { class: "grid" }),
     ),
     h("section", {},
-      h("h2", {}, "Tus proyectos en este equipo"),
+      h("h2", {}, "Tus proyectos"),
+      syncBar(),
       projectList,
     ),
   );
@@ -86,6 +102,12 @@ export function panelView(): HTMLElement {
     };
     main.querySelector(".grid")!.replaceChildren(...programs.map((p) => card(p, (x) => void onNew(x))));
     void refresh();
+    // After each sync pass the list may have new, updated or deleted projects.
+    const stop = onSyncStatus((s) => {
+      if (!projectList.isConnected && projectList.dataset.mounted) stop();
+      else if (s.state !== "syncing") void refresh();
+    });
+    projectList.dataset.mounted = "1";
   }).catch(() => {
     projectList.replaceChildren(h("li", { class: "error" }, "Este navegador no permite guardar datos locales. Revisa que no estés en una ventana privada."));
   });

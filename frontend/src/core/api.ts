@@ -8,6 +8,8 @@ export class ApiError extends Error {
     readonly code: string,
     message: string,
     readonly fields: string[] = [],
+    /** Extra fields of the problem, e.g. the current version in a conflict. */
+    readonly details: Record<string, unknown> = {},
   ) {
     super(message);
   }
@@ -41,14 +43,21 @@ interface Options {
   method?: string;
   body?: unknown;
   form?: FormData;
+  /** Raw bytes, sent as application/octet-stream (encrypted sync content). */
+  raw?: Uint8Array<ArrayBuffer>;
+  headers?: Record<string, string>;
   auth?: boolean;
   binary?: boolean;
 }
 
 async function send(path: string, opts: Options): Promise<Response> {
-  const headers: Record<string, string> = { "X-Estrella-Client": "web" };
+  const headers: Record<string, string> = { "X-Estrella-Client": "web", ...opts.headers };
   let body: BodyInit | undefined;
   if (opts.form) body = opts.form;
+  else if (opts.raw) {
+    headers["Content-Type"] = "application/octet-stream";
+    body = opts.raw;
+  }
   else if (opts.body !== undefined) {
     headers["Content-Type"] = "application/json";
     body = JSON.stringify(opts.body);
@@ -64,7 +73,8 @@ async function send(path: string, opts: Options): Promise<Response> {
 async function toError(response: Response): Promise<ApiError> {
   try {
     const p = await response.json();
-    return new ApiError(response.status, p.code ?? "ERROR", p.detail ?? "Ocurrió un error", p.fields ?? []);
+    const { code, detail, fields, ...details } = p;
+    return new ApiError(response.status, code ?? "ERROR", detail ?? "Ocurrió un error", fields ?? [], details);
   } catch {
     return new ApiError(response.status, "ERROR", "El servidor respondió de forma inesperada");
   }
@@ -110,12 +120,18 @@ async function sendWaiting(path: string, opts: Options, wait: (ms: number) => Pr
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
-export async function api<T>(path: string, opts: Options = {}, wait: (ms: number) => Promise<void> = sleep): Promise<T> {
+/** The response itself, for callers that need its headers or a 304. Errors still throw ApiError. */
+export async function apiResponse(path: string, opts: Options = {}, wait: (ms: number) => Promise<void> = sleep): Promise<Response> {
   let response = await sendWaiting(path, opts, wait);
   if (response.status === 401 && opts.auth) {
     if (await refresh()) response = await sendWaiting(path, opts, wait);
   }
-  if (!response.ok) throw await toError(response);
+  if (!response.ok && response.status !== 304) throw await toError(response);
+  return response;
+}
+
+export async function api<T>(path: string, opts: Options = {}, wait: (ms: number) => Promise<void> = sleep): Promise<T> {
+  const response = await apiResponse(path, opts, wait);
   if (response.status === 204) return undefined as T;
   if (opts.binary) return (await response.blob()) as T;
   return (await response.json()) as T;
