@@ -121,7 +121,7 @@ button:disabled, .button.disabled { opacity: 0.45; cursor: not-allowed; }
 .small { min-height: 36px; padding: 4px 10px; font-size: 0.9rem; }
 .row { display: flex; gap: 8px; flex-wrap: wrap; }
 
-input[type="text"], input[type="email"], input[type="password"], select {
+input[type="text"], input[type="email"], input[type="password"], input[type="search"], select {
   width: 100%; min-height: 44px; padding: 10px 12px; color: var(--fg); background: var(--field);
   border: 1px solid var(--line); border-radius: 8px;
 }
