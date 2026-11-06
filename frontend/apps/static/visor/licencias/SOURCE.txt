@@ -1,0 +1,36 @@
+Visor (ESTRELLA) - third-party WebAssembly readers in this folder
+================================================================
+
+Both readers are used exactly as published; ESTRELLA did not modify, rebuild or patch them.
+The build takes the .wasm files straight from the npm packages and serves them from /apps/assets/
+with a content hash in the file name (frontend/apps/vite.config.ts). This folder holds their notices.
+
+
+1. libredwg-web.wasm - DWG reader
+---------------------------------
+Package:   @mlightcad/libredwg-web 0.7.5
+License:   GNU General Public License version 3 (COPYING-GPL-3.0.txt, next to this file)
+Based on:  GNU LibreDWG (https://www.gnu.org/software/libredwg/)
+Package:   https://registry.npmjs.org/@mlightcad/libredwg-web/-/libredwg-web-0.7.5.tgz
+           sha512-oPV5Wm7I02PXfPt5NE/nM+wtei/On2fyUbCxejGXUiPmIyFJA0spykmTnBzKMCcFDmC5wNDzZptN2VQbYeJwZQ==
+wasm file: sha256 ab75433a80daea4ecbc70bd917e45f1cfc0eb74230597035788be0190555250b
+
+Corresponding source: https://github.com/mlightcad/libredwg-web/tree/v0.7.5
+(tag v0.7.5, commit 5144ff4255b0e9c392118798297450ef6eda0b6e), with the build steps in its README.
+Its JavaScript wrapper (also GPL-3.0) is bundled, minified, into the separate worker script that
+Visor starts only to read a DWG file; its source is in the same repository and tag.
+
+How Visor uses it: the reader runs as a separate program in its own Web Worker. Visor sends it
+the bytes of a file and receives a drawing (SVG) or a DXF file back, by message passing only.
+The worker script as a whole is therefore distributed under GPL-3.0. Besides the wrapper it holds
+one ESTRELLA file, frontend/apps/visor/cad-bounds.ts (MIT, compatible with GPL-3.0), whose source
+is in the ESTRELLA repository.
+
+
+2. web-ifc.wasm - IFC reader
+----------------------------
+Package:   web-ifc 0.0.78
+License:   Mozilla Public License 2.0 (LICENSE-web-ifc-MPL-2.0.md, next to this file)
+Package:   https://registry.npmjs.org/web-ifc/-/web-ifc-0.0.78.tgz
+wasm file: sha256 1fbd30bd5515ff6ad15268e87aa26e41d57b29411c8461618b63bee92735d349
+Source:    https://github.com/ThatOpen/engine_web-ifc

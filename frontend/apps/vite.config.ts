@@ -42,6 +42,11 @@ export default defineConfig({
     },
   ],
   server: { port: 5174, strictPort: true },
+  worker: { format: "es" },
+  resolve: {
+    // Visor's DWG reader: the package does not export its wasm file (licence in static/visor/licencias/SOURCE.txt).
+    alias: [{ find: /^libredwg-web.wasm/, replacement: here("../node_modules/@mlightcad/libredwg-web/wasm/libredwg-web.wasm") }],
+  },
   build: {
     outDir: here("../dist/apps"),
     emptyOutDir: true,
@@ -54,6 +59,7 @@ export default defineConfig({
         lienzo: here("lienzo/index.html"),
         folio: here("folio/index.html"),
         plano: here("plano/index.html"),
+        visor: here("visor/index.html"),
       },
     },
   },

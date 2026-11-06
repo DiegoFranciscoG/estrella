@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Visor</title>
+  </head>
+  <body>
+    <header class="bar" role="toolbar" aria-label="Herramientas de Visor">
+      <label class="button primary" for="open">Abrir archivo<input id="open" type="file" hidden /></label>
+      <span id="format" class="badge" hidden></span>
+      <span class="sep" aria-hidden="true"></span>
+      <button type="button" id="fit" disabled>Encuadrar</button>
+      <button type="button" id="zoom-out" aria-label="Alejar" disabled>−</button>
+      <span id="zoom" class="muted" aria-live="off">—</span>
+      <button type="button" id="zoom-in" aria-label="Acercar" disabled>+</button>
+      <span id="pages" class="group" hidden>
+        <button type="button" id="prev" aria-label="Página anterior">◀</button>
+        <span id="page" class="muted"></span>
+        <button type="button" id="next" aria-label="Página siguiente">▶</button>
+      </span>
+      <button type="button" id="wire" aria-pressed="false" hidden>Alambre</button>
+      <button type="button" id="dark" aria-pressed="false" hidden title="Los planos suelen dibujarse en colores pensados para fondo negro">Fondo oscuro</button>
+      <span class="spacer"></span>
+      <label for="convert" class="muted">Descargar como</label>
+      <select id="convert" disabled></select>
+      <button type="button" id="download" disabled>Descargar</button>
+    </header>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+    <main class="layout">
+      <section id="stage" class="stage" aria-label="Vista del archivo">
+        <div id="empty" class="empty">
+          <p><strong>Abre o arrastra aquí el archivo que te mandaron.</strong></p>
+          <p>Planos DWG y DXF, PDF, PSD, SVG, fotos (también RAW de cámara) y modelos OBJ, STL, 3MF, PLY, glTF e IFC.</p>
+          <p class="muted">Se abre en tu equipo: el archivo no se sube a ningún servidor.</p>
+        </div>
+        <div id="view2d" class="view2d" hidden></div>
+        <div id="view3d" class="view3d" hidden></div>
+      </section>
+      <aside id="side" class="side" aria-label="Información del archivo" hidden>
+        <h2 id="name" class="name"></h2>
+        <dl id="facts" class="facts"></dl>
+        <p id="note" class="note" hidden></p>
+        <h3 id="list-title" hidden></h3>
+        <ul id="list" class="list"></ul>
+      </aside>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>
