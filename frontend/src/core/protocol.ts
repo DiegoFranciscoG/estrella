@@ -15,8 +15,8 @@ export type AppMessage =
   | { type: "estrella:snapshot"; data: string; title?: string }
   | { type: "estrella:busy"; busy: boolean };
 
-/** Largest snapshot accepted from a program (characters). Bigger projects go to file storage in F6. */
-export const MAX_SNAPSHOT = 20_000_000;
+/** Largest snapshot accepted from a program (characters, about 35 MB of binary content). */
+export const MAX_SNAPSHOT = 50_000_000;
 
 export function parseAppMessage(value: unknown): AppMessage | null {
   if (typeof value !== "object" || value === null) return null;

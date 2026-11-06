@@ -1,6 +1,6 @@
 import { findProgram, Program } from "../../core/catalog";
 import { APPS_ISOLATED, APPS_ORIGIN } from "../../core/config";
-import { Heartbeat, HostMessage, parseAppMessage } from "../../core/protocol";
+import { Heartbeat, HostMessage, MAX_SNAPSHOT, parseAppMessage } from "../../core/protocol";
 import { currentUser } from "../../core/session";
 import { ProjectStore } from "../../core/store";
 import { announce, h, relativeTime } from "../dom";
@@ -17,7 +17,10 @@ import { maybeShowThanks } from "./thanks";
  * - the panel stores every snapshot the program sends, so a crash or a closed tab loses seconds, not work;
  * - a heartbeat detects a frozen program and offers to restart only that program.
  */
-const FRAME_SANDBOX = APPS_ISOLATED ? "allow-scripts allow-same-origin allow-downloads allow-forms" : "allow-scripts allow-downloads";
+// allow-modals: programs ask before destructive actions; allow-popups: their help links open in a new tab.
+const FRAME_SANDBOX = APPS_ISOLATED
+  ? "allow-scripts allow-same-origin allow-downloads allow-forms allow-modals allow-popups"
+  : "allow-scripts allow-downloads allow-modals allow-popups";
 const TARGET_ORIGIN = APPS_ISOLATED ? APPS_ORIGIN : "*";
 const EXPECTED_ORIGIN = APPS_ISOLATED ? APPS_ORIGIN : "null";
 
@@ -57,6 +60,14 @@ export function programView(projectId: string): HTMLElement {
   const onMessage = async (event: MessageEvent) => {
     if (!frame || event.source !== frame.contentWindow || event.origin !== EXPECTED_ORIGIN) return;
     const msg = parseAppMessage(event.data);
+    const raw = event.data as { type?: unknown; data?: unknown } | null;
+    if (!msg && raw?.type === "estrella:snapshot" && typeof raw.data === "string" && raw.data.length > MAX_SNAPSHOT) {
+      // Never drop a save silently: the student must know this version is not stored.
+      heartbeat.pong();
+      status.textContent = "Este proyecto es demasiado grande para guardarse en el navegador. Exporta o descarga tu trabajo ahora.";
+      announce(status.textContent);
+      return;
+    }
     if (!msg || !store) return;
     switch (msg.type) {
       case "estrella:ready": {

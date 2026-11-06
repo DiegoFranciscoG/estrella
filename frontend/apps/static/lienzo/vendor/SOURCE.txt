@@ -1,0 +1,11 @@
+miniPaint v4.14.3
+Source: https://github.com/viliusle/miniPaint/tree/v4.14.3
+Tarball sha256: 549e726d3dd3d9f1c4b20825631de5300ab545acbb4e23fd30bd4c443f64e83f
+License: MIT (see LICENSE-miniPaint.txt); bundled third-party notices in bundle.js.LICENSE.txt
+Files copied: dist/bundle.js (see Modification below), images/icons, images/logo.svg, images/favicon.png (unmodified)
+
+Modification (the only one): dist/bundle.js shipped with the upstream author's Pixabay and Google
+Fonts API keys embedded. Both values were replaced with empty strings ("pixabay_key" and
+"google_webfonts_key"). Programs on this site have no external network access, so those features
+are unavailable either way, and third-party keys are not redistributed. MIT permits modification.
+sha256 of the modified bundle.js: 790d028ec3b1f496b93b718cf7daf93a339e8bedf6d5f49503e840672a5be1e4

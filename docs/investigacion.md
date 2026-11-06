@@ -80,7 +80,30 @@ Etiquetas: **VERIFICADO** (fuente primaria leída o medición propia) · **SECUN
 | Servidor gratuito dormido | Reinicio de la API durante una prueba | El proxy devuelve 502 y la app decía "respuesta inesperada" | Reintento automático breve y mensaje "el servidor está despertando" |
 | Peso del panel | `vite build` | 20 KB comprimidos en total | Muy por debajo del límite de 300 KB |
 
-## 6. Conclusiones de diseño
+## 6. Hallazgos de la fase 3 (2026-11-06)
+
+| Hallazgo | Cómo se detectó | Decisión |
+|---|---|---|
+| El editor de MLightCAD (`cad-editor`) está en versión preliminar y depende de Vue, Element Plus y complementos de nube | Registro npm | **Plano propio** para 2D sencillo, más `dxf-parser` (MIT) para leer DXF. El visor de MLightCAD queda para Visor (fase 4) |
+| miniPaint ya no se publica en npm | Registro npm: retirado en 2021 | Copia de la versión v4.14.3, con hash del tarball y procedencia en `SOURCE.txt` |
+| miniPaint trae incrustadas las llaves de API de su autor (Pixabay, Google Fonts) | gitleaks en el commit | Se reemplazaron por cadenas vacías: no se redistribuyen llaves ajenas y esas funciones requieren internet, que está bloqueado |
+| Excalidraw descargaba fuentes desde esm.sh aunque se le indicara la ruta local | Consola durante la prueba de extremo a extremo: la política de seguridad bloqueó 30 pedidos | La ruta se fija en un módulo importado primero; los `import` se ejecutan antes que el resto del código |
+| nginx servía el worker de pdf.js (`.mjs`) como binario y Chrome no lo ejecutaba: Folio no abría ningún PDF | Prueba de extremo a extremo | Tipo explícito para `.mjs` en nginx |
+| Los marcos sin `allow-modals` ignoran `confirm()`: borrar páginas nunca se habría confirmado | Revisión del código | `allow-modals` y `allow-popups` en el marco |
+| `khroma` (dependencia indirecta) no declara licencia en su `package.json` | Control T-02 | Verificada a mano como MIT y registrada con su fuente |
+| Un PDF de 15 MB supera el límite anterior de 20 millones de caracteres por guardado | Cálculo de base64 | Límite de 50 millones y aviso visible si se supera; nunca se descarta en silencio |
+
+### Peso de cada programa al abrirlo por primera vez (comprimido)
+
+| Programa | Descarga inicial | Nota |
+|---|---|---|
+| Apuntes | 2 KB | |
+| Plano | 20 KB | |
+| Lienzo | 312 KB | Más íconos (95 KB) |
+| Folio | 334 KB | El worker de pdf.js se baja al abrir el primer PDF |
+| Pizarra | 430 KB | Las fuentes (14 MB en total) se bajan solo las que se usan |
+
+## 7. Conclusiones de diseño
 
 - **La línea legal se mantiene:** cambiar el nombre no legaliza una copia. Código, interfaz, nombre e íconos propios, y programas libres con su licencia.
 - **"Todas las opciones de los 19 programas" no es alcanzable.** ESTRELLA debe decir qué hace cada herramienta y qué no.

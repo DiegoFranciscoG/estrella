@@ -13,6 +13,10 @@ const ALLOWED = [
   "frontend/src/data/programas.json",
   "docs/",
   "scripts/check-trademarks.mjs",
+  // Third-party program files (provenance in SOURCE.txt): their own text, not ESTRELLA's.
+  // miniPaint's icons carry an editor's "Generator" comment and its bundle reads XMP photo metadata.
+  "frontend/apps/static/lienzo/vendor/",
+  "frontend/apps/static/lienzo/images/",
 ];
 const SKIP_DIRS = new Set([".git", "node_modules", "target", "dist", "coverage", "playwright-report", "test-results"]);
 const TEXT = /\.(java|ts|js|mjs|json|html|css|md|yml|yaml|xml|sql|conf|template|toml|txt|webmanifest|svg)$|Dockerfile$/;

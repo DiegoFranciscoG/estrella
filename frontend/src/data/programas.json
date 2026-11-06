@@ -3,7 +3,9 @@
     "id": "apuntes",
     "name": "Apuntes",
     "summary": "Notas y apuntes de clase que se guardan solos.",
-    "replaces": ["Notion"],
+    "replaces": [
+      "Notion"
+    ],
     "availability": "web",
     "status": "disponible",
     "sizeKb": 12,
@@ -16,64 +18,91 @@
   {
     "id": "plano",
     "name": "Plano",
-    "summary": "Dibujo técnico 2D: líneas, capas, cotas. Abre DXF y DWG.",
-    "replaces": ["AutoCAD"],
+    "summary": "Dibujo técnico 2D: líneas, polilíneas, rectángulos, círculos, texto, cotas y capas. Abre y guarda DXF.",
+    "replaces": [
+      "AutoCAD"
+    ],
     "availability": "web",
-    "status": "en-construccion",
-    "sizeKb": null,
+    "status": "disponible",
+    "sizeKb": 20,
     "demand": "media",
-    "phase": "Llega en la fase 3",
-    "appPath": null,
-    "basedOn": { "name": "MLightCAD", "license": "MIT", "source": "https://github.com/mlightcad/cad-viewer" },
-    "honestNote": "Dibujo 2D sí. Automatización, ecosistema de complementos y fidelidad total de DWG, no."
+    "phase": "Disponible",
+    "appPath": "/apps/plano/index.html",
+    "basedOn": {
+      "name": "dxf-parser (lectura de DXF)",
+      "license": "MIT",
+      "source": "https://github.com/gdsestimating/dxf-parser"
+    },
+    "honestNote": "Hecho para planos 2D sencillos con medidas exactas. No tiene bloques, sombreados, recortes ni impresión a escala todavía, y no abre DWG (eso llega con Visor)."
   },
   {
     "id": "lienzo",
     "name": "Lienzo",
     "summary": "Edición de imagen por capas, recortes, filtros y texto.",
-    "replaces": ["Photoshop", "Adobe Express"],
+    "replaces": [
+      "Photoshop",
+      "Adobe Express"
+    ],
     "availability": "web",
-    "status": "en-construccion",
-    "sizeKb": 354,
+    "status": "disponible",
+    "sizeKb": 312,
     "demand": "baja",
-    "phase": "Llega en la fase 3",
-    "appPath": null,
-    "basedOn": { "name": "miniPaint", "license": "MIT", "source": "https://github.com/viliusle/miniPaint" },
-    "honestNote": "Capas, selección y filtros sí. Relleno con IA y funciones avanzadas de color, no."
+    "phase": "Disponible",
+    "appPath": "/apps/lienzo/index.html",
+    "basedOn": {
+      "name": "miniPaint",
+      "license": "MIT",
+      "source": "https://github.com/viliusle/miniPaint"
+    },
+    "honestNote": "Capas, selección, filtros, texto y formas sí. Sin relleno con IA. La búsqueda de imágenes y fuentes en internet está desactivada: nada sale de tu equipo. Su menú está en inglés."
   },
   {
     "id": "pizarra",
     "name": "Pizarra",
     "summary": "Diagramas, mapas mentales y lluvia de ideas a mano alzada.",
-    "replaces": ["Miro"],
+    "replaces": [
+      "Miro"
+    ],
     "availability": "web",
-    "status": "en-construccion",
-    "sizeKb": 651,
+    "status": "disponible",
+    "sizeKb": 430,
     "demand": "baja",
-    "phase": "Llega en la fase 3",
-    "appPath": null,
-    "basedOn": { "name": "Excalidraw", "license": "MIT", "source": "https://github.com/excalidraw/excalidraw" },
-    "honestNote": "Muy completa para trabajo individual. La colaboración en vivo llega después."
+    "phase": "Disponible",
+    "appPath": "/apps/pizarra/index.html",
+    "basedOn": {
+      "name": "Excalidraw",
+      "license": "MIT",
+      "source": "https://github.com/excalidraw/excalidraw"
+    },
+    "honestNote": "Muy completa para trabajo individual. Sin colaboración en vivo ni bibliotecas en línea todavía."
   },
   {
     "id": "folio",
     "name": "Folio",
-    "summary": "Leer, anotar, unir y dividir PDF sin subirlos a ningún lado.",
-    "replaces": ["Acrobat"],
+    "summary": "Ver, unir, girar, ordenar, extraer páginas, escribir y resaltar PDF sin subirlos a ningún lado.",
+    "replaces": [
+      "Acrobat"
+    ],
     "availability": "web",
-    "status": "en-construccion",
-    "sizeKb": null,
+    "status": "disponible",
+    "sizeKb": 334,
     "demand": "baja",
-    "phase": "Llega en la fase 3",
-    "appPath": null,
-    "basedOn": { "name": "PDF.js y pdf-lib", "license": "Apache-2.0 y MIT", "source": "https://github.com/mozilla/pdf.js" },
-    "honestNote": "Ver, anotar, unir y dividir sí. Reconocimiento de texto y edición profunda, por evaluar."
+    "phase": "Disponible",
+    "appPath": "/apps/folio/index.html",
+    "basedOn": {
+      "name": "PDF.js y pdf-lib",
+      "license": "Apache-2.0 y MIT",
+      "source": "https://github.com/mozilla/pdf.js"
+    },
+    "honestNote": "No reconoce texto escaneado ni edita el texto original del PDF. Los PDF protegidos con contraseña no se pueden editar."
   },
   {
     "id": "visor",
     "name": "Visor",
     "summary": "Abre el archivo que te mandaron: DWG, DXF, PSD, PDF, SVG, RAW, OBJ, STL, IFC.",
-    "replaces": ["varios formatos"],
+    "replaces": [
+      "varios formatos"
+    ],
     "availability": "web",
     "status": "en-construccion",
     "sizeKb": null,
@@ -87,63 +116,90 @@
     "id": "trazo",
     "name": "Trazo",
     "summary": "Dibujo vectorial para logos, íconos e ilustración.",
-    "replaces": ["Illustrator"],
+    "replaces": [
+      "Illustrator"
+    ],
     "availability": "web",
     "status": "en-construccion",
     "sizeKb": null,
     "demand": "baja",
     "phase": "Planificado",
     "appPath": null,
-    "basedOn": { "name": "SVG-Edit", "license": "MIT", "source": "https://github.com/SVG-Edit/svgedit" },
+    "basedOn": {
+      "name": "SVG-Edit",
+      "license": "MIT",
+      "source": "https://github.com/SVG-Edit/svgedit"
+    },
     "honestNote": "Vector básico en el navegador. Para trabajo avanzado se recomienda la versión de escritorio."
   },
   {
     "id": "solido",
     "name": "Sólido",
     "summary": "Modelado 3D paramétrico escrito, ideal para piezas y maquetas.",
-    "replaces": ["SketchUp", "Rhino"],
+    "replaces": [
+      "SketchUp",
+      "Rhino"
+    ],
     "availability": "web",
     "status": "en-construccion",
     "sizeKb": 8900,
     "demand": "media",
     "phase": "Planificado (experimental)",
     "appPath": null,
-    "basedOn": { "name": "OpenSCAD", "license": "GPL-3.0", "source": "https://github.com/openscad/openscad-playground" },
+    "basedOn": {
+      "name": "OpenSCAD",
+      "license": "GPL-3.0",
+      "source": "https://github.com/openscad/openscad-playground"
+    },
     "honestNote": "Versión web en etapa alfa. No es modelado por empuje directo; para eso conviene escritorio."
   },
   {
     "id": "bim",
     "name": "BIM",
     "summary": "Ver modelos IFC de edificios por pisos y elementos.",
-    "replaces": ["Revit"],
+    "replaces": [
+      "Revit"
+    ],
     "availability": "web",
     "status": "en-construccion",
     "sizeKb": null,
     "demand": "media",
     "phase": "Planificado",
     "appPath": null,
-    "basedOn": { "name": "web-ifc", "license": "MPL-2.0", "source": "https://github.com/ThatOpen/engine_web-ifc" },
+    "basedOn": {
+      "name": "web-ifc",
+      "license": "MPL-2.0",
+      "source": "https://github.com/ThatOpen/engine_web-ifc"
+    },
     "honestNote": "Ver y medir sí. Modelar BIM completo requiere la versión de escritorio."
   },
   {
     "id": "revelado",
     "name": "Revelado",
     "summary": "Vista previa y ajustes básicos de fotos RAW.",
-    "replaces": ["Lightroom"],
+    "replaces": [
+      "Lightroom"
+    ],
     "availability": "web",
     "status": "en-construccion",
     "sizeKb": null,
     "demand": "media",
     "phase": "Planificado",
     "appPath": null,
-    "basedOn": { "name": "libraw-wasm", "license": "ISC", "source": "https://www.npmjs.com/package/libraw-wasm" },
+    "basedOn": {
+      "name": "libraw-wasm",
+      "license": "ISC",
+      "source": "https://www.npmjs.com/package/libraw-wasm"
+    },
     "honestNote": "El revelado completo y los catálogos grandes solo en escritorio."
   },
   {
     "id": "archivo",
     "name": "Archivo",
     "summary": "Organiza y busca tus proyectos y archivos.",
-    "replaces": ["Bridge"],
+    "replaces": [
+      "Bridge"
+    ],
     "availability": "web",
     "status": "en-construccion",
     "sizeKb": null,
@@ -157,56 +213,83 @@
     "id": "modelado-render",
     "name": "Modelado y render",
     "summary": "Modelado 3D, animación y render realista en tu computadora.",
-    "replaces": ["3ds Max", "V-Ray", "Enscape", "Blender"],
+    "replaces": [
+      "3ds Max",
+      "V-Ray",
+      "Enscape",
+      "Blender"
+    ],
     "availability": "desktop",
     "status": "en-construccion",
     "sizeKb": null,
     "demand": "alta",
     "phase": "Instalador en la fase 8",
     "appPath": null,
-    "basedOn": { "name": "Blender", "license": "GPL", "source": "https://projects.blender.org/blender/blender" },
+    "basedOn": {
+      "name": "Blender",
+      "license": "GPL",
+      "source": "https://projects.blender.org/blender/blender"
+    },
     "honestNote": "El render pesa en cualquier programa del mundo. En el navegador no se ofrece."
   },
   {
     "id": "maquetacion",
     "name": "Maquetación",
     "summary": "Revistas, láminas y portafolios para imprimir.",
-    "replaces": ["InDesign"],
+    "replaces": [
+      "InDesign"
+    ],
     "availability": "desktop",
     "status": "en-construccion",
     "sizeKb": null,
     "demand": "media",
     "phase": "Instalador en la fase 8",
     "appPath": null,
-    "basedOn": { "name": "Scribus", "license": "GPL", "source": "https://www.scribus.net/" },
+    "basedOn": {
+      "name": "Scribus",
+      "license": "GPL",
+      "source": "https://www.scribus.net/"
+    },
     "honestNote": "Maquetación profesional sí. Archivos INDD no se pueden abrir."
   },
   {
     "id": "video",
     "name": "Video",
     "summary": "Edición de video con línea de tiempo, títulos y transiciones.",
-    "replaces": ["Premiere Pro"],
+    "replaces": [
+      "Premiere Pro"
+    ],
     "availability": "desktop",
     "status": "en-construccion",
     "sizeKb": null,
     "demand": "alta",
     "phase": "Instalador en la fase 8",
     "appPath": null,
-    "basedOn": { "name": "Kdenlive", "license": "GPL-3.0", "source": "https://invent.kde.org/multimedia/kdenlive" },
+    "basedOn": {
+      "name": "Kdenlive",
+      "license": "GPL-3.0",
+      "source": "https://invent.kde.org/multimedia/kdenlive"
+    },
     "honestNote": "Editar video en el navegador no rinde. Solo escritorio."
   },
   {
     "id": "sitio",
     "name": "Análisis de sitio",
     "summary": "Mapas, terreno y análisis urbano para proyectos de arquitectura.",
-    "replaces": ["Autodesk Forma"],
+    "replaces": [
+      "Autodesk Forma"
+    ],
     "availability": "desktop",
     "status": "en-construccion",
     "sizeKb": null,
     "demand": "alta",
     "phase": "Planificado",
     "appPath": null,
-    "basedOn": { "name": "QGIS", "license": "GPL-2.0", "source": "https://github.com/qgis/QGIS" },
+    "basedOn": {
+      "name": "QGIS",
+      "license": "GPL-2.0",
+      "source": "https://github.com/qgis/QGIS"
+    },
     "honestNote": "Es el hueco más grande: no existe un equivalente libre completo."
   }
 ]

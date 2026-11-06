@@ -24,7 +24,20 @@ Verificado el **2026-11-05**. El detalle de cada obligación debe revisarse cont
 6. **Marcas de los proyectos libres:** "LibreCAD", "Blender" y similares también pueden ser marcas. Se usan solo para decir qué programa es, nunca como nombre de ESTRELLA. El uso exacto de la marca de Blender debe leerse antes de publicar.
 7. **Datos de plantillas y fuentes:** cada fuente tipográfica, plantilla o ícono incluido necesita licencia comprobada.
 
-## 3. Controles obligatorios
+## 3. Lo que se distribuye desde la fase 3
+
+| Componente | Versión | Licencia | Cómo llega |
+|---|---|---|---|
+| Excalidraw | 0.18.1 | MIT | npm, compilado en Pizarra |
+| React / React DOM | 19.3.1 | MIT | npm |
+| PDF.js (`pdfjs-dist`) | 6.5.438 | Apache-2.0 | npm, compilado en Folio |
+| pdf-lib | 1.17.1 | MIT | npm |
+| dxf-parser | 1.1.2 | MIT | npm, compilado en Plano |
+| miniPaint | 4.14.3 | MIT | copia en `frontend/apps/static/lienzo/vendor/`; único cambio: se quitaron las llaves de API de su autor |
+
+En total se publican 265 paquetes, todos con licencias permitidas. El archivo `THIRD-PARTY-NOTICES.txt` se genera en cada compilación y queda enlazado desde la página de licencias.
+
+## 4. Controles obligatorios
 
 - Lista permitida: MIT, ISC, BSD, Apache-2.0, MPL-2.0, LGPL, GPL (solo programas aislados).
 - Lista prohibida: BSL, SSPL, licencias "source available", licencias propias que exijan clave.

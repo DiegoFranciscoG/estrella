@@ -7,18 +7,30 @@
   "scripts": {
     "dev": "vite",
     "typecheck": "tsc --noEmit",
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc --noEmit && vite build && vite build --config apps/vite.config.ts && node scripts/third-party-notices.mjs . dist/THIRD-PARTY-NOTICES.txt",
     "preview": "vite preview --port 4173 --strictPort",
     "test": "vitest run --coverage",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "dev:apps": "vite --config apps/vite.config.ts"
   },
   "devDependencies": {
     "@playwright/test": "1.65.0",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.2.1",
     "@vitest/coverage-v8": "5.1.0",
     "fake-indexeddb": "6.2.7",
     "jsdom": "31.0.0",
     "typescript": "7.0.2",
     "vite": "8.3.6",
     "vitest": "5.1.0"
+  },
+  "dependencies": {
+    "@excalidraw/excalidraw": "0.18.1",
+    "dxf-parser": "1.1.2",
+    "pdf-lib": "1.17.1",
+    "pdfjs-dist": "6.5.438",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
   }
 }

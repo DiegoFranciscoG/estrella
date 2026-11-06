@@ -1,7 +1,7 @@
 import "./styles.css";
 import { isSignedIn, onUserChange, restore } from "./core/session";
 import { h } from "./ui/dom";
-import { liteActive, page } from "./ui/shell";
+import { header, liteActive, page } from "./ui/shell";
 import { starSpinner } from "./ui/star";
 import { applyTheme } from "./ui/theme";
 import { accountView } from "./ui/views/account";
@@ -44,7 +44,8 @@ function render(): void {
     case "": main = panelView(); break;
     default: main = notFound();
   }
-  root.replaceChildren(page(main));
+  // Programs get the whole screen height: no footer, the frame fills what is left under the bar.
+  root.replaceChildren(route === "p" ? h("div", { class: "app app-program" }, header(), main) : page(main));
   // Tokens from email links must not stay in the address bar or the history.
   if (query.has("token")) history.replaceState(null, "", `#/${route}`);
   // On route changes focus moves to the new page's title, as a screen reader user expects. On the

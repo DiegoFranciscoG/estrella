@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Folio</title>
+  </head>
+  <body>
+    <header class="bar" role="toolbar" aria-label="Herramientas de Folio">
+      <label class="button" for="open">Abrir PDF<input id="open" type="file" accept="application/pdf,.pdf" hidden /></label>
+      <label class="button" for="append">Unir otro PDF<input id="append" type="file" accept="application/pdf,.pdf" multiple hidden /></label>
+      <span class="sep" aria-hidden="true"></span>
+      <div class="group" role="radiogroup" aria-label="Herramienta">
+        <button type="button" data-tool="select" aria-pressed="true">Ver</button>
+        <button type="button" data-tool="text" aria-pressed="false">Texto</button>
+        <button type="button" data-tool="highlight" aria-pressed="false">Resaltar</button>
+      </div>
+      <span class="sep" aria-hidden="true"></span>
+      <button type="button" id="rotate" title="Girar las páginas marcadas, o la actual">Girar</button>
+      <button type="button" id="delete" title="Borrar las páginas marcadas, o la actual">Borrar</button>
+      <button type="button" id="left" title="Mover la página actual antes">Mover antes</button>
+      <button type="button" id="right" title="Mover la página actual después">Mover después</button>
+      <span class="sep" aria-hidden="true"></span>
+      <button type="button" id="undo" title="Deshacer (Ctrl+Z)">Deshacer</button>
+      <button type="button" id="redo" title="Rehacer (Ctrl+Y)">Rehacer</button>
+      <span class="sep" aria-hidden="true"></span>
+      <button type="button" id="zoom-out" aria-label="Alejar">−</button>
+      <span id="zoom" class="muted">100 %</span>
+      <button type="button" id="zoom-in" aria-label="Acercar">+</button>
+      <span class="spacer"></span>
+      <button type="button" id="extract">Descargar páginas marcadas</button>
+      <button type="button" id="download" class="primary">Descargar PDF</button>
+    </header>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+    <main class="layout">
+      <ol id="thumbs" class="thumbs" aria-label="Páginas"></ol>
+      <section id="viewer" class="viewer" aria-label="Página actual">
+        <div id="empty" class="empty">
+          <p><strong>Abre un PDF para empezar.</strong></p>
+          <p>Todo se hace en tu equipo: el archivo no se sube a ningún servidor.</p>
+        </div>
+        <div id="page" class="page" hidden>
+          <canvas id="canvas"></canvas>
+          <div id="overlay" class="overlay"></div>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

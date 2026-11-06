@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Plano</title>
+  </head>
+  <body>
+    <header class="bar" role="toolbar" aria-label="Herramientas de Plano">
+      <div class="group" role="radiogroup" aria-label="Herramienta">
+        <button type="button" data-tool="select" aria-pressed="true" title="Seleccionar y mover (V)">Seleccionar</button>
+        <button type="button" data-tool="line" aria-pressed="false" title="Línea (L)">Línea</button>
+        <button type="button" data-tool="polyline" aria-pressed="false" title="Polilínea (P)">Polilínea</button>
+        <button type="button" data-tool="rect" aria-pressed="false" title="Rectángulo (R)">Rectángulo</button>
+        <button type="button" data-tool="circle" aria-pressed="false" title="Círculo (C)">Círculo</button>
+        <button type="button" data-tool="text" aria-pressed="false" title="Texto (T)">Texto</button>
+        <button type="button" data-tool="dim" aria-pressed="false" title="Cota (D)">Cota</button>
+      </div>
+      <span class="sep" aria-hidden="true"></span>
+      <button type="button" id="undo" title="Deshacer (Ctrl+Z)">Deshacer</button>
+      <button type="button" id="redo" title="Rehacer (Ctrl+Y)">Rehacer</button>
+      <button type="button" id="delete" title="Borrar selección (Supr)">Borrar</button>
+      <span class="sep" aria-hidden="true"></span>
+      <button type="button" id="grid" aria-pressed="true" title="Ajustar a la rejilla (G)">Rejilla</button>
+      <label class="muted" for="grid-step">Paso</label>
+      <input id="grid-step" type="number" min="0.1" step="any" value="10" title="Paso de la rejilla en mm" />
+      <button type="button" id="osnap" aria-pressed="true" title="Imán a extremos, puntos medios y centros (S)">Imán</button>
+      <button type="button" id="ortho" aria-pressed="false" title="Solo horizontal o vertical (F8 o mantener Mayús)">Orto</button>
+      <button type="button" id="fit" title="Ver todo (F)">Ver todo</button>
+      <span class="spacer"></span>
+      <label class="button" for="import">Importar DXF<input id="import" type="file" accept=".dxf" hidden /></label>
+      <button type="button" id="export-svg">Exportar SVG</button>
+      <button type="button" id="export-dxf" class="primary">Exportar DXF</button>
+    </header>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+    <main class="layout">
+      <div class="stage">
+        <canvas id="canvas" tabindex="0" aria-label="Área de dibujo. Usa las herramientas o los atajos de teclado."></canvas>
+        <div class="command">
+          <label for="cmd">Medida</label>
+          <input id="cmd" type="text" inputmode="decimal" autocomplete="off" placeholder="Escribe una longitud y pulsa Enter" />
+          <span id="coords" class="muted">x 0 · y 0 mm</span>
+        </div>
+      </div>
+      <aside class="side" aria-label="Capas">
+        <h2>Capas</h2>
+        <ul id="layers" class="layers"></ul>
+        <button type="button" id="add-layer">Nueva capa</button>
+        <h2>Ayuda</h2>
+        <ul class="help">
+          <li>Rueda: acercar o alejar. Arrastrar con la rueda o con Espacio: mover la vista.</li>
+          <li>Mientras dibujas, escribe una medida en mm y pulsa Enter. Rectángulo: ancho,alto.</li>
+          <li>Polilínea: doble clic o Enter para terminar. Esc cancela.</li>
+          <li>Unidades: milímetros.</li>
+        </ul>
+      </aside>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

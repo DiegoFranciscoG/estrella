@@ -60,10 +60,30 @@ server {
         return 200 "ok";
     }
 
+    # Module workers (pdf.js) use .mjs, which nginx's default types do not know; browsers refuse
+    # to run a module served as octet-stream.
+    location ~* ^/apps/.+\.mjs$ {
+        types { }
+        default_type application/javascript;
+        include /etc/nginx/snippets/security-headers.conf;
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self'; connect-src 'self' data: blob:; object-src 'none'; base-uri 'none'" always;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        try_files $uri =404;
+    }
+
+    # Hashed build files never change: cache them for a year so programs open instantly next time.
+    location /apps/assets/ {
+        include /etc/nginx/snippets/security-headers.conf;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        try_files $uri =404;
+    }
+
     location /apps/ {
         include /etc/nginx/snippets/security-headers.conf;
-        # Embeddable only by the panel; programs get no network access of their own.
-        add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors ${PANEL_ORIGIN}" always;
+        # Embeddable only by the panel. Programs may load their own files from this site (fonts,
+        # workers, chunks) but nothing from elsewhere. Inline styles are allowed because the
+        # integrated editors inject them; inline scripts and eval are not.
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; worker-src 'self' blob:; connect-src 'self' data: blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors ${PANEL_ORIGIN}" always;
         add_header Cache-Control "no-cache";
         try_files $uri =404;
     }
@@ -73,6 +93,6 @@ server {
     }
 
     gzip on;
-    gzip_types text/css application/javascript image/svg+xml;
+    gzip_types text/css application/javascript image/svg+xml application/wasm;
     gzip_min_length 512;
 }

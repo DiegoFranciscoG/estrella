@@ -17,7 +17,7 @@ export default defineConfig({
     setupFiles: ["tests/unit/setup.ts"],
     coverage: {
       provider: "v8",
-      include: ["src/core/**"],
+      include: ["src/core/**", "apps/shared/bridge.ts", "apps/folio/ops.ts", "apps/plano/model.ts", "apps/plano/dxf.ts", "apps/plano/svg.ts"],
       thresholds: { lines: 70 },
     },
   },

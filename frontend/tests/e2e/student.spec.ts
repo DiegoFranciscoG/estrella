@@ -75,7 +75,7 @@ test("signs up, keeps the recovery code and confirms the email", async ({ page }
 test("signs in and sees an honest catalog", async ({ page }) => {
   await signIn(page);
   await expect(page.locator('[data-program="apuntes"] .badge')).toHaveText("Disponible");
-  await expect(page.locator('[data-program="plano"] button')).toBeDisabled();
+  await expect(page.locator('[data-program="visor"] button')).toBeDisabled();
   await expect(page.locator('[data-program="sitio"]')).toContainText("hueco más grande");
   const sessionMail = await latestToken(email, "Confirma tu correo").catch(() => null);
   expect(sessionMail).not.toBeNull();

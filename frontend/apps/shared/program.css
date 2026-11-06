@@ -1,0 +1,32 @@
+/* Shared look of ESTRELLA's own programs: same grayscale tokens as the panel. */
+:root {
+  --bg: #f4f4f4; --surface: #fff; --fg: #111; --muted: #555; --line: #d0d0d0; --strong: #111;
+  --inverse-bg: #111; --inverse-fg: #fff; --canvas: #e6e6e6;
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  --bg: #0b0b0b; --surface: #151515; --fg: #f2f2f2; --muted: #a6a6a6; --line: #333; --strong: #f2f2f2;
+  --inverse-bg: #f2f2f2; --inverse-fg: #0b0b0b; --canvas: #050505;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; margin: 0; }
+body { display: flex; flex-direction: column; background: var(--bg); color: var(--fg); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.bar { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; padding: 4px 6px; background: var(--surface); border-bottom: 1px solid var(--line); }
+.bar button, .bar .button, .bar select, .bar input[type="number"] {
+  min-height: 32px; padding: 3px 8px; font: inherit; font-size: 13px; color: var(--fg); background: transparent;
+  border: 1px solid var(--line); border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center;
+}
+.bar input[type="number"] { width: 72px; cursor: text; }
+.bar button:hover:not(:disabled), .bar .button:hover { border-color: var(--strong); }
+.bar button:disabled { opacity: 0.4; cursor: not-allowed; }
+.bar button[aria-pressed="true"] { background: var(--inverse-bg); color: var(--inverse-fg); border-color: var(--inverse-bg); font-weight: 600; }
+.bar .primary { background: var(--inverse-bg); color: var(--inverse-fg); border-color: var(--inverse-bg); font-weight: 600; }
+.group { display: inline-flex; gap: 2px; }
+.sep { width: 1px; height: 22px; background: var(--line); margin: 0 2px; }
+.spacer { flex: 1; }
+.muted { color: var(--muted); }
+:focus-visible { outline: 2px solid var(--strong); outline-offset: 2px; }
+.status { margin: 0; padding: 4px 10px; min-height: 26px; font-size: 13px; color: var(--muted); border-bottom: 1px solid var(--line); background: var(--surface); }
+.status.error { color: var(--fg); font-weight: 700; border-left: 4px solid var(--strong); }
