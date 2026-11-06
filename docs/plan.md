@@ -13,7 +13,7 @@ Las horas son estimaciones, no mediciones. Parten de las 56 h del documento orig
 | Cifrado | Web Crypto en el dispositivo | El servidor no ve contenido |
 | API | Spring Boot + PostgreSQL + Flyway | Tu estándar de portafolio |
 | Despliegue | Frontend estático; API en Render; base en Neon | Gratis. Render duerme a los 15 min: la app funciona offline y sincroniza al despertar |
-| IA | OpenRouter con PKCE y llave del estudiante | Sin costo para ti |
+| IA | OpenRouter con PKCE y la cuenta de cada estudiante; el servidor guarda su llave cifrada y hace de proxy | Sin costo para ti ni para el estudiante (solo modelos gratuitos), y la llave nunca llega al navegador |
 | Escritorio | Instalador pequeño que baja los programas oficiales | No redistribuye programas pesados |
 
 Medición útil: las demos de LibreCAD y OpenSCAD abrieron con `crossOriginIsolated` en falso. Los programas elegidos no parecen exigir esas cabeceras, lo que simplifica el hosting; se confirma al integrarlos.
@@ -28,7 +28,7 @@ Medición útil: las demos de LibreCAD y OpenSCAD abrieron con `crossOriginIsola
 | **Primera publicación posible** | | Con F4 ya resuelve el problema principal | Tú decides con "VOY A SUBIR" |
 | F5 Guía | 8 | Equivalencias de arquitectura y diseño gráfico, con buscador | Cada ficha con fuente |
 | F6 Sincronización | 10 | Cifrado, versiones, exportar todo, borrar cuenta, aviso de privacidad | T-08, T-09, T-10 |
-| F7 IA | 6 | PKCE, contexto visible antes de enviar, modo sin IA | Probar CORS primero |
+| F7 IA | 6 | PKCE, contexto visible antes de enviar, modo sin IA | Integración contra un OpenRouter falso y e2e contra el simulador local. La prueba de CORS ya no aplica: el navegador no llama a OpenRouter |
 | F8 Escritorio y móvil | 10 | Instalador para Windows; macOS y Linux según lo que se pueda probar. PWA móvil | Instalar, desinstalar y actualizar sin perder datos |
 | F9 Cierre | 8 | Auditoría OWASP, accesibilidad, rendimiento, README | T-01, T-02, T-06; checklist "VOY A SUBIR" |
 
@@ -54,3 +54,5 @@ Medición útil: las demos de LibreCAD y OpenSCAD abrieron con `crossOriginIsola
 | 4 | Almacenamiento: Neon solo da 0,5 GB | Empezar con guardado local y una cuota pequeña; evaluar otro almacén sin tarjeta. Te aviso si alguno la pide. **Aplicado en F6:** 25 MiB por estudiante en la misma base (configurable); ningún almacén con tarjeta |
 | 5 | Datos del responsable para el aviso de privacidad (LOPDP art. 12): domicilio legal y teléfono se publicarían | Dármelos antes de abrir registros reales, o revisar con un abogado otra forma de identificarte. **Pendiente:** el aviso muestra "pendiente" y un banner de borrador hasta tenerlos (`frontend/src/data/contacto.json`, campo `responsable`) |
 | 6 | Donaciones | Como pediste, al final; queda preparado por configuración |
+| 7 | Dónde vive la llave de IA | El plan la dejaba en el navegador, pero tu regla global prohíbe llaves en el frontend. **Aplicado en F7:** el servidor la guarda cifrada y hace de proxy con límites |
+| 8 | El asistente es solo para mayores de 18 años | Lo exigen los términos de OpenRouter (§2 y §5.2). **Aplicado en F7:** de 15 a 17 años se usa la guía sin IA. Dar IA a menores requeriría otro proveedor que lo permita, por investigar |
