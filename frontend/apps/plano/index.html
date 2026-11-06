@@ -6,17 +6,7 @@
     <title>Plano</title>
   </head>
   <body>
-    <header class="bar" role="toolbar" aria-label="Herramientas de Plano">
-      <div class="group" role="radiogroup" aria-label="Herramienta">
-        <button type="button" data-tool="select" aria-pressed="true" title="Seleccionar y mover (V)">Seleccionar</button>
-        <button type="button" data-tool="line" aria-pressed="false" title="Línea (L)">Línea</button>
-        <button type="button" data-tool="polyline" aria-pressed="false" title="Polilínea (P)">Polilínea</button>
-        <button type="button" data-tool="rect" aria-pressed="false" title="Rectángulo (R)">Rectángulo</button>
-        <button type="button" data-tool="circle" aria-pressed="false" title="Círculo (C)">Círculo</button>
-        <button type="button" data-tool="text" aria-pressed="false" title="Texto (T)">Texto</button>
-        <button type="button" data-tool="dim" aria-pressed="false" title="Cota (D)">Cota</button>
-      </div>
-      <span class="sep" aria-hidden="true"></span>
+    <header class="bar" role="toolbar" aria-label="Archivo y ayudas de dibujo">
       <button type="button" id="undo" title="Deshacer (Ctrl+Z)">Deshacer</button>
       <button type="button" id="redo" title="Rehacer (Ctrl+Y)">Rehacer</button>
       <button type="button" id="delete" title="Borrar selección (Supr)">Borrar</button>
@@ -24,37 +14,106 @@
       <button type="button" id="grid" aria-pressed="true" title="Ajustar a la rejilla (G)">Rejilla</button>
       <label class="muted" for="grid-step">Paso</label>
       <input id="grid-step" type="number" min="0.1" step="any" value="10" title="Paso de la rejilla en mm" />
-      <button type="button" id="osnap" aria-pressed="true" title="Imán a extremos, puntos medios y centros (S)">Imán</button>
+      <button type="button" id="osnap" aria-pressed="true" title="Imán: extremos, medios, centros, cuadrantes, intersecciones, perpendicular y tangente (S)">Imán</button>
       <button type="button" id="ortho" aria-pressed="false" title="Solo horizontal o vertical (F8 o mantener Mayús)">Orto</button>
       <button type="button" id="fit" title="Ver todo (F)">Ver todo</button>
       <span class="spacer"></span>
-      <label class="button" for="import">Importar DXF<input id="import" type="file" accept=".dxf" hidden /></label>
+      <label class="button" for="import" title="Abre un DXF o un DWG y lo agrega al dibujo">Abrir DXF o DWG<input id="import" type="file" accept=".dxf,.dwg" hidden /></label>
       <button type="button" id="export-svg">Exportar SVG</button>
-      <button type="button" id="export-dxf" class="primary">Exportar DXF</button>
+      <button type="button" id="export-dxf">Exportar DXF</button>
+      <button type="button" id="print" class="primary" title="Imprimir o guardar en PDF a escala (Ctrl+P)">Imprimir / PDF</button>
     </header>
     <p id="status" class="status" role="status" aria-live="polite"></p>
     <main class="layout">
+      <nav class="tools" aria-label="Herramientas">
+        <div class="tool-group" role="group" aria-labelledby="g-draw">
+          <h2 id="g-draw">Dibujar</h2>
+          <button type="button" data-tool="select" aria-pressed="true" title="Seleccionar y mover arrastrando (V)">Seleccionar</button>
+          <button type="button" data-tool="line" aria-pressed="false" title="Línea (L)">Línea</button>
+          <button type="button" data-tool="polyline" aria-pressed="false" title="Polilínea (P)">Polilínea</button>
+          <button type="button" data-tool="rect" aria-pressed="false" title="Rectángulo (R)">Rectángulo</button>
+          <button type="button" data-tool="circle" aria-pressed="false" title="Círculo (C)">Círculo</button>
+          <button type="button" data-tool="arc" aria-pressed="false" title="Arco por tres puntos (A)">Arco</button>
+        </div>
+        <div class="tool-group" role="group" aria-labelledby="g-edit">
+          <h2 id="g-edit">Editar</h2>
+          <button type="button" data-tool="move" aria-pressed="false" title="Mover con punto base y distancia (M)">Mover</button>
+          <button type="button" data-tool="copy" aria-pressed="false" title="Copiar con punto base, varias veces (K)">Copiar</button>
+          <button type="button" data-tool="rotate" aria-pressed="false" title="Rotar con ángulo (Q)">Rotar</button>
+          <button type="button" data-tool="mirror" aria-pressed="false" title="Simetría respecto de una línea (W)">Simetría</button>
+          <button type="button" data-tool="scale" aria-pressed="false" title="Escalar con factor (Z)">Escala</button>
+          <button type="button" data-tool="offset" aria-pressed="false" title="Desfase o paralela a una distancia (O)">Desfase</button>
+          <button type="button" data-tool="trim" aria-pressed="false" title="Recortar en las intersecciones (X)">Recortar</button>
+        </div>
+        <div class="tool-group" role="group" aria-labelledby="g-note">
+          <h2 id="g-note">Anotar</h2>
+          <button type="button" data-tool="text" aria-pressed="false" title="Texto (T)">Texto</button>
+          <button type="button" data-tool="dim" aria-pressed="false" title="Cota alineada (D)">Cota</button>
+          <button type="button" data-tool="dimlin" aria-pressed="false" title="Cota horizontal o vertical (E)">Cota H/V</button>
+          <button type="button" data-tool="hatch" aria-pressed="false" title="Sombreado dentro de un contorno cerrado (H)">Sombreado</button>
+          <button type="button" data-tool="measure" aria-pressed="false" title="Medir distancia y área (I)">Medir</button>
+        </div>
+      </nav>
       <div class="stage">
+        <div id="hatch-options" class="options" hidden>
+          <label for="hatch-pattern">Patrón</label>
+          <select id="hatch-pattern">
+            <option value="diagonal">Diagonal</option>
+            <option value="cruzado">Cruzado</option>
+            <option value="ladrillo">Ladrillo</option>
+            <option value="solido">Sólido</option>
+          </select>
+          <label for="hatch-scale">Escala del patrón</label>
+          <input id="hatch-scale" type="number" min="0.01" step="any" value="10" />
+        </div>
         <canvas id="canvas" tabindex="0" aria-label="Área de dibujo. Usa las herramientas o los atajos de teclado."></canvas>
         <div class="command">
-          <label for="cmd">Medida</label>
-          <input id="cmd" type="text" inputmode="decimal" autocomplete="off" placeholder="Escribe una longitud y pulsa Enter" />
+          <label for="cmd">Comando</label>
+          <input id="cmd" type="text" autocomplete="off" spellcheck="false" placeholder="Escribe una medida o un comando (L, PL, REC, C, A, M, CO, RO, O, TR, H…)" />
           <span id="coords" class="muted">x 0 · y 0 mm</span>
         </div>
       </div>
-      <aside class="side" aria-label="Capas">
+      <aside class="side" aria-label="Capas y bloques">
         <h2>Capas</h2>
         <ul id="layers" class="layers"></ul>
         <button type="button" id="add-layer">Nueva capa</button>
+        <h2>Bloques</h2>
+        <ul id="blocks" class="blocks"></ul>
+        <button type="button" id="make-block" title="Convierte la selección en un bloque reutilizable">Crear bloque</button>
         <h2>Ayuda</h2>
         <ul class="help">
           <li>Rueda: acercar o alejar. Arrastrar con la rueda o con Espacio: mover la vista.</li>
-          <li>Mientras dibujas, escribe una medida en mm y pulsa Enter. Rectángulo: ancho,alto.</li>
-          <li>Polilínea: doble clic o Enter para terminar. Esc cancela.</li>
+          <li>Mientras dibujas, escribe una medida y Enter: <b>250</b>, <b>300,200</b>, <b>@50,-20</b> o <b>250&lt;30</b> (longitud y ángulo).</li>
+          <li>Para editar, primero selecciona y luego elige Mover, Copiar, Rotar…</li>
+          <li>Ctrl+A selecciona todo; Ctrl+C y Ctrl+V copian y pegan.</li>
           <li>Unidades: milímetros.</li>
         </ul>
       </aside>
     </main>
+    <dialog id="print-dialog" aria-labelledby="print-title">
+      <form id="print-form">
+        <h2 id="print-title">Imprimir o guardar en PDF</h2>
+        <div class="row">
+          <label for="p-sheet">Hoja</label>
+          <select id="p-sheet"><option>A4</option><option selected>A3</option><option>A2</option><option>A1</option></select>
+          <label for="p-orient">Orientación</label>
+          <select id="p-orient"><option value="h" selected>Horizontal</option><option value="v">Vertical</option></select>
+        </div>
+        <div class="row">
+          <label for="p-scale">Escala</label>
+          <select id="p-scale"></select>
+        </div>
+        <div class="row">
+          <label for="p-author">Autor (opcional)</label>
+          <input id="p-author" type="text" maxlength="40" autocomplete="off" />
+        </div>
+        <p id="p-message" class="muted" role="status"></p>
+        <div class="row end">
+          <button type="button" id="p-cancel">Cancelar</button>
+          <button type="submit" id="p-ok" class="primary">Descargar PDF</button>
+        </div>
+      </form>
+    </dialog>
     <script type="module" src="./main.ts"></script>
   </body>
 </html>

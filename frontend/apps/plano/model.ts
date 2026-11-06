@@ -355,7 +355,7 @@ export function dimensionGeometry(e: Extract<Entity, { kind: "dim" }>) {
     textAt: { x: (a2.x + b2.x) / 2 + nx * tick * 1.5, y: (a2.y + b2.y) / 2 + ny * tick * 1.5 },
     angle: Math.atan2(uy, ux),
     value: formatLength(measured),
-    textHeight: Math.max(tick * 2.5, 2.5),
+    textHeight: Math.max(tick * 1.25, 2.5),
   };
 }
 
