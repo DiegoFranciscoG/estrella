@@ -95,6 +95,7 @@
       document.documentElement.dataset.theme = m.theme === "dark" ? "dark" : "light";
     } else if (m.type === "estrella:flush") {
       if (dirty) snapshot();
+      send({ type: "estrella:flushed" });
     }
   });
 

@@ -13,7 +13,9 @@ export type AppMessage =
   | { type: "estrella:ready" }
   | { type: "estrella:pong"; n: number }
   | { type: "estrella:snapshot"; data: string; title?: string }
-  | { type: "estrella:busy"; busy: boolean };
+  | { type: "estrella:busy"; busy: boolean }
+  /** Answer to a flush: everything unsaved was already sent (possibly nothing). */
+  | { type: "estrella:flushed" };
 
 /** Largest snapshot accepted from a program (characters, about 35 MB of binary content). */
 export const MAX_SNAPSHOT = 50_000_000;
@@ -24,6 +26,8 @@ export function parseAppMessage(value: unknown): AppMessage | null {
   switch (m.type) {
     case "estrella:ready":
       return { type: "estrella:ready" };
+    case "estrella:flushed":
+      return { type: "estrella:flushed" };
     case "estrella:pong":
       return Number.isSafeInteger(m.n) ? { type: "estrella:pong", n: m.n as number } : null;
     case "estrella:busy":

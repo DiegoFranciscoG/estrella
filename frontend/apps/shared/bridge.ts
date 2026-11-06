@@ -125,7 +125,8 @@ export function connect(program: Program, options: BridgeOptions = {}): Connecti
         program.onTheme?.(m.theme === "dark" ? "dark" : "light");
         break;
       case "estrella:flush":
-        void snapshot();
+        // Send what is pending, then confirm so the panel can leave without waiting longer.
+        void snapshot().then(() => send({ type: "estrella:flushed" }));
         break;
     }
   });

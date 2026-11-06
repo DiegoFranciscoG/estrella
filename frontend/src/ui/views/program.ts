@@ -33,7 +33,7 @@ export function programView(projectId: string): HTMLElement {
   const frameBox = h("div", { class: "frame-box" }, starSpinner("Cargando el programa"));
   const main = h("main", { class: "program-view", id: "main" },
     h("div", { class: "program-bar" },
-      h("a", { class: "ghost", href: "#/", "data-testid": "back" }, "Volver al panel"),
+      h("a", { class: "ghost", href: "#/", "data-testid": "back", onclick: (e: Event) => void leave(e) }, "Volver al panel"),
       title,
       status,
     ),
@@ -44,6 +44,11 @@ export function programView(projectId: string): HTMLElement {
 
   let store: ProjectStore | null = null;
   let frame: HTMLIFrameElement | null = null;
+  /** The program's window, kept so its last messages still count after the frame leaves the page. */
+  let programWindow: Window | null = null;
+  /** Saves happen in order; a flush is confirmed only after the saves before it finished. */
+  let saving: Promise<void> = Promise.resolve();
+  let flushed: (() => void) | null = null;
   let lastSaved = 0;
   let program: Program | undefined;
   let statusTimer = 0;
@@ -58,7 +63,7 @@ export function programView(projectId: string): HTMLElement {
   };
 
   const onMessage = async (event: MessageEvent) => {
-    if (!frame || event.source !== frame.contentWindow || event.origin !== EXPECTED_ORIGIN) return;
+    if (!programWindow || event.source !== programWindow || event.origin !== EXPECTED_ORIGIN) return;
     const msg = parseAppMessage(event.data);
     const raw = event.data as { type?: unknown; data?: unknown } | null;
     if (!msg && raw?.type === "estrella:snapshot" && typeof raw.data === "string" && raw.data.length > MAX_SNAPSHOT) {
@@ -85,12 +90,18 @@ export function programView(projectId: string): HTMLElement {
       case "estrella:busy":
         heartbeat.busy(msg.busy);
         break;
-      case "estrella:snapshot":
+      case "estrella:snapshot": {
         heartbeat.pong();
-        await store.saveSnapshot(projectId, msg.data, msg.title);
+        const s = store;
+        saving = saving.then(() => s.saveSnapshot(projectId, msg.data, msg.title)).catch(() => undefined);
+        await saving;
         lastSaved = Date.now();
         if (msg.title) title.textContent = msg.title;
         showStatus();
+        break;
+      }
+      case "estrella:flushed":
+        void saving.then(() => flushed?.());
         break;
     }
   };
@@ -107,6 +118,29 @@ export function programView(projectId: string): HTMLElement {
       "data-testid": "program-frame",
     });
     frameBox.replaceChildren(frame);
+    programWindow = frame.contentWindow;
+  };
+
+  /** Asks the program for its unsaved state and waits until it is stored here (at most 1.5 s). */
+  const flush = () => new Promise<void>((resolve) => {
+    if (!programWindow) return resolve();
+    const timeout = window.setTimeout(done, 1500);
+    function done() {
+      window.clearTimeout(timeout);
+      flushed = null;
+      resolve();
+    }
+    flushed = done;
+    post({ type: "estrella:flush" });
+  });
+
+  /** Leaving with the panel's own button: the last keystrokes are saved before the frame goes away. */
+  const leave = async (e: Event) => {
+    if (closed) return;
+    e.preventDefault();
+    status.textContent = "Guardando…";
+    await flush();
+    location.hash = "#/";
   };
 
   const showFrozen = (silentMs: number) => {
@@ -130,7 +164,8 @@ export function programView(projectId: string): HTMLElement {
     if (closed) return;
     closed = true;
     heartbeat.stop();
-    window.removeEventListener("message", onMessage);
+    // Keep listening a moment: a program removed by other navigation still sends its last save.
+    window.setTimeout(() => window.removeEventListener("message", onMessage), 2000);
     window.removeEventListener("pagehide", onPageHide);
     window.removeEventListener("hashchange", onLeave);
     window.clearInterval(statusTimer);
@@ -138,7 +173,9 @@ export function programView(projectId: string): HTMLElement {
     // Ask the program to send its latest state, then mark the project as cleanly closed.
     post({ type: "estrella:flush" });
     const s = store;
-    window.setTimeout(() => { void s?.markClosed(projectId); }, 300);
+    window.setTimeout(() => {
+      void s?.markClosed(projectId);
+    }, 300);
   };
   const onPageHide = () => {
     // Closing the tab: flush; the "open" mark stays so the next visit can say what was recovered.

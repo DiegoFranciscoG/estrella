@@ -117,6 +117,22 @@ test("writes notes that save themselves and survive a closed tab", async ({ page
   await expect(page.getByTestId("recovered")).toBeHidden();
 });
 
+test("leaving right after typing keeps the last words", async ({ page }) => {
+  await signIn(page);
+  await page.getByTestId("new-apuntes").click();
+  await expect(page).toHaveURL(/#\/p\/[0-9a-f-]{36}$/);
+  const projectUrl = page.url();
+  await page.getByTestId("thanks-close").click({ timeout: 3000 }).catch(() => undefined);
+  const app = page.frameLocator('[data-testid="program-frame"]');
+  await app.locator("#title").fill("Al vuelo");
+  await app.locator("#body").fill("Escrito justo antes de salir");
+  // No waiting for the autosave: straight back to the panel.
+  await page.getByTestId("back").click();
+  await expect(page.getByTestId("projects")).toContainText("Al vuelo");
+  await page.goto(projectUrl);
+  await expect(app.locator("#body")).toHaveValue("Escrito justo antes de salir");
+});
+
 test("the theme switch reaches the program", async ({ page }) => {
   await signIn(page);
   const toggle = page.getByTestId("theme");
@@ -161,7 +177,7 @@ test("wrong passwords are throttled", async ({ page }) => {
 
 test("deleting the account removes it for good", async ({ page }) => {
   await signIn(page);
-  await page.getByRole("link", { name: "Mi cuenta" }).click();
+  await page.getByRole("link", { name: "Mi cuenta", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Mi cuenta" })).toBeVisible();
   page.on("dialog", (d) => void d.accept());
   await page.getByLabel("Tu contraseña").fill(password);
