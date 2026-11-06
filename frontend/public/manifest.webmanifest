@@ -1,0 +1,14 @@
+{
+  "name": "ESTRELLA",
+  "short_name": "ESTRELLA",
+  "description": "Programas libres de diseño, CAD y edición para estudiantes.",
+  "lang": "es",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#111111",
+  "icons": [
+    { "src": "/estrella.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

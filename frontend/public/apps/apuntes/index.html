@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Apuntes</title>
+    <link rel="stylesheet" href="./apuntes.css" />
+  </head>
+  <body>
+    <div class="toolbar" role="toolbar" aria-label="Herramientas de Apuntes">
+      <label class="visually-hidden" for="title">Título</label>
+      <input id="title" type="text" maxlength="120" placeholder="Título" autocomplete="off" />
+      <button type="button" id="heading" title="Insertar título de sección">Título</button>
+      <button type="button" id="list" title="Insertar elemento de lista">Lista</button>
+      <button type="button" id="check" title="Insertar tarea">Tarea</button>
+      <button type="button" id="date" title="Insertar fecha de hoy">Fecha</button>
+      <button type="button" id="export-md">Exportar .md</button>
+      <button type="button" id="export-txt">Exportar .txt</button>
+    </div>
+    <label class="visually-hidden" for="body">Contenido</label>
+    <textarea id="body" spellcheck="true" placeholder="Escribe tus apuntes. Se guardan solos."></textarea>
+    <p class="status" id="count" aria-live="polite">0 palabras</p>
+    <script src="./apuntes.js"></script>
+  </body>
+</html>
