@@ -65,7 +65,7 @@ app:
     versions-kept: ${APP_SYNC_VERSIONS_KEPT:5}
     max-projects: ${APP_SYNC_MAX_PROJECTS:500}
     uploads-per-minute: ${APP_SYNC_UPLOADS_PER_MINUTE:60}
-  privacy-notice-version: "2026-11-05"
+  privacy-notice-version: "2026-11-06"
   unverified-account-retention: 7d
 
 logging:

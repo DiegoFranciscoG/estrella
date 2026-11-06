@@ -1,5 +1,7 @@
 import { APIRequestContext, expect, FrameLocator, Page, request, test } from "@playwright/test";
+import { execFileSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
+import { resolve } from "node:path";
 
 /** Shared by the program tests: one verified account per test file, and the panel's own storage. */
 
@@ -8,6 +10,30 @@ const MAILPIT = process.env.E2E_MAILPIT_URL ?? "http://127.0.0.1:8025";
 let email = "";
 let password = "";
 let mail: APIRequestContext;
+
+export const accountEmail = (): string => email;
+export const accountPassword = (): string => password;
+
+/** Signs in on the panel with this file's account. */
+export async function signIn(page: Page): Promise<void> {
+  await page.goto("/#/ingresar");
+  await page.getByRole("textbox", { name: "Correo" }).fill(email);
+  await page.getByLabel("Contraseña", { exact: true }).fill(password);
+  await page.getByRole("button", { name: "Entrar", exact: true }).click();
+  await expect(page.getByTestId("projects")).toBeVisible({ timeout: 30_000 });
+}
+
+/**
+ * Runs SQL inside the database container, as its own user, and returns the result as text. Used
+ * to check what the server really stores (T-09, T-10), not only what the API answers.
+ */
+export function sql(query: string): string {
+  return execFileSync("docker", ["compose", "exec", "-T", "db", "sh", "-c", 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tA -v ON_ERROR_STOP=1'], {
+    cwd: resolve(process.cwd(), ".."),
+    input: query,
+    encoding: "utf8",
+  }).trim();
+}
 
 /** Registers and verifies a fresh account before the file's tests run. */
 export function useAccount(): void {

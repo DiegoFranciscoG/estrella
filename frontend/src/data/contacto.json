@@ -1,6 +1,19 @@
 {
   "repository": "https://github.com/DiegoFranciscoG/estrella",
-  "instagram": { "handle": "@diego.granda.z", "url": "https://www.instagram.com/diego.granda.z/" },
+  "instagram": {
+    "handle": "@diego.granda.z",
+    "url": "https://www.instagram.com/diego.granda.z/"
+  },
   "email": null,
-  "donations": { "enabled": false, "url": null, "label": null }
+  "donations": {
+    "enabled": false,
+    "url": null,
+    "label": null
+  },
+  "responsable": {
+    "nombre": "Diego Francisco Granda Zhingre",
+    "domicilio": null,
+    "telefono": null,
+    "correo": null
+  }
 }
