@@ -193,7 +193,39 @@ Los pasos de Lienzo y Plano se tomaron de su interfaz real (menús de miniPaint 
 | La guía de Scribus es de la versión 1.3 | Texto del tutorial | Las fichas lo avisan: los nombres del menú pueden variar |
 | **SUPUESTO:** los nombres en español de los menús de GIMP, Inkscape y Scribus | Los manuales consultados muestran los menús en inglés | Las fichas dan el nombre en inglés entre paréntesis cuando hay duda |
 
-## 9. Conclusiones de diseño
+## 9. Fase 6: sincronización cifrada y privacidad (2026-11-06)
+
+| Tema | Fuente | URL | Qué sale de ahí |
+|---|---|---|---|
+| Contenido del aviso de privacidad | LOPDP art. 12 (texto de Ediciones Legales, reforma R.O. 290-5S) | https://www.dspace.espol.edu.ec/bitstream/123456789/57303/1/LEY%20ORG%C3%81NICA%20DE%20PROTECCI%C3%93N%20DE%20DATOS%20PERSONALES.pdf | Los 17 puntos que el aviso cubre, incluido domicilio, teléfono y correo del responsable |
+| Acceso, eliminación, portabilidad | LOPDP arts. 13, 15 y 17 (misma fuente) | (ídem) | 15 días para atender; revocar el consentimiento da derecho a borrar (15.6); formato "estructurado, común, inter-operable y de lectura mecánica" |
+| Vulneraciones | LOPDP arts. 43 y 46 (misma fuente) | (ídem) | Autoridad en 5 días y CSIRT; titular en 3 días si hay riesgo, salvo medidas efectivas como el cifrado; proveedores en 2 días |
+| Datos fuera de Ecuador | LOPDP art. 60 (misma fuente) | (ídem) | Consentimiento explícito tras informar los riesgos: se pide al activar la nube |
+| Autoridad | Superintendencia de Protección de Datos Personales | https://www.spdp.gob.ec/ | Dónde reclamar (enlazada en el aviso) |
+| Límite de AES-GCM | NIST SP 800-38D, §8.3 | https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf | Con nonces aleatorios, como máximo 2^32 cifrados por clave |
+| Compresión en el navegador | MDN, CompressionStream | https://developer.mozilla.org/en-US/docs/Web/API/CompressionStream | Disponible en todos los navegadores principales desde mayo de 2023 |
+| Versiones sin pisarse | RFC 9110, §13.1.1 y §15.5.13 | https://www.rfc-editor.org/rfc/rfc9110.html | `If-Match`, `ETag` y 412 cuando la versión de partida no coincide |
+| Tamaño de los pedidos | nginx, `client_max_body_size` | https://nginx.org/en/docs/http/ngx_http_core_module.html | 1 MB por defecto: se sube a 11 MB solo en `/api/` |
+| Formato ZIP | PKWARE APPNOTE.TXT | https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT | Encabezados, directorio central, CRC-32 y nombres UTF-8 (bit 11) |
+
+| Hallazgo | Cómo se detectó | Decisión |
+|---|---|---|
+| **Error previo (fase 2):** si el estudiante escribía y volvía al panel en menos de 1,2 s, se perdían esas últimas palabras: el panel dejaba de escuchar al programa antes de recibir su último guardado | Prueba de extremo a extremo de sincronización: la edición del segundo equipo nunca llegó al servidor | "Volver al panel" espera la confirmación del programa (`estrella:flushed`, máximo 1,5 s) y el panel escucha 2 s más tras cerrar. Prueba de regresión nueva |
+| Retirar la nube y volver a activarla habría hecho que otro equipo borrara sus proyectos, al verlos "borrados en la nube" | Revisión del diseño antes de programar | `sync_epoch`: si cambia, cada equipo vuelve a subir lo suyo en lugar de borrarlo |
+| Al salir de un programa se subía una versión idéntica a la anterior | Prueba de extremo a extremo | Un guardado idéntico no cuenta como cambio |
+| Con dos clases de pruebas de integración, la segunda usaba una base ya detenida | Batería completa del backend | Un solo contenedor de PostgreSQL para toda la corrida |
+| `SECURITY.md` decía que Dependabot revisaba las dependencias, pero el repositorio no lo tiene configurado | Revisión del repositorio | Se corrigió el texto; activar Dependabot queda a tu decisión |
+| Una cuenta con un proyecto que no cupo quedaba con su nombre en la nube y sin contenido; el siguiente intento cortaba toda la sincronización | Prueba unitaria con servidor simulado | La versión 0 se trata como "falta subir el contenido" |
+
+**Cuota:** 25 MiB por estudiante y 10 MiB por versión cifrada. Con 0,5 GB de Neon alcanza para unos veinte estudiantes que la llenen; un plano pesa kilobytes, así que en la práctica son muchos más.
+
+**SUPUESTOS de esta fase:**
+1. **Copias de seguridad del proveedor de base de datos:** no verifiqué cuánto tiempo conserva Neon datos borrados en su plan gratuito. El aviso dice que el plazo se publicará antes de abrir registros.
+2. **"Término" de 5 y 3 días (arts. 43 y 46):** en la normativa ecuatoriana suele significar días hábiles; conviene confirmarlo con un abogado.
+3. **Transferencia internacional:** se pide consentimiento explícito (art. 60.2), pero la lista de proveedores y sus garantías debe revisarla un abogado antes de publicar.
+4. **Delegado de protección de datos (art. 48):** sigue sin confirmar si un proyecto gratuito pequeño debe designarlo.
+
+## 10. Conclusiones de diseño
 
 - **La línea legal se mantiene:** cambiar el nombre no legaliza una copia. Código, interfaz, nombre e íconos propios, y programas libres con su licencia.
 - **"Todas las opciones de los 19 programas" no es alcanzable.** ESTRELLA debe decir qué hace cada herramienta y qué no.

@@ -2,7 +2,7 @@
 
 El servidor guarda lo mínimo. El contenido de los proyectos llega cifrado y **los nombres de proyecto también**: así el servidor no conoce ni el título del trabajo. Esto va un paso más allá del documento original, que dejaba el nombre visible.
 
-La migración propuesta está en `backend/src/main/resources/db/migration/V1__init.sql`.
+Migraciones: `V1__init.sql` (cuentas y proyectos) y `V2__project_sync.sql` (fase 6: bytes cifrados, época de sincronización y restricciones), en `backend/src/main/resources/db/migration/`.
 
 ```mermaid
 erDiagram
@@ -12,6 +12,7 @@ erDiagram
     USER_ACCOUNT ||--o{ PROJECT : posee
     USER_ACCOUNT ||--o{ PROGRAM_STATE : registra
     PROJECT ||--o{ PROJECT_VERSION : conserva
+    PROJECT_VERSION ||--|| PROJECT_BLOB : guarda
 
     USER_ACCOUNT {
         uuid id PK
@@ -24,6 +25,7 @@ erDiagram
         bytea avatar
         bigint storage_used_bytes
         bigint storage_quota_bytes
+        uuid sync_epoch
     }
     USER_SESSION {
         uuid id PK
@@ -54,6 +56,7 @@ erDiagram
         text program_id
         bytea encrypted_name
         bigint current_version
+        timestamptz created_at
         timestamptz updated_at
     }
     PROJECT_VERSION {
@@ -64,6 +67,10 @@ erDiagram
         bigint size_bytes
         bytea nonce
         bytea sha256
+    }
+    PROJECT_BLOB {
+        text storage_key PK
+        bytea data
     }
     PROGRAM_STATE {
         uuid user_id PK
@@ -84,7 +91,14 @@ erDiagram
 | Borrado real en cascada | `ON DELETE CASCADE` más borrado del almacén | LOPDP art. 15; T-10 |
 | Versiones para no pisar trabajo entre dispositivos | `current_version`, `UNIQUE(project_id, version)` | Pedido: "nunca se pierda nada" |
 | Agradecimiento una vez por programa | `PROGRAM_STATE` | Pedido |
-| Cuota por usuario | `storage_quota_bytes` | Límites de plan gratuito |
+| Cuota por usuario | `storage_quota_bytes` (25 MiB por defecto) y `storage_used_bytes <= storage_quota_bytes` | Límites de plan gratuito (Neon: 0,5 GB) |
+| Solo texto cifrado en el servidor | `encrypted_name` (29 a 2048 bytes) y `project_blob.data`: nonce de 12 bytes, cifrado AES-GCM y etiqueta | T-09; el contenido se cifra en el equipo |
+| No pisar trabajo entre equipos | `If-Match` con la versión de partida; si no coincide, 412 y el equipo guarda una copia | RFC 9110; T-08 |
+| Últimas 5 versiones por proyecto | Las anteriores se borran al subir una nueva, o antes si falta espacio | Cuota |
+| Los bytes se borran con su versión | `project_blob.storage_key` → `project_version.storage_key` con `ON DELETE CASCADE` | LOPDP art. 15; T-10 |
+| Retirar la nube borra la copia del servidor | Al revocar `PROJECT_SYNC` se borran los proyectos y cambia `sync_epoch` | LOPDP art. 15.6 |
+| Época de sincronización | `sync_epoch` cambia cuando el servidor vacía la nube; los equipos vuelven a subir en vez de borrar | Evita perder trabajo local |
+| Contenido atado a su dueño, proyecto y versión | Datos asociados de AES-GCM: `estrella:v1:content:<usuario>:<proyecto>:<versión>` | El servidor no puede intercambiar ni retroceder versiones |
 
 ## Sin base de datos
 

@@ -50,7 +50,7 @@ Medición útil: las demos de LibreCAD y OpenSCAD abrieron con `crossOriginIsola
 |---|---|---|
 | 1 | Aceptar el enfoque de plataforma sobre programas libres, sin clones renombrados | Sí: es lo legal y lo alcanzable |
 | 2 | Nombre definitivo | ESTRELLA (falta buscar conflictos de marca en SENADI antes de publicar) |
-| 3 | Si olvida contraseña **y** código de recuperación, el trabajo sincronizado se pierde | Aceptarlo y explicarlo al registrarse: es el precio de que nadie más pueda leerlo |
-| 4 | Almacenamiento: Neon solo da 0,5 GB | Empezar con guardado local y una cuota pequeña; evaluar otro almacén sin tarjeta. Te aviso si alguno la pide |
-| 5 | Datos del responsable para el aviso de privacidad (LOPDP art. 12): domicilio legal y teléfono se publicarían | Dármelos antes de abrir registros reales, o revisar con un abogado otra forma de identificarte |
+| 3 | Si olvida contraseña **y** código de recuperación, el trabajo sincronizado se pierde | Aceptarlo y explicarlo al registrarse: es el precio de que nadie más pueda leerlo. **Aplicado en F6** con la recomendación (se explica al registrarse y en Mi cuenta); puedes cambiarlo |
+| 4 | Almacenamiento: Neon solo da 0,5 GB | Empezar con guardado local y una cuota pequeña; evaluar otro almacén sin tarjeta. Te aviso si alguno la pide. **Aplicado en F6:** 25 MiB por estudiante en la misma base (configurable); ningún almacén con tarjeta |
+| 5 | Datos del responsable para el aviso de privacidad (LOPDP art. 12): domicilio legal y teléfono se publicarían | Dármelos antes de abrir registros reales, o revisar con un abogado otra forma de identificarte. **Pendiente:** el aviso muestra "pendiente" y un banner de borrador hasta tenerlos (`frontend/src/data/contacto.json`, campo `responsable`) |
 | 6 | Donaciones | Como pediste, al final; queda preparado por configuración |
