@@ -171,9 +171,32 @@ class AuthFlowIntegrationTest extends IntegrationTest {
                 .andExpect(jsonPath("$.code").value("TOO_MANY_ATTEMPTS"));
     }
 
+    /** One student's typos in a lab must not lock out a classmate on the same address. */
     @Test
-    void emailSendingEndpointsAreRateLimitedPerAddress() throws Exception {
-        for (int i = 0; i < AuthService.EMAIL_ACTIONS_PER_HOUR; i++) {
+    void failuresOfOneAccountDoNotLockOthersOnTheSameAddress() throws Exception {
+        Account other = verifiedAccount("\"ACCOUNT\"");
+        String bad = "{\"email\":\"%s\",\"authKey\":\"%s\"}".formatted(uniqueEmail(), randomKey(32));
+        for (int i = 0; i < AttemptLimiter.FREE_FAILURES + 2; i++) {
+            mvc.perform(json(post("/api/v1/auth/login"), bad));
+        }
+        login(other);
+    }
+
+    @Test
+    void emailSendingEndpointsAreRateLimitedPerInbox() throws Exception {
+        String email = uniqueEmail();
+        for (int i = 0; i < AuthService.EMAIL_ACTIONS_PER_EMAIL_HOUR; i++) {
+            mvc.perform(json(post("/api/v1/auth/password-reset/request"), "{\"email\":\"" + email + "\"}"))
+                    .andExpect(status().isAccepted());
+        }
+        mvc.perform(json(post("/api/v1/auth/password-reset/request"), "{\"email\":\"" + email + "\"}"))
+                .andExpect(status().isTooManyRequests());
+    }
+
+    /** A whole class behind one school address can still sign up, but not without limit. */
+    @Test
+    void emailSendingEndpointsAllowAClassroomPerAddressButNotMore() throws Exception {
+        for (int i = 0; i < AuthService.EMAIL_ACTIONS_PER_ADDRESS_HOUR; i++) {
             mvc.perform(json(post("/api/v1/auth/password-reset/request"), "{\"email\":\"" + uniqueEmail() + "\"}"))
                     .andExpect(status().isAccepted());
         }

@@ -13,8 +13,12 @@
   var dirty = false;
   var ready = false;
 
+  // Only the ESTRELLA panel may embed this page (frame-ancestors), so the parent is the panel.
+  // Where the browser exposes it, the message is still addressed to the panel's exact origin.
+  var PANEL = (location.ancestorOrigins && location.ancestorOrigins[0]) || "*";
+
   function send(message) {
-    window.parent.postMessage(message, "*");
+    window.parent.postMessage(message, PANEL === "null" ? "*" : PANEL);
   }
 
   function serialize() {

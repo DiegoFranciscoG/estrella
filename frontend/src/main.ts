@@ -47,12 +47,17 @@ function render(): void {
   root.replaceChildren(page(main));
   // Tokens from email links must not stay in the address bar or the history.
   if (query.has("token")) history.replaceState(null, "", `#/${route}`);
+  // On route changes focus moves to the new page's title, as a screen reader user expects. On the
+  // first load it stays at the top, so Tab reaches "Saltar al contenido" first.
   const heading = main.querySelector("h1");
-  if (heading) {
+  if (heading && !firstRender) {
     heading.setAttribute("tabindex", "-1");
     heading.focus({ preventScroll: true });
   }
+  firstRender = false;
 }
+
+let firstRender = true;
 
 function notFound(): HTMLElement {
   return h("main", { class: "narrow", id: "main" }, h("h1", {}, "No encontramos esa página"), h("a", { href: "#/" }, "Ir al panel"));

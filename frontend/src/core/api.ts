@@ -91,10 +91,29 @@ export function refresh(): Promise<boolean> {
   return refreshing;
 }
 
-export async function api<T>(path: string, opts: Options = {}): Promise<T> {
+/** Free hosting sleeps when idle: while the server wakes up the proxy answers 502-504. */
+const WAKING = new Set([502, 503, 504]);
+export const WAKE_RETRIES = 6;
+export const WAKE_DELAY_MS = 2500;
+
+async function sendWaiting(path: string, opts: Options, wait: (ms: number) => Promise<void>): Promise<Response> {
   let response = await send(path, opts);
+  for (let i = 0; i < WAKE_RETRIES && WAKING.has(response.status); i++) {
+    await wait(WAKE_DELAY_MS);
+    response = await send(path, opts);
+  }
+  if (WAKING.has(response.status)) {
+    throw new ApiError(response.status, "WAKING", "El servidor está despertando. Intenta de nuevo en unos segundos; tu trabajo local sigue guardado.");
+  }
+  return response;
+}
+
+const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
+export async function api<T>(path: string, opts: Options = {}, wait: (ms: number) => Promise<void> = sleep): Promise<T> {
+  let response = await sendWaiting(path, opts, wait);
   if (response.status === 401 && opts.auth) {
-    if (await refresh()) response = await send(path, opts);
+    if (await refresh()) response = await sendWaiting(path, opts, wait);
   }
   if (!response.ok) throw await toError(response);
   if (response.status === 204) return undefined as T;

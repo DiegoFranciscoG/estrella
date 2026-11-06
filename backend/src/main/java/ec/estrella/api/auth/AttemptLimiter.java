@@ -48,12 +48,17 @@ public class AttemptLimiter {
     }
 
     public void recordFailure(String key) {
+        recordFailure(key, FREE_FAILURES);
+    }
+
+    /** Same policy with a custom number of free failures, for keys shared by many people. */
+    public void recordFailure(String key, int freeFailures) {
         Instant now = clock.instant();
         failures.compute(key, (k, old) -> {
             int count = old == null ? 1 : old.count() + 1;
             Instant lockedUntil = null;
-            if (count >= FREE_FAILURES) {
-                int exponent = Math.min(count - FREE_FAILURES, 10);
+            if (count >= freeFailures) {
+                int exponent = Math.min(count - freeFailures, 10);
                 Duration lock = BASE_LOCK.multipliedBy(1L << exponent);
                 lockedUntil = now.plus(lock.compareTo(MAX_LOCK) > 0 ? MAX_LOCK : lock);
             }

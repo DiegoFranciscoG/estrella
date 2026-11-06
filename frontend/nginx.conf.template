@@ -1,0 +1,78 @@
+# Rendered at container start: ${PANEL_ORIGIN} and ${APPS_ORIGIN} come from the environment.
+
+# Panel: account, catalog and project storage.
+server {
+    listen 8080;
+    server_name _;
+    root /usr/share/nginx/html;
+    server_tokens off;
+    client_max_body_size 320k;
+
+    # Frames may only come from the programs site, and frame navigations cannot leave it.
+    set $csp "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self'; frame-src ${APPS_ORIGIN}; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'";
+
+    location = /healthz {
+        access_log off;
+        return 200 "ok";
+    }
+
+    location /api/ {
+        proxy_pass http://api:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 30s;
+    }
+
+    # Programs are not served from the panel's site.
+    location /apps/ {
+        return 404;
+    }
+
+    location /assets/ {
+        include /etc/nginx/snippets/security-headers.conf;
+        add_header Content-Security-Policy $csp always;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        try_files $uri =404;
+    }
+
+    location / {
+        include /etc/nginx/snippets/security-headers.conf;
+        add_header Content-Security-Policy $csp always;
+        add_header Cache-Control "no-cache";
+        try_files $uri /index.html;
+    }
+
+    gzip on;
+    gzip_types text/css application/javascript application/json image/svg+xml application/manifest+json;
+    gzip_min_length 512;
+}
+
+# Programs site: a different site than the panel, so browsers run programs in their own process.
+server {
+    listen 8081;
+    server_name _;
+    root /usr/share/nginx/html;
+    server_tokens off;
+
+    location = /healthz {
+        access_log off;
+        return 200 "ok";
+    }
+
+    location /apps/ {
+        include /etc/nginx/snippets/security-headers.conf;
+        # Embeddable only by the panel; programs get no network access of their own.
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors ${PANEL_ORIGIN}" always;
+        add_header Cache-Control "no-cache";
+        try_files $uri =404;
+    }
+
+    location / {
+        return 404;
+    }
+
+    gzip on;
+    gzip_types text/css application/javascript image/svg+xml;
+    gzip_min_length 512;
+}

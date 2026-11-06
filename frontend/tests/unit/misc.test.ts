@@ -106,6 +106,20 @@ describe("api client", () => {
     await expect(refresh()).rejects.toMatchObject({ code: "NETWORK" });
   });
 
+  it("waits for a sleeping server and then explains it", async () => {
+    const waits: number[] = [];
+    const wait = async (ms: number) => { waits.push(ms); };
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response("<html>bad gateway</html>", { status: 502 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ ok: true }), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+    expect(await api("/me", {}, wait)).toEqual({ ok: true });
+    expect(waits).toHaveLength(1);
+
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("", { status: 503 })));
+    await expect(api("/me", {}, wait)).rejects.toMatchObject({ code: "WAKING" });
+  });
+
   it("reads the user id from the token", () => {
     const token = `x.${btoa(JSON.stringify({ sub: "abc" })).replace(/=+$/, "")}.y`;
     expect(userIdFromToken(token)).toBe("abc");

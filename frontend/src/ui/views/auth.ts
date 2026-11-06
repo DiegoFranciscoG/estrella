@@ -161,7 +161,7 @@ export function recoveryCodeView(code: string, email: string, afterReset = false
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   });
-  return h("main", { class: "auth", id: "main" },
+  return h("main", { class: "auth single", id: "main" },
     h("section", { class: "card auth-card" },
       h("h1", {}, "Guarda tu código de recuperación"),
       h("p", {}, afterReset ? "Tu contraseña cambió. Este es tu código nuevo; el anterior ya no sirve." : "Te enviamos un correo para confirmar tu cuenta. Antes, guarda este código:"),

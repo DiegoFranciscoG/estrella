@@ -46,6 +46,8 @@ export function onUserChange(listener: (u: User | null) => void): () => void {
 
 /** Restores the session from the refresh cookie; offline, reopens the last account on this device. */
 export async function restore(): Promise<User | null> {
+  // Nobody has signed in on this device: there is no session cookie to try.
+  if (!safeStorage.get(LAST_USER)) return null;
   try {
     if (await refresh()) return user;
     return null;

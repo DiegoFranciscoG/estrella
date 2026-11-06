@@ -60,6 +60,8 @@
 .lite { --speed: 0ms; }
 
 * { box-sizing: border-box; }
+/* Components set display (flex, grid); hidden must still win everywhere. */
+[hidden] { display: none !important; }
 html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
@@ -139,6 +141,7 @@ legend { font-weight: 700; padding: 0 6px; }
 
 /* Auth */
 .auth { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 440px); gap: 32px; align-items: center; min-height: 70vh; }
+.auth.single { grid-template-columns: minmax(0, 520px); justify-content: center; }
 .auth-hero { display: grid; place-items: center; color: var(--fg); min-height: 220px; }
 .auth-card form { margin-top: 12px; }
 .auth-card .primary { width: 100%; margin-top: 8px; }
@@ -197,7 +200,7 @@ legend { font-weight: 700; padding: 0 6px; }
 .frame-box iframe { width: 100%; height: 100%; min-height: 70vh; border: 0; background: var(--surface); }
 .banner { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 14px; border-bottom: 2px solid var(--strong-line); background: var(--surface); }
 .overlay { position: absolute; inset: 60px 16px auto; max-width: 520px; margin: 0 auto; background: var(--surface); border: 2px solid var(--strong-line); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow-raised); }
-.thanks { position: absolute; right: 16px; bottom: 16px; width: min(380px, calc(100% - 32px)); background: var(--surface); border: 1px solid var(--strong-line); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow-raised); }
+.thanks { position: fixed; z-index: 5; right: 16px; bottom: 16px; width: min(380px, calc(100% - 32px)); background: var(--surface); border: 1px solid var(--strong-line); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow-raised); }
 .thanks-head { display: flex; align-items: center; gap: 8px; }
 .thanks h2 { margin: 0; font-size: 1.05rem; }
 .thanks ul { padding-left: 18px; }

@@ -34,7 +34,16 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class AuthService {
 
-    static final int EMAIL_ACTIONS_PER_HOUR = 5;
+    /** A school lab shares one public address: the per-address budget must fit a whole class. */
+    static final int EMAIL_ACTIONS_PER_ADDRESS_HOUR = 60;
+    /** The same inbox should not receive more than a few messages per hour. */
+    static final int EMAIL_ACTIONS_PER_EMAIL_HOUR = 3;
+    /**
+     * Failed sign-ins tolerated from one address before it is slowed down. High on purpose: a whole
+     * class signs in from one school address, and one student's typos must not lock the others.
+     * Guessing one account is limited per account and address instead.
+     */
+    static final int ADDRESS_FREE_FAILURES = 100;
 
     public record LoginResult(TokenService.IssuedTokens tokens, String email, LoginKeys keys) {
     }
@@ -77,7 +86,7 @@ public class AuthService {
                     "Para crear la cuenta necesitamos tu consentimiento para guardarla");
         }
         String email = normalize(request.email());
-        requireEmailBudget("register:" + ip);
+        requireEmailBudget("register", ip, email);
         Optional<UserRecord> existing = users.findByEmail(email);
         if (existing.isPresent()) {
             UserRecord user = existing.get();
@@ -117,7 +126,7 @@ public class AuthService {
     @Transactional
     public void resendVerification(String rawEmail, String ip) {
         String email = normalize(rawEmail);
-        requireEmailBudget("resend:" + ip);
+        requireEmailBudget("resend", ip, email);
         users.findByEmail(email).filter(u -> !u.verified()).ifPresent(u -> sendVerification(u.id(), email));
     }
 
@@ -134,7 +143,7 @@ public class AuthService {
         boolean matches = encoder.matches(authKey, found.map(UserRecord::passwordHash).orElse(dummyHash));
         if (found.isEmpty() || !matches) {
             limiter.recordFailure(key);
-            limiter.recordFailure("login-ip:" + ip);
+            limiter.recordFailure("login-ip:" + ip, ADDRESS_FREE_FAILURES);
             throw new ApiException(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS", "Correo o contraseña incorrectos");
         }
         UserRecord user = found.get();
@@ -163,7 +172,7 @@ public class AuthService {
     @Transactional
     public void requestPasswordReset(String rawEmail, String ip) {
         String email = normalize(rawEmail);
-        requireEmailBudget("reset:" + ip);
+        requireEmailBudget("reset", ip, email);
         users.findByEmail(email).filter(UserRecord::verified).ifPresent(user -> {
             String token = Tokens.newToken();
             Instant now = clock.instant();
@@ -210,8 +219,11 @@ public class AuthService {
         mail.sendVerification(email, properties.publicUrl() + "/#/verificar?token=" + token);
     }
 
-    private void requireEmailBudget(String key) {
-        if (!limiter.tryAcquire(key, EMAIL_ACTIONS_PER_HOUR, Duration.ofHours(1))) {
+    private void requireEmailBudget(String action, String ip, String email) {
+        Duration hour = Duration.ofHours(1);
+        boolean addressOk = limiter.tryAcquire(action + ":ip:" + ip, EMAIL_ACTIONS_PER_ADDRESS_HOUR, hour);
+        boolean emailOk = limiter.tryAcquire(action + ":email:" + email, EMAIL_ACTIONS_PER_EMAIL_HOUR, hour);
+        if (!addressOk || !emailOk) {
             throw new ApiException(HttpStatus.TOO_MANY_REQUESTS, "TOO_MANY_ATTEMPTS",
                     "Hiciste muchas solicitudes. Intenta en una hora");
         }

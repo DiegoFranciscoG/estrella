@@ -3,7 +3,7 @@
 const CACHE = "estrella-static-v1";
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE).then((c) => c.addAll(["/", "/index.html", "/estrella.svg", "/manifest.webmanifest", "/apps/apuntes/index.html", "/apps/apuntes/apuntes.js", "/apps/apuntes/apuntes.css"])));
+  event.waitUntil(caches.open(CACHE).then((c) => c.addAll(["/", "/index.html", "/estrella.svg", "/manifest.webmanifest"])));
   self.skipWaiting();
 });
 

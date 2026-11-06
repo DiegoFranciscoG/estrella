@@ -1,4 +1,5 @@
 import { findProgram, Program } from "../../core/catalog";
+import { APPS_ISOLATED, APPS_ORIGIN } from "../../core/config";
 import { Heartbeat, HostMessage, parseAppMessage } from "../../core/protocol";
 import { currentUser } from "../../core/session";
 import { ProjectStore } from "../../core/store";
@@ -10,10 +11,16 @@ import { maybeShowThanks } from "./thanks";
 
 /**
  * Runs one program inside a sandboxed frame:
- * - opaque origin (no allow-same-origin): the program cannot read the session, cookies or other projects;
+ * - served from another site (APPS_ORIGIN): its own process, so a frozen program cannot freeze the
+ *   panel, and no access to the panel's session, cookies or other projects;
+ * - without that separate site (local development) it falls back to an opaque origin;
  * - the panel stores every snapshot the program sends, so a crash or a closed tab loses seconds, not work;
  * - a heartbeat detects a frozen program and offers to restart only that program.
  */
+const FRAME_SANDBOX = APPS_ISOLATED ? "allow-scripts allow-same-origin allow-downloads allow-forms" : "allow-scripts allow-downloads";
+const TARGET_ORIGIN = APPS_ISOLATED ? APPS_ORIGIN : "*";
+const EXPECTED_ORIGIN = APPS_ISOLATED ? APPS_ORIGIN : "null";
+
 export function programView(projectId: string): HTMLElement {
   const user = currentUser()!;
   const status = h("span", { class: "save-status", role: "status", "data-testid": "save-status" }, "Abriendo...");
@@ -40,7 +47,7 @@ export function programView(projectId: string): HTMLElement {
   let unsubscribeTheme: (() => void) | null = null;
   let closed = false;
 
-  const post = (msg: HostMessage) => frame?.contentWindow?.postMessage(msg, "*");
+  const post = (msg: HostMessage) => frame?.contentWindow?.postMessage(msg, TARGET_ORIGIN);
   const heartbeat = new Heartbeat(post, (silent) => showFrozen(silent), undefined, liteActive() ? 3000 : 2000);
 
   const showStatus = () => {
@@ -48,7 +55,7 @@ export function programView(projectId: string): HTMLElement {
   };
 
   const onMessage = async (event: MessageEvent) => {
-    if (!frame || event.source !== frame.contentWindow) return;
+    if (!frame || event.source !== frame.contentWindow || event.origin !== EXPECTED_ORIGIN) return;
     const msg = parseAppMessage(event.data);
     if (!msg || !store) return;
     switch (msg.type) {
@@ -57,6 +64,7 @@ export function programView(projectId: string): HTMLElement {
         if (!project) return;
         post({ type: "estrella:init", projectId, title: project.title, data: project.data, theme: effectiveTheme(), lite: liteActive() });
         heartbeat.start();
+        main.dataset.programState = "running";
         break;
       }
       case "estrella:pong":
@@ -80,9 +88,9 @@ export function programView(projectId: string): HTMLElement {
     if (!program?.appPath) return;
     frame?.remove();
     frame = h("iframe", {
-      src: program.appPath,
+      src: APPS_ORIGIN + program.appPath,
       title: `${program.name}: ${title.textContent ?? ""}`,
-      sandbox: "allow-scripts allow-downloads",
+      sandbox: FRAME_SANDBOX,
       referrerpolicy: "no-referrer",
       allow: "",
       "data-testid": "program-frame",
@@ -91,16 +99,19 @@ export function programView(projectId: string): HTMLElement {
   };
 
   const showFrozen = (silentMs: number) => {
+    main.dataset.programState = "frozen";
     overlay.replaceChildren(
       h("h2", {}, "El programa no responde"),
       h("p", {}, `No contesta desde hace ${Math.round(silentMs / 1000)} segundos. El panel y tus otros proyectos siguen bien.`),
       h("p", {}, lastSaved ? `Tu trabajo está guardado ${relativeTime(lastSaved)}.` : "Todavía no había cambios que guardar."),
       h("div", { class: "row" },
         h("button", { type: "button", class: "ghost", onclick: () => { overlay.hidden = true; heartbeat.pong(); } }, "Esperar"),
-        h("button", { type: "button", class: "primary", "data-testid": "restart", onclick: () => { overlay.hidden = true; heartbeat.stop(); mountFrame(); } }, "Reiniciar el programa"),
+        h("button", { type: "button", class: "primary", "data-testid": "restart", onclick: () => { overlay.hidden = true; heartbeat.stop(); main.dataset.programState = "restarting"; mountFrame(); } }, "Reiniciar el programa"),
       ),
     );
     overlay.hidden = false;
+    // The program cannot take input anyway: move focus to the way out (alertdialog pattern).
+    overlay.querySelector<HTMLButtonElement>('[data-testid="restart"]')?.focus();
     announce("El programa no responde");
   };
 

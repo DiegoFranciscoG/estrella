@@ -80,6 +80,16 @@ class AttemptLimiterTest {
     }
 
     @Test
+    void sharedKeysCanTolerateMoreFailures() {
+        for (int i = 0; i < 99; i++) {
+            limiter.recordFailure("ip", 100);
+        }
+        assertThat(limiter.lockedSeconds("ip")).isZero();
+        limiter.recordFailure("ip", 100);
+        assertThat(limiter.lockedSeconds("ip")).isEqualTo(30);
+    }
+
+    @Test
     void keysAreIndependent() {
         fail(AttemptLimiter.FREE_FAILURES);
         assertThat(limiter.lockedSeconds("other")).isZero();
