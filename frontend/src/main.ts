@@ -1,19 +1,22 @@
 import "./styles.css";
 import { finishConnection } from "./core/assistant";
+import { captureInstallPrompt, registerPanelWorker } from "./core/offline";
 import { currentUser, isSignedIn, onUserChange, restore } from "./core/session";
 import { h } from "./ui/dom";
 import { header, liteActive, page } from "./ui/shell";
 import { starSpinner } from "./ui/star";
 import { applyTheme } from "./ui/theme";
+import { showUpdateBanner } from "./ui/updateBanner";
 import { accountView } from "./ui/views/account";
 import { guideView } from "./ui/views/guide";
 import { forgotView, loginView, registerView, resetView, verifyView } from "./ui/views/auth";
+import { installView } from "./ui/views/install";
 import { licensesView, privacyView } from "./ui/views/legal";
 import { panelView } from "./ui/views/panel";
 import { programView } from "./ui/views/program";
 
 const root = document.getElementById("root")!;
-const PUBLIC = new Set(["ingresar", "registro", "verificar", "olvide", "restablecer", "licencias", "privacidad", "guia"]);
+const PUBLIC = new Set(["ingresar", "registro", "verificar", "olvide", "restablecer", "licencias", "privacidad", "guia", "instalar"]);
 
 function parseHash(): { route: string; param: string | null; query: URLSearchParams } {
   const raw = location.hash.replace(/^#\/?/, "");
@@ -42,6 +45,7 @@ function render(): void {
     case "licencias": main = licensesView(); break;
     case "privacidad": main = privacyView(); break;
     case "guia": main = guideView(query); break;
+    case "instalar": main = installView(); break;
     case "cuenta": main = accountView(); break;
     case "p": main = param && /^[0-9a-f-]{36}$/i.test(param) ? programView(param) : notFound(); break;
     case "": main = panelView(); break;
@@ -68,6 +72,8 @@ function notFound(): HTMLElement {
 }
 
 async function start(): Promise<void> {
+  // The browser may offer installation right away; keep the offer for the "Instalar" page.
+  captureInstallPrompt();
   applyTheme();
   document.documentElement.classList.toggle("lite", liteActive());
   root.replaceChildren(h("div", { class: "boot" }, starSpinner("Cargando ESTRELLA")));
@@ -79,7 +85,7 @@ async function start(): Promise<void> {
   onUserChange((u) => { if (!u && !PUBLIC.has(parseHash().route)) location.replace("#/ingresar"); });
   render();
   if ("serviceWorker" in navigator && import.meta.env.PROD) {
-    navigator.serviceWorker.register("/sw.js").catch(() => undefined);
+    registerPanelWorker(showUpdateBanner).catch(() => undefined);
   }
 }
 

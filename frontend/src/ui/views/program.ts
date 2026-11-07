@@ -1,5 +1,6 @@
 import { findProgram, Program } from "../../core/catalog";
-import { APPS_ISOLATED, APPS_ORIGIN } from "../../core/config";
+import { APPS_ISOLATED, APPS_ORIGIN, OFFLINE_PROGRAMS } from "../../core/config";
+import { protectAfterSaving } from "../../core/offline";
 import { Heartbeat, HostMessage, MAX_SNAPSHOT, parseAppMessage } from "../../core/protocol";
 import { currentUser } from "../../core/session";
 import { ProjectStore } from "../../core/store";
@@ -25,6 +26,14 @@ const FRAME_SANDBOX = APPS_ISOLATED
   : "allow-scripts allow-downloads allow-modals allow-popups";
 const TARGET_ORIGIN = APPS_ISOLATED ? APPS_ORIGIN : "*";
 const EXPECTED_ORIGIN = APPS_ISOLATED ? APPS_ORIGIN : "null";
+
+/** The open program's way to store its last changes and close cleanly, if one is open. */
+let saveActive: (() => Promise<void>) | null = null;
+
+/** Before the app reloads (an update), the open program saves everything and is marked as closed. */
+export async function saveOpenProgram(): Promise<void> {
+  await saveActive?.();
+}
 
 export function programView(projectId: string): HTMLElement {
   const user = currentUser()!;
@@ -84,7 +93,7 @@ export function programView(projectId: string): HTMLElement {
       case "estrella:ready": {
         const project = await store.get(projectId);
         if (!project) return;
-        post({ type: "estrella:init", projectId, title: project.title, data: project.data, theme: effectiveTheme(), lite: liteActive() });
+        post({ type: "estrella:init", projectId, title: project.title, data: project.data, theme: effectiveTheme(), lite: liteActive(), offline: OFFLINE_PROGRAMS });
         heartbeat.start();
         main.dataset.programState = "running";
         break;
@@ -105,6 +114,8 @@ export function programView(projectId: string): HTMLElement {
         lastSaved = Date.now();
         if (msg.title) title.textContent = msg.title;
         showStatus();
+        // Saved work deserves storage the browser will not clear on its own.
+        void protectAfterSaving();
         break;
       }
       case "estrella:flushed":
@@ -171,6 +182,15 @@ export function programView(projectId: string): HTMLElement {
     if (!help.hidden) help.querySelector<HTMLElement>("#help-title")?.focus();
   });
 
+  // After the reload the same project opens again, cleanly closed, so no "recovered" notice.
+  const saveForUpdate = async () => {
+    await flush();
+    await saving;
+    await store?.markClosed(projectId);
+    markProjectClosed(projectId);
+  };
+  saveActive = saveForUpdate;
+
   /** Leaving with the panel's own button: the last keystrokes are saved before the frame goes away. */
   const leave = async (e: Event) => {
     if (closed) return;
@@ -200,6 +220,7 @@ export function programView(projectId: string): HTMLElement {
   const close = () => {
     if (closed) return;
     closed = true;
+    if (saveActive === saveForUpdate) saveActive = null;
     heartbeat.stop();
     // Keep listening a moment: a program removed by other navigation still sends its last save.
     window.setTimeout(() => window.removeEventListener("message", onMessage), 2000);

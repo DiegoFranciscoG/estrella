@@ -15,3 +15,6 @@ export const APPS_ORIGIN = appsOrigin(import.meta.env.VITE_APPS_ORIGIN, location
 
 /** True when programs run on their own site (the safe, isolated setup used in production). */
 export const APPS_ISOLATED = APPS_ORIGIN !== location.origin;
+
+/** Programs keep an offline copy only in production builds, where the programs site has its service worker. */
+export const OFFLINE_PROGRAMS = import.meta.env.PROD && APPS_ISOLATED;

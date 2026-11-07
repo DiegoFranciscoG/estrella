@@ -1,4 +1,5 @@
 import contact from "../data/contacto.json";
+import { isInstalledApp, protectStorage, storageState, type StorageState } from "../core/offline";
 import { advice, formatMb, isLite, LiteSetting, liteReasons, readDevice } from "../core/resources";
 import { currentUser, logout } from "../core/session";
 import { safeStorage } from "../core/storage";
@@ -27,6 +28,7 @@ export function header(): HTMLElement {
     h("a", { class: "brand", href: "#/" }, starIcon(22, true), h("span", {}, "ESTRELLA")),
     h("nav", { class: "topnav", "aria-label": "Principal" },
       h("a", { class: "ghost", href: "#/guia" }, "Guía"),
+      isInstalledApp() ? null : h("a", { class: "ghost", href: "#/instalar" }, "Instalar"),
       themeButton,
       user ? h("a", { class: "ghost", href: "#/cuenta" }, "Mi cuenta") : null,
       user ? h("button", { class: "ghost", type: "button", onclick: () => { void logout().then(() => (location.hash = "#/ingresar")); } }, "Salir") : null,
@@ -50,6 +52,12 @@ export function footer(): HTMLElement {
     ),
   );
 }
+
+const PROTECTION: Record<StorageState, string> = {
+  "persistent": "Protegidos: el navegador no los borrará por su cuenta. ",
+  "best-effort": "Sin protección: el navegador podría borrarlos si el equipo se queda sin espacio. ",
+  "unsupported": "Este navegador no informa si los protege. ",
+};
 
 function meterBody(): HTMLElement {
   const box = h("div", { class: "meter-body" });
@@ -81,12 +89,20 @@ function meterBody(): HTMLElement {
       void render();
     });
     const reasons = liteReasons(device);
+    const protection = await storageState();
+    const protect = h("button", { type: "button", class: "ghost small", "data-testid": "protect-storage" }, "Pedir que no se borren");
+    protect.addEventListener("click", async () => {
+      protect.disabled = true;
+      await protectStorage();
+      void render();
+    });
     box.replaceChildren(
       h("dl", {},
         h("dt", {}, "Memoria de esta pestaña"), h("dd", {}, formatMb(heapMb)),
         h("dt", {}, "Memoria del equipo"), h("dd", {}, device.memoryGb === null ? "no disponible" : `${device.memoryGb} GB o más`),
         h("dt", {}, "Núcleos del procesador"), h("dd", {}, device.cores === null ? "no disponible" : String(device.cores)),
         h("dt", {}, "Espacio usado en este navegador"), h("dd", {}, `${formatMb(storageUsedMb)} de ${formatMb(storageQuotaMb)}`),
+        h("dt", {}, "Tus datos en este navegador"), h("dd", { "data-testid": "storage-state" }, PROTECTION[protection], protection === "best-effort" ? protect : null),
       ),
       h("p", { class: "muted" }, "Los navegadores no permiten leer el uso del procesador ni la temperatura. Mostramos solo lo que se puede medir de verdad."),
       h("label", { for: "lite" }, "Modo ligero"),

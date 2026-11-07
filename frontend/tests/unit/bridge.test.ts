@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { connect, Program } from "../../apps/shared/bridge";
+import { keepForOffline } from "../../apps/shared/offline";
+
+vi.mock("../../apps/shared/offline", () => ({ keepForOffline: vi.fn(async () => true) }));
 
 /** A fake panel: records what the program sends and lets the test send panel messages. */
 function setup(program: Partial<Program> = {}) {
@@ -30,6 +33,14 @@ describe("program bridge", () => {
     await vi.advanceTimersByTimeAsync(1);
     expect(p.load).toHaveBeenCalledWith("abc", "Mi plano");
     expect(p.onTheme).toHaveBeenCalledWith("dark");
+  });
+
+  it("keeps itself for offline use only when the panel says so", async () => {
+    vi.mocked(keepForOffline).mockClear();
+    setup().panel({ type: "estrella:init", title: "", data: "", theme: "light", offline: false });
+    expect(keepForOffline).not.toHaveBeenCalled();
+    setup().panel({ type: "estrella:init", title: "", data: "", theme: "light", offline: true });
+    expect(keepForOffline).toHaveBeenCalled();
   });
 
   it("ignores messages that do not come from the panel", async () => {

@@ -21,6 +21,22 @@
     window.parent.postMessage(message, PANEL === "null" ? "*" : PANEL);
   }
 
+  // Same as apps/shared/offline.ts (this page is plain JavaScript): asks the programs site's
+  // service worker to keep this program so it also opens without internet.
+  function keepForOffline() {
+    if (!("serviceWorker" in navigator) || !window.isSecureContext || location.origin === "null") return;
+    var prefix = location.origin + "/apps/";
+    navigator.serviceWorker.register("/apps/sw.js", { scope: "/apps/" })
+      .then(function () { return navigator.serviceWorker.ready; })
+      .then(function (registration) {
+        var urls = [location.href].concat(performance.getEntriesByType("resource").map(function (e) { return e.name; }))
+          .map(function (u) { return u.split("#")[0]; })
+          .filter(function (u, i, all) { return u.indexOf(prefix) === 0 && all.indexOf(u) === i; });
+        if (registration.active) registration.active.postMessage({ type: "estrella:keep", urls: urls });
+      })
+      .catch(function () { /* Storage blocked: the program still works online. */ });
+  }
+
   function serialize() {
     return JSON.stringify({ v: 1, body: body.value });
   }
@@ -83,6 +99,7 @@
     var m = event.data;
     if (!m || typeof m.type !== "string") return;
     if (m.type === "estrella:init") {
+      if (m.offline === true) keepForOffline();
       document.documentElement.dataset.theme = m.theme === "dark" ? "dark" : "light";
       title.value = typeof m.title === "string" ? m.title : "";
       body.value = parse(m.data);

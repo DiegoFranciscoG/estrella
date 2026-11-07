@@ -1,9 +1,19 @@
 import react from "@vitejs/plugin-react";
-import { cpSync } from "node:fs";
+import { cpSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
+import { buildVersion, fillTemplate, programsAssets, type BuiltFile } from "../scripts/sw-build.ts";
 
 const here = (p: string) => fileURLToPath(new URL(p, import.meta.url));
+
+/** Every file under `dir`, with forward-slash paths relative to it. */
+function listFiles(dir: string, prefix = ""): string[] {
+  return readdirSync(dir).flatMap((name) => {
+    const path = join(dir, name);
+    return statSync(path).isDirectory() ? listFiles(path, `${prefix}${name}/`) : [`${prefix}${name}`];
+  });
+}
 /** Google API keys (the pattern gitleaks also uses). */
 const KEY = /AIza[0-9A-Za-z_-]{35}/;
 
@@ -38,6 +48,21 @@ export default defineConfig({
       name: "copy-whiteboard-fonts",
       closeBundle() {
         cpSync(here("../node_modules/@excalidraw/excalidraw/dist/prod/fonts"), here("../dist/apps/pizarra/fonts"), { recursive: true });
+      },
+    },
+    {
+      // dist/apps/sw.js: keeps programs for offline use. Runs after the fonts are copied.
+      name: "programs-service-worker",
+      apply: "build",
+      async closeBundle() {
+        const dist = here("../dist/apps");
+        const paths = listFiles(dist).filter((p) => p !== "sw.js");
+        const files: BuiltFile[] = paths.map((p) => ({ path: p, bytes: readFileSync(join(dist, p)) }));
+        const code = fillTemplate(readFileSync(here("sw/programs-sw.js"), "utf8"), {
+          VERSION: JSON.stringify(await buildVersion(files)),
+          ASSETS: JSON.stringify(programsAssets(paths)),
+        });
+        writeFileSync(join(dist, "sw.js"), code);
       },
     },
   ],

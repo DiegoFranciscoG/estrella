@@ -4,6 +4,8 @@
  * snapshots, periodic saves, flush on request and theme changes.
  */
 
+import { keepForOffline } from "./offline";
+
 export type Theme = "light" | "dark";
 
 export interface Program {
@@ -113,6 +115,7 @@ export function connect(program: Program, options: BridgeOptions = {}): Connecti
       case "estrella:init":
         title = typeof m.title === "string" ? m.title : "";
         lite = m.lite === true;
+        if (m.offline === true) void keepForOffline();
         program.onTheme?.(m.theme === "dark" ? "dark" : "light");
         void Promise.resolve(program.load(typeof m.data === "string" ? m.data : "", title)).then(() => {
           ready = true;

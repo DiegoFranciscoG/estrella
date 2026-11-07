@@ -4,7 +4,8 @@
  */
 
 export type HostMessage =
-  | { type: "estrella:init"; projectId: string; title: string; data: string; theme: "light" | "dark"; lite: boolean }
+  /** `offline`: the program may keep itself for offline use (production, on the programs' own site). */
+  | { type: "estrella:init"; projectId: string; title: string; data: string; theme: "light" | "dark"; lite: boolean; offline: boolean }
   | { type: "estrella:ping"; n: number }
   | { type: "estrella:theme"; theme: "light" | "dark" }
   | { type: "estrella:flush" };
