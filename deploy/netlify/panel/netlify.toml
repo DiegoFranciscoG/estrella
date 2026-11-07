@@ -1,0 +1,26 @@
+# Netlify site for the panel (accounts, catalog, projects) and, through it, the API.
+# In Netlify: Package directory = deploy/netlify/panel, base directory empty. Guide: docs/despliegue.md
+# Secret, set in the site's environment variables (never here): API_PROXY_SECRET.
+
+[build]
+  command = "cd frontend && npm ci --no-audit --no-fund && npm run build && node scripts/netlify-site.mjs panel ../deploy/netlify/panel/publish"
+  publish = "deploy/netlify/panel/publish"
+  # Each production deploy costs 15 of the 300 monthly credits: build only when the web app changed.
+  # Equal refs mean a build without cache (the first one), which must run.
+  ignore = 'if [ "$CACHED_COMMIT_REF" = "$COMMIT_REF" ]; then exit 1; fi; git diff --quiet "$CACHED_COMMIT_REF" "$COMMIT_REF" -- frontend/ deploy/netlify/panel/'
+
+[build.environment]
+  NODE_VERSION = "24.22.2"
+  PANEL_ORIGIN = "https://estrella-panel.netlify.app"
+  APPS_ORIGIN = "https://estrella-programas.netlify.app"
+  VITE_APPS_ORIGIN = "https://estrella-programas.netlify.app"
+
+# The API through this same site: the session cookie stays first-party (SameSite=Strict) and the
+# browser never calls Render directly. Netlify signs every forwarded request (x-nf-sign) with
+# API_PROXY_SECRET, and the API refuses /api requests without that signature.
+[[redirects]]
+  from = "/api/*"
+  to = "https://estrella-api.onrender.com/api/:splat"
+  status = 200
+  force = true
+  signed = "API_PROXY_SECRET"

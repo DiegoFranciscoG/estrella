@@ -1,0 +1,58 @@
+# Render Blueprint: the API on the free plan. Step-by-step guide: docs/despliegue.md
+# The database is Neon (free) and emails go through Brevo's HTTPS API: Render's free plan blocks
+# SMTP ports. Values with "sync: false" are asked once, in Render's dashboard; none is in this file.
+services:
+  - type: web
+    name: estrella-api
+    runtime: docker
+    plan: free
+    # Closest to Ecuador among Render's regions; create the Neon project in AWS us-east-1 as well.
+    region: virginia
+    # Builds backend/Dockerfile, and only commits that touch backend/ deploy the API again.
+    rootDir: backend
+    # Outside /api, so it needs no proxy signature; it also checks the database.
+    healthCheckPath: /actuator/health
+    autoDeployTrigger: commit
+    envVars:
+      - key: PORT
+        value: "8080"
+      # Neon, direct endpoint (without -pooler): jdbc:postgresql://HOST/DB?sslmode=require&channelBinding=require
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_USERNAME
+        sync: false
+      - key: DATABASE_PASSWORD
+        sync: false
+      - key: DATABASE_POOL_SIZE
+        value: "3"
+      # Render generates a random base64 256-bit value for each.
+      - key: JWT_SECRET
+        generateValue: true
+      - key: AI_KEY_SECRET
+        generateValue: true
+      # The same value as API_PROXY_SECRET in the panel's Netlify site (openssl rand -base64 48).
+      - key: APP_PROXY_SECRET
+        sync: false
+      - key: APP_PUBLIC_URL
+        value: https://estrella-panel.netlify.app
+      - key: APP_CORS_ORIGINS
+        value: https://estrella-panel.netlify.app
+      - key: APP_COOKIE_SECURE
+        value: "true"
+      - key: APP_COOKIE_SAME_SITE
+        value: Strict
+      - key: APP_MAIL_PROVIDER
+        value: brevo
+      - key: BREVO_API_KEY
+        sync: false
+      # A sender address verified in Brevo.
+      - key: MAIL_FROM
+        sync: false
+      # Brevo's free plan sends 300 emails a day: 12 an hour stays under it, with a clear answer to students.
+      - key: APP_MAIL_PER_HOUR
+        value: "12"
+      # The proxy cuts requests at 26 seconds; the assistant must answer, or give up, before that.
+      - key: APP_AI_TIMEOUT
+        value: 20s
+      - key: APP_API_DOCS
+        value: "false"

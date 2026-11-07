@@ -1,0 +1,16 @@
+# Netlify site for the programs (/apps/), a different site from the panel so browsers run them in
+# their own process. In Netlify: Package directory = deploy/netlify/programs, base directory empty.
+# Guide: docs/despliegue.md
+
+[build]
+  command = "cd frontend && npm ci --no-audit --no-fund && npm run build && node scripts/netlify-site.mjs programs ../deploy/netlify/programs/publish"
+  publish = "deploy/netlify/programs/publish"
+  # Each production deploy costs 15 of the 300 monthly credits: build only when the web app changed.
+  # Equal refs mean a build without cache (the first one), which must run.
+  ignore = 'if [ "$CACHED_COMMIT_REF" = "$COMMIT_REF" ]; then exit 1; fi; git diff --quiet "$CACHED_COMMIT_REF" "$COMMIT_REF" -- frontend/ deploy/netlify/programs/'
+
+[build.environment]
+  NODE_VERSION = "24.22.2"
+  PANEL_ORIGIN = "https://estrella-panel.netlify.app"
+  APPS_ORIGIN = "https://estrella-programas.netlify.app"
+  VITE_APPS_ORIGIN = "https://estrella-programas.netlify.app"
