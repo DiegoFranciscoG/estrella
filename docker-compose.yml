@@ -82,6 +82,8 @@ services:
       context: ./frontend
       args:
         VITE_APPS_ORIGIN: ${APPS_ORIGIN:?Define APPS_ORIGIN}
+        # Sign-up screens point to Mailpit: local emails never reach real inboxes.
+        VITE_DEV_MAILBOX: http://localhost:8025
     depends_on:
       - api
     environment:

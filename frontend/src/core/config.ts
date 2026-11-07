@@ -16,5 +16,21 @@ export const APPS_ORIGIN = appsOrigin(import.meta.env.VITE_APPS_ORIGIN, location
 /** True when programs run on their own site (the safe, isolated setup used in production). */
 export const APPS_ISOLATED = APPS_ORIGIN !== location.origin;
 
+/**
+ * The local stack's test mailbox (Mailpit), where its emails land instead of real inboxes. Set only by
+ * docker-compose.yml; production builds leave it out, so the hint never shows there.
+ */
+export function devMailbox(configured: string | undefined): string | null {
+  if (!configured) return null;
+  try {
+    const url = new URL(configured);
+    return url.protocol === "http:" || url.protocol === "https:" ? url.origin : null;
+  } catch {
+    return null;
+  }
+}
+
+export const DEV_MAILBOX = devMailbox(import.meta.env.VITE_DEV_MAILBOX);
+
 /** Programs keep an offline copy only in production builds, where the programs site has its service worker. */
 export const OFFLINE_PROGRAMS = import.meta.env.PROD && APPS_ISOLATED;

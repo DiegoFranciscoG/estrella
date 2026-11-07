@@ -3,6 +3,9 @@ FROM node:24.22.2-alpine AS build
 WORKDIR /src
 ARG VITE_APPS_ORIGIN
 ENV VITE_APPS_ORIGIN=${VITE_APPS_ORIGIN}
+# Local stack only: where its test emails can be read (docker-compose.yml). Empty in production.
+ARG VITE_DEV_MAILBOX
+ENV VITE_DEV_MAILBOX=${VITE_DEV_MAILBOX}
 COPY package.json package-lock.json ./
 RUN npm ci --no-audit --no-fund
 COPY . .

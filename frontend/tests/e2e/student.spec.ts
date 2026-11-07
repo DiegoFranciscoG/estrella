@@ -66,6 +66,14 @@ test("signs up, keeps the recovery code and confirms the email", async ({ page }
   await page.getByLabel("Ya guardé mi código").check();
   await expect(next).toHaveAttribute("aria-disabled", "false");
 
+  // The account works only after the emailed link: the app says so, and where local emails land.
+  await next.click();
+  await expect(page.getByRole("heading", { level: 1, name: "Revisa tu correo" })).toBeVisible();
+  await expect(page.getByTestId("sent-to")).toHaveText(email);
+  await expect(page.getByTestId("dev-mailbox").getByRole("link", { name: "buzón de pruebas" })).toHaveAttribute("href", /^http:\/\/localhost:8025/);
+  await page.getByTestId("resend").click();
+  await expect(page.getByTestId("resend-status")).toContainText("te enviamos otro enlace");
+
   const token = await latestToken(email, "Confirma tu correo");
   await page.goto(`/#/verificar?token=${token}`);
   await expect(page.getByRole("status")).toContainText("Correo confirmado");

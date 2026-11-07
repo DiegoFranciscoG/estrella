@@ -173,3 +173,15 @@ describe("safe storage", () => {
     spySet.mockRestore();
   });
 });
+
+describe("local test mailbox hint", () => {
+  it("is shown only for an http(s) address set by the local stack", async () => {
+    const { devMailbox } = await import("../../src/core/config");
+    expect(devMailbox(undefined)).toBeNull();
+    expect(devMailbox("")).toBeNull();
+    expect(devMailbox("http://localhost:8025")).toBe("http://localhost:8025");
+    expect(devMailbox("http://localhost:8025/view/latest")).toBe("http://localhost:8025");
+    expect(devMailbox("javascript:alert(1)")).toBeNull();
+    expect(devMailbox("not a url")).toBeNull();
+  });
+});

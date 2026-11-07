@@ -1,4 +1,5 @@
 import { api, ApiError } from "../../core/api";
+import { DEV_MAILBOX } from "../../core/config";
 import { passwordProblems } from "../../core/password";
 import { completeReset, Consent, login, register } from "../../core/session";
 import { announce, h } from "../dom";
@@ -37,6 +38,14 @@ function errorBox(): HTMLElement {
   return h("p", { class: "error", role: "alert", "data-testid": "error" });
 }
 
+/** Local stack only: its emails never reach real inboxes, they wait in the test mailbox. */
+function devMailboxNote(): HTMLElement | null {
+  if (!DEV_MAILBOX) return null;
+  return h("p", { class: "notice", "data-testid": "dev-mailbox" },
+    "Entorno local: los correos no salen a internet. Ábrelos en el ",
+    h("a", { href: DEV_MAILBOX, target: "_blank", rel: "noopener noreferrer" }, "buzón de pruebas"), ".");
+}
+
 async function busy(button: HTMLButtonElement, label: string, work: () => Promise<void>): Promise<void> {
   const original = button.textContent;
   button.disabled = true;
@@ -59,11 +68,14 @@ export function loginView(): HTMLElement {
     await api("/auth/resend-verification", { method: "POST", body: { email: email.value } }).catch(() => undefined);
     error.textContent = "Si la cuenta existe y no está confirmada, te enviamos otro correo.";
   });
-  const form = h("form", { novalidate: true }, field("Correo", email), field("Contraseña", password), error, resend, submit);
+  const mailbox = devMailboxNote();
+  if (mailbox) mailbox.hidden = true;
+  const form = h("form", { novalidate: true }, field("Correo", email), field("Contraseña", password), error, resend, mailbox, submit);
   form.addEventListener("submit", (ev) => {
     ev.preventDefault();
     error.textContent = "";
     resend.hidden = true;
+    if (mailbox) mailbox.hidden = true;
     if (!email.value || !password.value) {
       error.textContent = "Escribe tu correo y tu contraseña.";
       return;
@@ -75,7 +87,10 @@ export function loginView(): HTMLElement {
         location.hash = "#/";
       } catch (e) {
         error.textContent = errorText(e);
-        if (e instanceof ApiError && e.code === "EMAIL_NOT_VERIFIED") resend.hidden = false;
+        if (e instanceof ApiError && e.code === "EMAIL_NOT_VERIFIED") {
+          resend.hidden = false;
+          if (mailbox) mailbox.hidden = false;
+        }
       }
     });
   });
@@ -148,12 +163,20 @@ export function registerView(): HTMLElement {
 /** Shown once: without this code a forgotten password means synced projects cannot be decrypted. */
 export function recoveryCodeView(code: string, email: string, afterReset = false): HTMLElement {
   const saved = h("input", { id: "saved", type: "checkbox" });
-  const next = h("a", { class: "button primary disabled", href: afterReset ? "#/ingresar" : "#/ingresar", "aria-disabled": "true", "data-testid": "continue" }, "Continuar");
+  const next = h("button", { type: "button", class: "button primary disabled", "aria-disabled": "true", "data-testid": "continue" }, "Continuar");
   saved.addEventListener("change", () => {
     next.classList.toggle("disabled", !saved.checked);
     next.setAttribute("aria-disabled", String(!saved.checked));
   });
-  next.addEventListener("click", (e) => { if (!saved.checked) e.preventDefault(); });
+  next.addEventListener("click", () => {
+    if (!saved.checked) {
+      announce("Primero marca que guardaste tu código");
+      return;
+    }
+    // A new account still has to be confirmed: say where the link went before asking to sign in.
+    if (afterReset) location.hash = "#/ingresar";
+    else document.getElementById("main")?.replaceWith(checkEmailView(email));
+  });
   const download = h("button", { type: "button", class: "ghost" }, "Descargar como archivo de texto");
   download.addEventListener("click", () => {
     const blob = new Blob([`ESTRELLA - código de recuperación\nCuenta: ${email}\nCódigo: ${code}\n\nGuárdalo fuera de tu computadora. Sin él no se pueden recuperar los proyectos sincronizados si olvidas la contraseña.\n`], { type: "text/plain" });
@@ -171,6 +194,30 @@ export function recoveryCodeView(code: string, email: string, afterReset = false
       h("label", { class: "check" }, saved, " Ya guardé mi código"),
       next,
     ),
+  );
+}
+
+/** After signing up: the account works once the emailed link is opened. */
+export function checkEmailView(email: string): HTMLElement {
+  const status = h("p", { role: "status", "data-testid": "resend-status" });
+  const resend = h("button", { type: "button", class: "ghost", "data-testid": "resend" }, "Enviar el correo otra vez");
+  resend.addEventListener("click", () => {
+    void busy(resend, "Enviando", async () => {
+      await api("/auth/resend-verification", { method: "POST", body: { email } }).catch(() => undefined);
+      status.textContent = "Listo. Si la cuenta aún no está confirmada, te enviamos otro enlace.";
+    });
+  });
+  return authLayout("Revisa tu correo",
+    h("p", { class: "lead" }, "Te enviamos un enlace a ", h("strong", { "data-testid": "sent-to" }, email),
+      ". Ábrelo para activar tu cuenta; vence en 24 horas."),
+    devMailboxNote(),
+    h("ul", { class: "hint" },
+      h("li", {}, "Si no aparece en unos minutos, busca en spam o en promociones."),
+      h("li", {}, "Si el correo estaba mal escrito, crea la cuenta otra vez con el correcto."),
+    ),
+    resend,
+    status,
+    h("p", {}, h("a", { href: "#/ingresar" }, "Ya lo confirmé: entrar")),
   );
 }
 
@@ -200,6 +247,8 @@ export function forgotView(): HTMLElement {
       try {
         await api("/auth/password-reset/request", { method: "POST", body: { email: email.value } });
         message.textContent = "Si existe una cuenta con ese correo, te enviamos un enlace. Revisa tu bandeja.";
+        const note = devMailboxNote();
+        if (note && !form.querySelector("[data-testid=dev-mailbox]")) message.after(note);
       } catch (e) {
         message.textContent = errorText(e);
       }
