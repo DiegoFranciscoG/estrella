@@ -38,6 +38,15 @@ server {
         try_files $uri =404;
     }
 
+    # nginx's types do not know .webmanifest; the W3C manifest has its own media type.
+    location = /manifest.webmanifest {
+        default_type application/manifest+json;
+        include /etc/nginx/snippets/security-headers.conf;
+        add_header Content-Security-Policy $csp always;
+        add_header Cache-Control "no-cache";
+        try_files $uri =404;
+    }
+
     location / {
         include /etc/nginx/snippets/security-headers.conf;
         add_header Content-Security-Policy $csp always;

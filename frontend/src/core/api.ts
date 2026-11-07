@@ -1,4 +1,5 @@
 /** Thin client for the ESTRELLA API. The access token lives only in memory. */
+import { safeSession } from "./storage";
 
 const BASE: string = import.meta.env.VITE_API_BASE ?? "/api/v1";
 
@@ -70,7 +71,10 @@ async function send(path: string, opts: Options): Promise<Response> {
     throw new ApiError(0, "NETWORK", "No hay conexión con el servidor. Tu trabajo local sigue guardado.");
   }
   // An answer from the API itself (not a proxy's or host's error or loading page) means it is awake.
-  if (!waking(response) && !(response.headers.get("Content-Type") ?? "").startsWith("text/html")) lastAnswer = Date.now();
+  if (!waking(response) && !(response.headers.get("Content-Type") ?? "").startsWith("text/html")) {
+    lastAnswer = Date.now();
+    safeSession.set(CONTACT_KEY, String(lastAnswer));
+  }
   return response;
 }
 
@@ -118,7 +122,9 @@ export const IDLE_MS = 10 * 60_000;
 /** Safe to send twice (RFC 9110 §9.2.2): only these are repeated while the server wakes up. */
 const IDEMPOTENT = new Set(["GET", "HEAD", "PUT", "DELETE"]);
 
-let lastAnswer = 0;
+/** Kept for the tab, so reloading moments after an answer does not ask again. */
+const CONTACT_KEY = "estrella:api-contact";
+let lastAnswer = Number(safeSession.get(CONTACT_KEY)) || 0;
 let wakingUp: Promise<void> | null = null;
 
 /**
