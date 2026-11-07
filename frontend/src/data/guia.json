@@ -1364,6 +1364,41 @@
         "file": "frontend/tests/e2e/archivo.spec.ts",
         "test": "Archivo: catalogs files, rates and tags them, finds them, renames a batch into a ZIP and keeps the marks"
       }
+    },
+    {
+      "id": "estudio-solar-lote",
+      "area": "arquitectura",
+      "task": "Estudiar el sol y las sombras sobre un lote",
+      "keywords": [
+        "sol",
+        "sombras",
+        "asoleamiento",
+        "horas de sol",
+        "carta solar",
+        "orientacion",
+        "lote",
+        "cos",
+        "emplazamiento"
+      ],
+      "from": [
+        {
+          "program": "Autodesk Forma",
+          "term": "análisis de horas de sol y estudio de sombras"
+        }
+      ],
+      "tool": "sitio",
+      "steps": [
+        "Abre Análisis de sitio, elige la ciudad (o escribe latitud y longitud) y la fecha; Fecha clave trae solsticios y equinoccios.",
+        "Crea el lote con Lote rectangular o dibújalo con Lote, esquina por esquina, y pulsa Enter.",
+        "Añade tu edificio y los vecinos con sus alturas, o importa un GeoJSON.",
+        "Mueve la Hora para ver las sombras y activa Horas de sol para ver el mapa de sol directo del terreno.",
+        "Revisa COS PB y COS total y exporta el plano en PNG o la tabla solar en CSV."
+      ],
+      "source": {
+        "kind": "test",
+        "file": "frontend/tests/e2e/sitio.spec.ts",
+        "test": "Análisis de sitio: sun, shadows and hours of sun on a lot, COS ratios, a GeoJSON neighbourhood and a saved site"
+      }
     }
   ]
 }

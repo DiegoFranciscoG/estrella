@@ -271,21 +271,17 @@
   {
     "id": "sitio",
     "name": "Análisis de sitio",
-    "summary": "Mapas, terreno y análisis urbano para proyectos de arquitectura.",
+    "summary": "Estudio solar del lote: posición del sol, amanecer y atardecer, sombras de los edificios a cualquier hora, horas de sol directo sobre el terreno, carta solar y COS PB y COS total. Importa GeoJSON.",
     "replaces": [
       "Autodesk Forma"
     ],
-    "availability": "desktop",
-    "status": "en-construccion",
-    "sizeKb": null,
+    "availability": "web",
+    "status": "disponible",
+    "sizeKb": 17,
     "demand": "alta",
-    "phase": "Planificado",
-    "appPath": null,
-    "basedOn": {
-      "name": "QGIS",
-      "license": "GPL-2.0",
-      "source": "https://github.com/qgis/QGIS"
-    },
-    "honestNote": "Es el hueco más grande: no existe un equivalente libre completo."
+    "phase": "Disponible",
+    "appPath": "/apps/sitio/index.html",
+    "basedOn": null,
+    "honestNote": "Sol, sombras y ocupación del suelo sí, sobre un plano sin mapa de fondo y con terreno plano. Todavía sin pendientes, viento, ruido ni mapas: para análisis urbano completo conviene QGIS (escritorio, gratis)."
   }
 ]

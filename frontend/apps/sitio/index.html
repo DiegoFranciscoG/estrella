@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Análisis de sitio</title>
+  </head>
+  <body>
+    <header class="bar" role="toolbar" aria-label="Herramientas de Análisis de sitio">
+      <div class="group" role="group" aria-label="Dibujar">
+        <button type="button" data-tool="select" aria-pressed="true" title="Seleccionar y mover (Esc)">Seleccionar</button>
+        <button type="button" data-tool="lot" aria-pressed="false" title="Dibuja el lote: clic en cada esquina, Enter para cerrar">Lote</button>
+        <button type="button" data-tool="building" aria-pressed="false" title="Dibuja un edificio: clic en cada esquina, Enter para cerrar">Edificio</button>
+      </div>
+      <button type="button" id="delete" title="Eliminar lo seleccionado (Supr)" disabled>Eliminar</button>
+      <button type="button" id="undo" title="Deshacer (Ctrl+Z)" disabled>Deshacer</button>
+      <button type="button" id="redo" title="Rehacer (Ctrl+Y)" disabled>Rehacer</button>
+      <label class="button" for="import">Importar GeoJSON<input id="import" type="file" accept=".geojson,.json,application/geo+json,application/json" hidden /></label>
+      <span class="sep" aria-hidden="true"></span>
+      <label class="check"><input id="show-shadows" type="checkbox" checked /> Sombras</label>
+      <label class="check"><input id="show-hours" type="checkbox" /> Horas de sol</label>
+      <button type="button" id="fit">Encuadrar</button>
+      <span class="spacer"></span>
+      <button type="button" id="export-png">Exportar PNG</button>
+      <button type="button" id="export-csv" class="primary">Tabla solar CSV</button>
+    </header>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+    <main class="layout">
+      <section class="stage" aria-label="Plano del sitio">
+        <canvas id="plan" tabindex="0" aria-label="Plano del sitio en metros, norte arriba según la flecha. Rueda para acercar; arrastra con el botón derecho o central para moverte."></canvas>
+        <div id="legend" class="legend" hidden>
+          <span>Horas de sol directo</span>
+          <span class="ramp" aria-hidden="true"></span>
+          <span class="ends"><span id="legend-min">0 h</span><span id="legend-max">12 h</span></span>
+        </div>
+      </section>
+      <aside class="side" aria-label="Datos del sitio">
+        <h2>Ubicación</h2>
+        <div class="fields">
+          <label for="place">Ciudad</label>
+          <select id="place"></select>
+          <label for="lat">Latitud (°)</label>
+          <input id="lat" type="number" step="0.0001" min="-90" max="90" />
+          <label for="lon">Longitud (°)</label>
+          <input id="lon" type="number" step="0.0001" min="-180" max="180" />
+          <label for="tz">Hora UTC (h)</label>
+          <input id="tz" type="number" step="0.25" min="-12" max="14" />
+          <label for="north">Norte (°)</label>
+          <input id="north" type="number" step="1" min="-360" max="360" title="Giro del norte respecto a la parte de arriba del plano, en sentido horario" />
+        </div>
+        <h2>Fecha y hora</h2>
+        <div class="fields">
+          <label for="date">Fecha</label>
+          <input id="date" type="date" />
+          <label for="key-date">Fecha clave</label>
+          <select id="key-date">
+            <option value="">Elegir…</option>
+            <option value="03-20">Equinoccio de marzo</option>
+            <option value="06-21">Solsticio de junio</option>
+            <option value="09-22">Equinoccio de septiembre</option>
+            <option value="12-21">Solsticio de diciembre</option>
+          </select>
+          <label for="time">Hora</label>
+          <div class="time"><input id="time" type="range" min="0" max="1435" step="5" /><output id="time-value" for="time"></output></div>
+        </div>
+        <h2>Sol</h2>
+        <dl id="sun" class="props"></dl>
+        <canvas id="sunpath" class="sunpath" width="240" height="240" role="img" aria-label="Carta solar"></canvas>
+        <h2>Lote</h2>
+        <dl id="ratios" class="props"></dl>
+        <div class="quick" role="group" aria-labelledby="quick-lot-title">
+          <span id="quick-lot-title" class="quick-title">Lote rectangular</span>
+          <label for="lot-width">Ancho del lote (m)</label><input id="lot-width" type="number" min="1" max="5000" step="0.1" value="10" />
+          <label for="lot-depth">Fondo del lote (m)</label><input id="lot-depth" type="number" min="1" max="5000" step="0.1" value="25" />
+          <button type="button" id="make-lot">Crear lote</button>
+        </div>
+        <h2>Edificios</h2>
+        <ul id="buildings" class="list"></ul>
+        <div id="editor" class="fields" hidden>
+          <label for="b-name">Nombre</label><input id="b-name" type="text" maxlength="80" autocomplete="off" />
+          <label for="b-height">Altura (m)</label><input id="b-height" type="number" min="0.1" max="1000" step="0.1" />
+          <label for="b-floors">Pisos</label><input id="b-floors" type="number" min="1" max="300" step="1" />
+          <span class="label">Área en planta</span><span id="b-area"></span>
+        </div>
+        <div class="quick" role="group" aria-labelledby="quick-building-title">
+          <span id="quick-building-title" class="quick-title">Edificio rectangular (centrado)</span>
+          <label for="new-width">Ancho del edificio (m)</label><input id="new-width" type="number" min="0.5" max="2000" step="0.1" value="8" />
+          <label for="new-depth">Fondo del edificio (m)</label><input id="new-depth" type="number" min="0.5" max="2000" step="0.1" value="12" />
+          <label for="new-height">Altura del edificio (m)</label><input id="new-height" type="number" min="0.1" max="1000" step="0.1" value="9" />
+          <button type="button" id="make-building">Añadir edificio</button>
+        </div>
+        <h2>Horas de sol</h2>
+        <p id="hours-summary" class="hint">Activa Horas de sol para ver cuántas horas de sol directo recibe cada punto del lote en la fecha elegida.</p>
+        <p class="hint">COS PB y COS total cuentan los edificios cuyo centro está dentro del lote, con áreas brutas: son una aproximación para el diseño inicial, no reemplazan el cálculo oficial de áreas computables.</p>
+        <p class="hint">Sin mapas de fondo: dibuja el lote y los edificios vecinos con sus alturas, o importa un GeoJSON (por ejemplo, exportado de OpenStreetMap, respetando su licencia ODbL).</p>
+      </aside>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>
