@@ -12,6 +12,7 @@ No abras un issue público. Escríbeme por GitHub (perfil DiegoFranciscoG) con l
 - App web instalable: la API nunca pasa por los service workers, y una versión nueva solo se aplica cuando el estudiante lo pide, después de guardar lo abierto.
 - ESTRELLA para Windows: corre sin permisos de administrador y sigue la guía de seguridad de WebView2 (navegaciones filtradas, sin objetos del host, un solo mensaje aceptado y solo desde ESTRELLA, permisos sensibles negados). Instala programas oficiales solo desde una lista cerrada, con confirmación nativa, y winget verifica el hash. El `.exe` no está firmado; ver `docs/escritorio.md`.
 - Asistente de IA: la llave de OpenRouter de cada estudiante se obtiene por OAuth PKCE, nunca llega al navegador y se guarda cifrada (AES-256-GCM con `AI_KEY_SECRET`, que no está en la base). Solo modelos gratuitos, límite de preguntas por minuto, una pregunta a la vez y respuestas mostradas como texto (OWASP Top 10 for LLM Applications 2025).
+- En producción la API solo acepta las peticiones que el proxy del panel firma (Netlify, `x-nf-sign` con HS256), la documentación OpenAPI y Swagger UI están apagadas y los correos salen por HTTPS (API de Brevo). Auditoría OWASP completa, con la prueba que respalda cada control, en `docs/seguridad.md`.
 
 ## Si se vulneran datos personales (LOPDP, arts. 43 y 46)
 

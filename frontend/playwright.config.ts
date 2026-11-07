@@ -16,7 +16,9 @@ export default defineConfig({
     serviceWorkers: "block",
   },
   projects: [
-    { name: "desktop", testIgnore: [/pwa\.spec\.ts/, /perf\.spec\.ts/, /mobile\.spec\.ts/], use: { ...devices["Desktop Chrome"] } },
+    { name: "desktop", testIgnore: [/pwa\.spec\.ts/, /perf\.spec\.ts/, /mobile\.spec\.ts/, /screenshots\.spec\.ts/], use: { ...devices["Desktop Chrome"] } },
+    // README screenshots, only with E2E_SCREENSHOTS=1.
+    { name: "docs", testMatch: /screenshots\.spec\.ts/, use: { ...devices["Desktop Chrome"], viewport: { width: 1280, height: 800 } } },
     // The installed app: service workers on, as students have them (also for the T-06 timings).
     { name: "pwa", testMatch: /(pwa|perf)\.spec\.ts/, use: { ...devices["Desktop Chrome"], serviceWorkers: "allow" } },
     { name: "mobile", testMatch: /mobile\.spec\.ts/, use: { ...devices["Pixel 7"] } },

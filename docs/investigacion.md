@@ -311,7 +311,74 @@ Los pasos de Lienzo y Plano se tomaron de su interfaz real (menús de miniPaint 
 3. **SmartScreen con el instalador sin firma:** no se probó una descarga real con "marca de la web"; el aviso se describe según la documentación.
 4. **Windows 10 anterior a 1903 o sin WebView2:** no se probó. La app avisa y enlaza la descarga oficial de WebView2.
 
-## 12. Conclusiones de diseño
+## 12. Fase 9: cierre (2026-11-06 y 2026-11-07)
+
+| Tema | Fuente | URL | Qué sale de ahí |
+|---|---|---|---|
+| Riesgos web | OWASP Top 10:2025 | https://top10.owasp.org/2025 | Las diez categorías, de A01 Broken Access Control a A10 Mishandling of Exceptional Conditions. Auditoría completa en `docs/seguridad.md` |
+| Riesgos de API | OWASP API Security Top 10:2023 | https://api-security.owasp.org/editions/2023/en/0x11-t10 | API1 a API10. API9 pide: «Make API documentation available only to those authorized to use the API» y generar la documentación con estándares abiertos dentro de CI/CD |
+| Riesgos de IA | OWASP Top 10 for LLM Applications 2025 | https://genai.owasp.org/llm-top-10/ | LLM01 Prompt Injection a LLM10 Unbounded Consumption |
+| Accesibilidad | W3C, WCAG 2.2 | https://www.w3.org/TR/WCAG22/ | Recomendación del 12-dic-2024; se exige el nivel AA |
+| Prueba automática de accesibilidad | Deque, axe-core y @axe-core/playwright 4.14.0 | https://github.com/dequelabs/axe-core | Reglas por etiqueta: `wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`, `wcag22a`, `wcag22aa` |
+| "Perfil modesto" (T-06) | Lighthouse, Throttling | https://github.com/GoogleChrome/lighthouse/blob/main/docs/throttling.md | Perfil móvil: 150 ms de latencia, 1,6 Mbps de bajada, 750 Kbps de subida y CPU 4 veces más lenta |
+| Dirección del cliente detrás de proxies | Apache Tomcat, Remote IP Valve | https://tomcat.apache.org/tomcat-11.0-doc/config/valve.html#Remote_IP_Valve | Lee `X-Forwarded-For` de derecha a izquierda y solo confía en proxies internos |
+| Qué se puede repetir | RFC 9110, §9.2.2 | https://www.rfc-editor.org/rfc/rfc9110#section-9.2.2 | GET, HEAD, PUT y DELETE son idempotentes; POST no |
+| OpenAPI con Spring Boot 4.1 | springdoc-openapi, FAQ | https://springdoc.org/faq.html | Boot 4.1.x va con springdoc 3.1.x–3.2.x; recomienda la última estable, 3.2.0, compilada sobre Boot 4.1.2 |
+| Render gratis | Render, Deploy for Free | https://render.com/docs/free | Duerme a los 15 min sin tráfico y tarda cerca de 1 min en despertar. 750 h al mes por workspace; al agotarlas suspende hasta el mes siguiente. **Bloquea la salida a los puertos 25, 465 y 587 (SMTP).** Sin medio de pago, un exceso suspende en vez de cobrar |
+| Blueprint de Render | Render, Blueprint YAML Reference | https://render.com/docs/blueprint-spec | `runtime: docker`, `plan: free` (0,1 CPU y 512 MB), `generateValue: true` (256 bits en base64), `sync: false` (se pide en el panel), `healthCheckPath`, `autoDeployTrigger` |
+| Carpeta del servicio | Render, Monorepo support | https://render.com/docs/monorepo-support | Con `rootDir`, el Dockerfile y el contexto son relativos a esa carpeta, y solo los cambios dentro de ella redespliegan |
+| Health check | Render, Health checks | https://render.com/docs/health-checks | Sano si responde 2xx o 3xx en 5 s; reinicia la instancia tras 60 s fallando |
+| Cabeceras en Netlify | Netlify, Custom headers | https://docs.netlify.com/manage/routing/headers/ | Si una cabecera se repite, Netlify une los valores en uno. Las cabeceras propias no se aplican a lo que se reenvía a otro servidor |
+| Proxy de Netlify | Netlify, Rewrites and proxies | https://docs.netlify.com/manage/routing/redirects/rewrites-proxies/ | Corta a los 26 s. Una regla no tapa un archivo existente salvo con `force`. **Proxy firmado:** `signed = "VARIABLE"` envía `x-nf-sign`, un JWS HS256 con `deploy_context`, `exp`, `iss` (netlify), `netlify_id` y `site_url`; solo en `netlify.toml` |
+| Orden de las reglas | Netlify, Redirects overview | https://docs.netlify.com/manage/routing/redirects/overview/ | Primero `_redirects`, luego `netlify.toml`; gana la primera que coincide |
+| Dos sitios, un repositorio | Netlify, Monorepos | https://docs.netlify.com/build/configure-builds/monorepos/ | Un sitio por *package directory* (solo desde la interfaz), cada uno con su `netlify.toml` |
+| No construir sin cambios | Netlify, Ignore builds | https://docs.netlify.com/build/configure-builds/ignore-builds/ | `ignore`: la salida 0 cancela el build. Sin caché, `CACHED_COMMIT_REF` es igual a `COMMIT_REF` |
+| Variables y ámbitos | Netlify, Environment variables overview | https://docs.netlify.com/build/environment-variables/overview/ | El ámbito *Runtime* incluye los proxies firmados; limitar ámbitos es de los planes Pro y Enterprise |
+| Créditos de Netlify | Netlify, How credits work; Pricing | https://docs.netlify.com/manage/accounts-and-billing/billing/billing-for-credit-based-plans/how-credits-work/ · https://www.netlify.com/pricing/ | 300 créditos al mes con tope duro. Un despliegue de producción cuesta 15; 1 GB, 20; 10 000 peticiones, 2. Los despliegues de rama no cuestan. Al agotarse, **todos los sitios se pausan** hasta el siguiente ciclo |
+| Versión de Node en Netlify | Netlify, Manage dependencies | https://docs.netlify.com/build/configure-builds/manage-dependencies/ | `NODE_VERSION` acepta una versión exacta |
+| Neon gratis | Neon, Pricing; Plans | https://neon.com/pricing · https://neon.com/docs/introduction/plans | **1 GB por proyecto** (era 0,5 GB el 2026-11-05), 100 CU-hora al mes, 5 GB de transferencia, se apaga tras 5 min, sin tarjeta, historial de 6 h |
+| Conexión segura a Neon | Neon, Connect securely; Java guide | https://neon.com/docs/connect/connect-securely · https://neon.com/docs/guides/java | Certificados de Let's Encrypt (ISRG Root X1). Para Java: `sslmode=require&channelBinding=require` |
+| TLS en pgJDBC | pgJDBC, SSL; Connection parameters | https://jdbc.postgresql.org/documentation/ssl/ · https://jdbc.postgresql.org/documentation/use/ | `require` acepta cualquier certificado; `verify-full` verifica el nombre. `channelBinding=require` exige SCRAM ligado al canal (PostgreSQL 11 o posterior) |
+| Correo por API | Brevo, Send a transactional email | https://developers.brevo.com/reference/sendtransacemail | `POST https://api.brevo.com/v3/smtp/email`, cabecera `api-key`, `sender`, `to`, `subject`, `htmlContent` y `textContent`; responde 201 |
+| Plan gratuito de Brevo | Brevo, Email API | https://www.brevo.com/features/email-api/ | 300 correos al día, sin tarjeta, con la API completa, después de aprobar la cuenta. La página de precios se arma con JavaScript y no se pudo leer |
+| Vulnerabilidades conocidas | OSV.dev | https://osv.dev | 0 vulnerabilidades en las 91 dependencias Maven (2026-11-06) |
+
+| Hallazgo | Decisión |
+|---|---|
+| Con `forward-headers-strategy: framework`, la API creía la primera dirección de `X-Forwarded-For`, que escribe el cliente: cualquiera podía cambiar de dirección para esquivar los frenos | `native` (Remote IP Valve de Tomcat). Una prueba con servidor real falla con la configuración anterior. Además: freno por cuenta, independiente de la dirección, y techo global de correos por hora |
+| Spring lee el cuerpo JSON entero antes de validarlo | Filtro previo: 411 sin tamaño declarado y 413 sobre 128 KB |
+| El proxy corta a los 26 s y Render tarda cerca de un minuto en despertar. Si se perdía la respuesta a una renovación de sesión, la detección de reutilización cerraba todas las sesiones | Tras 10 minutos sin contacto, antes de escribir, la app pregunta a `/health` hasta que responde la API misma. Solo repite GET, HEAD, PUT y DELETE. El asistente espera 20 s como máximo |
+| axe encontró en Plano botones de capa sin nombre propio y un texto atenuado por debajo de 4.5:1 | Nombre accesible con la capa; encendido y apagado se distinguen por grosor y borde, no por transparencia |
+| nginx servía el manifiesto como `application/octet-stream` | Tipo propio, `application/manifest+json` |
+| Render gratis bloquea SMTP | Transporte por la API HTTPS de Brevo (`APP_MAIL_PROVIDER=brevo`); SMTP queda para el stack local |
+| Detrás de Netlify, la API ve a todos los estudiantes con la dirección de Netlify: los frenos por dirección serían de todos | Proxy firmado. Con `APP_PROXY_SECRET`, `/api` exige un `x-nf-sign` válido (HS256, `iss`, `exp`, `site_url`). Solo entonces la dirección del estudiante sale de la cabecera de Netlify |
+| Netlify une los valores de una cabecera repetida: dos CSP serían dos políticas a la vez | Generador que lee `nginx.conf.template` y nunca da la misma cabecera dos veces a una ruta. Comparado con nginx: 511 archivos, 0 diferencias |
+| Cada despliegue de producción gasta 15 de 300 créditos, y al agotarlos se pausan los sitios | `ignore` en cada sitio: solo se construye si cambió `frontend/`. El primer build siempre corre |
+| OWASP API9: documentación solo para quien usa la API | Swagger UI y `/api/v1/openapi` solo con `APP_API_DOCS=true` (stack local). El contrato está en `docs/openapi.json` y CI lo compara con el código |
+| Con la CSP estricta, Swagger UI solo perdía el `<style>` de su logo | Se permite ese bloque por su SHA-256, sin `unsafe-inline` |
+| Con `sslmode=require`, pgJDBC acepta cualquier certificado | La forma de Neon para Java, con `channelBinding=require`: un intermediario no puede completar la autenticación SCRAM |
+| Brevo gratis envía 300 correos al día | `APP_MAIL_PER_HOUR=12` en producción |
+
+**Mediciones de esta fase:**
+
+| Medición | Resultado |
+|---|---|
+| T-06, «Entrar», primera visita, perfil móvil de Lighthouse | 1,88–2,0 s y 148 KB (cota superior: Playwright descomprime antes de contar) |
+| T-06, «Entrar», app instalada | 311–636 ms |
+| T-06, panel con sesión, app instalada | 428–543 ms |
+| axe, WCAG 2.2 AA | 0 incumplimientos en todas las pantallas del panel (temas claro y oscuro) y en los 4 programas propios |
+| Cabeceras de Netlify frente a nginx | 511 archivos, 0 diferencias |
+
+**SUPUESTOS de esta fase:**
+1. **T-06 («panel en menos de 1 s en perfil modesto»)** se cumple con la app instalada, que es como se usa a diario. La primera visita tarda unos 2 s en ese perfil: solo transferir 148 KB a 1,6 Mbps lleva unos 0,74 s, más 150 ms por cada ida y vuelta. Falta que confirmes esta lectura.
+2. **Dirección del visitante en Netlify:** no está documentado qué cabecera llega al origen. Se usa `X-Nf-Client-Connection-Ip` y, si falta, `X-Forwarded-For`; el primer despliegue lo confirma en el registro.
+3. **Builds cancelados por `ignore`:** no encontré escrito que no consuman créditos; se infiere porque no son despliegues exitosos.
+4. **Tarjeta en Netlify:** su página de precios no lo dice.
+5. **Brevo:** las cifras del plan gratuito salen de sus páginas de producto, no de la de precios.
+6. **Accesibilidad:** axe no revisa todos los criterios (por ejemplo, la experiencia con lector de pantalla). No se probó con NVDA ni VoiceOver.
+7. **Imágenes Docker:** no se escanearon; trivy no está instalado y Docker Scout no respondió.
+
+## 13. Conclusiones de diseño
 
 - **La línea legal se mantiene:** cambiar el nombre no legaliza una copia. Código, interfaz, nombre e íconos propios, y programas libres con su licencia.
 - **"Todas las opciones de los 19 programas" no es alcanzable.** ESTRELLA debe decir qué hace cada herramienta y qué no.
