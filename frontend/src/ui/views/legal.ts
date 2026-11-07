@@ -30,7 +30,7 @@ export function licensesView(): HTMLElement {
 }
 
 /** Version of the privacy notice; consents are recorded with it (backend: app.privacy-notice-version). */
-export const PRIVACY_NOTICE_VERSION = "2026-11-06.2";
+export const PRIVACY_NOTICE_VERSION = "2026-11-07.1";
 
 const pending = (value: string | null) => value ?? "pendiente";
 
@@ -74,11 +74,18 @@ export function privacyView(): HTMLElement {
       li("Sesiones: 30 días como máximo. Enlaces enviados por correo: vencen en 24 horas y se borran al día siguiente."),
       li("Versiones en la nube: las 5 más recientes de cada proyecto."),
       li("Llave del asistente: hasta que lo desconectes, retires ese consentimiento o borres tu cuenta. Preguntas y respuestas: no se guardan en ESTRELLA."),
-      li("Copias de seguridad del proveedor de base de datos: pueden conservar por un tiempo limitado datos ya borrados; el plazo exacto se publicará antes de abrir registros."),
+      li("Historial del proveedor de la base de datos (Neon): guarda hasta 6 horas de cambios para poder restaurarla, así que un dato borrado puede seguir ahí ese tiempo."),
     ),
 
     h("h2", {}, "Quién más interviene y dónde"),
-    h("p", {}, "Usamos proveedores que guardan y procesan datos por encargo nuestro: el servidor de la aplicación, la base de datos, el envío de correos y el alojamiento de la página. Sus servidores pueden estar fuera de Ecuador (por ejemplo, en Estados Unidos o la Unión Europea), lo que es una transferencia internacional. Como garantía, tus proyectos viajan y se guardan cifrados con una llave que solo tienes tú. Al activar la nube aceptas esa transferencia de forma expresa (art. 60). La lista exacta de proveedores se publicará antes de abrir registros."),
+    h("p", {}, "Usamos proveedores que guardan y procesan datos por encargo nuestro. Sus servidores están fuera de Ecuador, lo que es una transferencia internacional:"),
+    h("ul", {},
+      li(h("strong", {}, "Netlify (Estados Unidos): "), "aloja la página y reenvía tus peticiones al servidor de la aplicación."),
+      li(h("strong", {}, "Render (Estados Unidos, región de Virginia): "), "ejecuta el servidor de la aplicación."),
+      li(h("strong", {}, "Neon (Estados Unidos, región de Virginia): "), "guarda la base de datos."),
+      li(h("strong", {}, "Brevo (Francia, Unión Europea): "), "envía los correos; recibe tu dirección y el texto de cada correo."),
+    ),
+    h("p", {}, "Como garantía, tus proyectos viajan y se guardan cifrados con una llave que solo tienes tú, y todas las conexiones van cifradas. Al crear tu cuenta aceptas que tu correo se guarde en esos servidores, y al activar la nube, también tus proyectos cifrados (art. 60)."),
     h("p", {}, "Si conectas el asistente, cada pregunta que envías, con lo que tú decidas incluir de tu proyecto, va a OpenRouter (Estados Unidos) y al proveedor del modelo que responda. Es otra transferencia internacional, que aceptas de forma expresa al conectar (art. 60). OpenRouter la trata según sus propios términos y su política de privacidad, que aceptas al crear tu cuenta allí. Antes de cada envío ves el texto completo. Por defecto pedimos solo proveedores que no guardan lo enviado; si ninguno está disponible, te lo decimos y decides tú, pregunta por pregunta."),
 
     h("h2", {}, "Si no das tus datos o están mal"),

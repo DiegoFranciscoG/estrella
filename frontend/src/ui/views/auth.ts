@@ -119,7 +119,7 @@ export function registerView(): HTMLElement {
     h("fieldset", {},
       h("legend", {}, "Tu consentimiento"),
       h("label", { class: "check" }, age, " Tengo 15 años o más. Si soy menor, mi representante legal me acompaña."),
-      h("label", { class: "check" }, consentAccount, " Acepto que guarden mi correo para tener una cuenta (obligatorio)."),
+      h("label", { class: "check" }, consentAccount, " Acepto que guarden mi correo para tener una cuenta, en servidores fuera de Ecuador (obligatorio)."),
       h("label", { class: "check" }, consentSync, " Quiero guardar mis proyectos en la nube para abrirlos en otros equipos (opcional). Se cifran en mi equipo y solo yo puedo leerlos; acepto que se guarden en servidores fuera de Ecuador."),
       h("label", { class: "check" }, consentSecurity, " Avísenme por correo cuando se inicie sesión en mi cuenta (opcional)."),
       h("p", { class: "hint" }, "Puedes retirar cada consentimiento cuando quieras. ", h("a", { href: "#/privacidad" }, "Aviso de privacidad")),

@@ -104,7 +104,7 @@ app:
     max-message-chars: ${APP_AI_MAX_MESSAGE_CHARS:4000}
     max-output-tokens: ${APP_AI_MAX_OUTPUT_TOKENS:800}
     timeout: ${APP_AI_TIMEOUT:60s}
-  privacy-notice-version: "2026-11-06.2"
+  privacy-notice-version: "2026-11-07.1"
   unverified-account-retention: 7d
   # Emails of every kind per hour, all addresses together: a ceiling for the mail provider's quota
   # even if someone spreads requests over many addresses (OWASP API6).
