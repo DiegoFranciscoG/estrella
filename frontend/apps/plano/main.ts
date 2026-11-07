@@ -991,13 +991,14 @@ function renderLayers(): void {
     eye.type = "button";
     eye.textContent = "Ver";
     eye.setAttribute("aria-pressed", String(l.visible));
-    eye.setAttribute("aria-label", `Mostrar u ocultar la capa ${l.name}`);
+    // The spoken name starts with the visible word (WCAG 2.5.3): voice users say what they see.
+    eye.setAttribute("aria-label", `Ver la capa ${l.name}`);
     eye.addEventListener("click", () => { commit(() => { l.visible = !l.visible; }); renderLayers(); });
     const lock = document.createElement("button");
     lock.type = "button";
     lock.textContent = "Fija";
     lock.setAttribute("aria-pressed", String(l.locked));
-    lock.setAttribute("aria-label", `Bloquear o desbloquear la capa ${l.name}`);
+    lock.setAttribute("aria-label", `Fija la capa ${l.name}, sin poder editarla`);
     lock.addEventListener("click", () => { commit(() => { l.locked = !l.locked; }); renderLayers(); });
     li.append(name, eye, lock);
     return li;

@@ -13,7 +13,9 @@
 .layers li { display: grid; grid-template-columns: 1fr auto auto; gap: 4px; align-items: center; padding: 3px 0; border-bottom: 1px solid var(--line); }
 .layers li.current .name { font-weight: 700; text-decoration: underline; }
 .layers .name { text-align: left; border-color: transparent; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.layers button[aria-pressed="false"] { opacity: 0.5; }
+/* On or off without fading the text (fading broke the 4.5:1 contrast): on is solid and bold, off is dashed and struck. */
+.layers button[aria-pressed="true"] { font-weight: 700; border-color: var(--fg); }
+.layers button[aria-pressed="false"] { border-style: dashed; text-decoration: line-through; }
 .help { padding-left: 16px; color: var(--muted); font-size: 12px; }
 @media (max-width: 760px) { .layout { grid-template-columns: 1fr; } .side { display: none; } .tools { flex-direction: row; overflow-x: auto; } .tool-group { flex-direction: row; } .tool-group h2 { display: none; } }
 
