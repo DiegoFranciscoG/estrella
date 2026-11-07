@@ -85,6 +85,7 @@ export default defineConfig({
         folio: here("folio/index.html"),
         plano: here("plano/index.html"),
         visor: here("visor/index.html"),
+        trazo: here("trazo/index.html"),
       },
     },
   },

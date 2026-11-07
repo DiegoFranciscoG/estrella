@@ -119,22 +119,18 @@
   {
     "id": "trazo",
     "name": "Trazo",
-    "summary": "Dibujo vectorial para logos, íconos e ilustración.",
+    "summary": "Dibujo vectorial para logos, íconos e ilustración: formas, pluma, lápiz, texto y capas. Abre y exporta SVG; exporta PNG.",
     "replaces": [
       "Illustrator"
     ],
     "availability": "web",
-    "status": "en-construccion",
-    "sizeKb": null,
+    "status": "disponible",
+    "sizeKb": 16,
     "demand": "baja",
-    "phase": "Planificado",
-    "appPath": null,
-    "basedOn": {
-      "name": "SVG-Edit",
-      "license": "MIT",
-      "source": "https://github.com/SVG-Edit/svgedit"
-    },
-    "honestNote": "Vector básico en el navegador. Para trabajo avanzado se recomienda la versión de escritorio."
+    "phase": "Disponible",
+    "appPath": "/apps/trazo/index.html",
+    "basedOn": null,
+    "honestNote": "Formas, trazos y texto con capas, colores, bordes y opacidad. Todavía sin curvas Bézier editables, rotación libre, degradados ni archivos AI."
   },
   {
     "id": "solido",

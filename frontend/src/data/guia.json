@@ -1187,6 +1187,39 @@
         "file": "frontend/tests/e2e/student.spec.ts",
         "test": "writes notes that save themselves and survive a closed tab"
       }
+    },
+    {
+      "id": "logo-vectorial",
+      "area": "diseno",
+      "task": "Dibujar un logo vectorial y exportarlo en SVG o PNG",
+      "keywords": [
+        "vector",
+        "vectorial",
+        "logo",
+        "svg",
+        "rectangulo",
+        "texto",
+        "icono",
+        "ilustracion"
+      ],
+      "from": [
+        {
+          "program": "Illustrator",
+          "term": "Herramienta Rectángulo y Exportar como SVG"
+        }
+      ],
+      "tool": "trazo",
+      "steps": [
+        "Abre Trazo, elige Rectángulo (tecla R) y arrastra sobre la mesa.",
+        "En Propiedades cambia el relleno, el borde y el grosor.",
+        "Elige Texto (tecla T), haz clic donde va y escribe; Enter lo coloca.",
+        "Pulsa Exportar SVG, o Exportar PNG para una imagen."
+      ],
+      "source": {
+        "kind": "test",
+        "file": "frontend/tests/e2e/trazo.spec.ts",
+        "test": "Trazo: draws, colors and writes, exports SVG, imports safely and survives a lost tab"
+      }
     }
   ]
 }

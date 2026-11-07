@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Trazo</title>
+  </head>
+  <body>
+    <header class="bar" role="toolbar" aria-label="Herramientas de Trazo">
+      <div class="group" role="group" aria-label="Herramienta">
+        <button type="button" data-tool="select" aria-pressed="true" title="Seleccionar y mover (V)">Seleccionar</button>
+        <button type="button" data-tool="rect" aria-pressed="false" title="Rectángulo (R). Con Mayús, cuadrado">Rectángulo</button>
+        <button type="button" data-tool="ellipse" aria-pressed="false" title="Elipse (E). Con Mayús, círculo">Elipse</button>
+        <button type="button" data-tool="line" aria-pressed="false" title="Línea (L). Con Mayús, cada 45°">Línea</button>
+        <button type="button" data-tool="pen" aria-pressed="false" title="Pluma (P): un clic por punto. Enter o doble clic termina; clic en el primer punto cierra la forma">Pluma</button>
+        <button type="button" data-tool="pencil" aria-pressed="false" title="Lápiz a mano alzada (B)">Lápiz</button>
+        <button type="button" data-tool="text" aria-pressed="false" title="Texto (T): clic donde va el texto">Texto</button>
+      </div>
+      <span class="sep" aria-hidden="true"></span>
+      <button type="button" id="undo" title="Deshacer (Ctrl+Z)">Deshacer</button>
+      <button type="button" id="redo" title="Rehacer (Ctrl+Y)">Rehacer</button>
+      <span class="sep" aria-hidden="true"></span>
+      <button type="button" id="zoom-out" aria-label="Alejar">−</button>
+      <span id="zoom" class="muted" aria-live="polite">100 %</span>
+      <button type="button" id="zoom-in" aria-label="Acercar">+</button>
+      <button type="button" id="fit" title="Ver toda la mesa">Ver todo</button>
+      <span class="spacer"></span>
+      <label class="button" for="import">Importar SVG<input id="import" type="file" accept=".svg,image/svg+xml" hidden /></label>
+      <button type="button" id="export-png">Exportar PNG</button>
+      <button type="button" id="export-svg" class="primary">Exportar SVG</button>
+    </header>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+    <main class="layout">
+      <section class="stage" aria-label="Mesa de dibujo">
+        <svg id="canvas" xmlns="http://www.w3.org/2000/svg" tabindex="0" aria-label="Mesa de dibujo. Con el teclado, elige formas en Capas y muévelas con las flechas"></svg>
+        <input id="text-editor" class="text-editor" type="text" maxlength="2000" aria-label="Texto" hidden />
+      </section>
+      <aside class="side" aria-label="Propiedades y capas">
+        <h2>Propiedades</h2>
+        <p id="nothing" class="hint">Elige una forma para cambiar sus colores y su tamaño.</p>
+        <div id="props" class="props" hidden>
+          <div class="field">
+            <label for="fill">Relleno</label>
+            <input id="fill" type="color" value="#d9d9d9" />
+            <label class="check"><input id="no-fill" type="checkbox" /> Sin relleno</label>
+          </div>
+          <div class="field">
+            <label for="stroke">Borde</label>
+            <input id="stroke" type="color" value="#111111" />
+            <label class="check"><input id="no-stroke" type="checkbox" /> Sin borde</label>
+          </div>
+          <div class="field">
+            <label for="stroke-width">Grosor</label>
+            <input id="stroke-width" type="number" min="0" max="500" step="0.5" value="2" />
+          </div>
+          <div class="field">
+            <label for="opacity">Opacidad</label>
+            <input id="opacity" type="range" min="0" max="100" value="100" />
+            <output id="opacity-value" for="opacity">100 %</output>
+          </div>
+          <div id="text-props" class="field" hidden>
+            <label for="font-size">Tamaño</label>
+            <input id="font-size" type="number" min="1" max="2000" value="32" />
+            <label class="check"><input id="bold" type="checkbox" /> Negrita</label>
+          </div>
+          <div id="geometry" class="grid">
+            <label for="geo-x">X</label><input id="geo-x" type="number" step="1" />
+            <label for="geo-y">Y</label><input id="geo-y" type="number" step="1" />
+            <label for="geo-w">Ancho</label><input id="geo-w" type="number" min="0.1" step="1" />
+            <label for="geo-h">Alto</label><input id="geo-h" type="number" min="0.1" step="1" />
+          </div>
+          <div class="row">
+            <button type="button" id="duplicate" title="Duplicar (Ctrl+D)">Duplicar</button>
+            <button type="button" id="delete" title="Borrar (Supr)">Borrar</button>
+          </div>
+        </div>
+        <h2>Capas</h2>
+        <ol id="layers" class="layers" aria-label="Formas, de la de arriba a la de abajo"></ol>
+        <div class="row">
+          <button type="button" id="front" title="Traer al frente">Al frente</button>
+          <button type="button" id="up" title="Subir una capa">Subir</button>
+          <button type="button" id="down" title="Bajar una capa">Bajar</button>
+          <button type="button" id="back" title="Enviar al fondo">Al fondo</button>
+        </div>
+        <h2>Mesa</h2>
+        <div class="grid">
+          <label for="board-w">Ancho</label><input id="board-w" type="number" min="1" max="20000" value="1024" />
+          <label for="board-h">Alto</label><input id="board-h" type="number" min="1" max="20000" value="768" />
+          <label for="board-bg">Fondo</label><input id="board-bg" type="color" value="#ffffff" />
+        </div>
+        <label class="check"><input id="board-clear" type="checkbox" /> Fondo transparente</label>
+        <p class="hint">Rueda: acercar o alejar. Arrastrar con la rueda o con Espacio: mover la vista. Flechas: mover lo elegido (con Mayús, de 10 en 10).</p>
+      </aside>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>
