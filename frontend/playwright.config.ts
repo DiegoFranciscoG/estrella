@@ -16,6 +16,9 @@ export default defineConfig({
     serviceWorkers: "block",
   },
   projects: [
-    { name: "desktop", use: { ...devices["Desktop Chrome"] } },
+    { name: "desktop", testIgnore: [/pwa\.spec\.ts/, /mobile\.spec\.ts/], use: { ...devices["Desktop Chrome"] } },
+    // The installed app: service workers on, as students have them.
+    { name: "pwa", testMatch: /pwa\.spec\.ts/, use: { ...devices["Desktop Chrome"], serviceWorkers: "allow" } },
+    { name: "mobile", testMatch: /mobile\.spec\.ts/, use: { ...devices["Pixel 7"] } },
   ],
 });
