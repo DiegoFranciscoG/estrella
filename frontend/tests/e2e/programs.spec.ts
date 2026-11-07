@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { PDFDocument } from "pdf-lib";
-import { loseTabAndReopen, openNew, storedData, useAccount, waitSaved } from "./helpers";
+import { loseTabAndReopen, openNew, signIn, storedData, useAccount, waitSaved } from "./helpers";
 
 /**
  * Each program used the way a student would, through the real panel, then the tab is lost and the
@@ -134,4 +134,15 @@ test("Lienzo: painting is saved as layers and restored", async ({ page }) => {
   await loseTabAndReopen(page, projectId);
   await expect(app.locator("#layers_base")).toBeVisible({ timeout: 30_000 });
   expect(await storedData(page, projectId)).toBe(saved);
+});
+
+test("Desktop programs in the catalog lead to their guide cards and official sites", async ({ page }) => {
+  await signIn(page);
+  const card = page.locator('[data-program="video"]');
+  await expect(card.locator(".badge")).toHaveText("Escritorio, gratis");
+  await card.getByTestId("get-video").click();
+  await expect(page).toHaveURL(/#\/guia\?q=Kdenlive$/);
+  const first = page.locator(".guide-card").first();
+  await expect(first).toContainText("Kdenlive");
+  await expect(first.getByRole("link", { name: "Sitio oficial" })).toHaveAttribute("href", "https://kdenlive.org/");
 });

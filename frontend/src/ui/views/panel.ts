@@ -32,10 +32,20 @@ function card(p: Program, onNew: (p: Program) => void): HTMLElement {
       h("dt", {}, "Exigencia"), h("dd", {}, p.demand),
     ),
     h("p", { class: "muted" }, p.honestNote),
-    ready
-      ? h("button", { type: "button", class: "primary", onclick: () => onNew(p), "data-testid": `new-${p.id}` }, `Nuevo en ${p.name}`)
-      : h("button", { type: "button", disabled: true }, "Aún no disponible"),
+    action(p, ready, onNew),
   );
+}
+
+/** Open it; for a free desktop program, the guide (official site, and installing it from ESTRELLA for Windows). */
+function action(p: Program, ready: boolean, onNew: (p: Program) => void): HTMLElement {
+  if (ready) {
+    return h("button", { type: "button", class: "primary", onclick: () => onNew(p), "data-testid": `new-${p.id}` }, `Nuevo en ${p.name}`);
+  }
+  if (p.availability === "desktop" && p.basedOn) {
+    return h("a", { class: "button", href: `#/guia?q=${encodeURIComponent(p.basedOn.name)}`, "data-testid": `get-${p.id}` },
+      `Cómo conseguir ${p.basedOn.name}`);
+  }
+  return h("button", { type: "button", disabled: true }, "Aún no disponible");
 }
 
 /** Where this project's latest version is, in words. */

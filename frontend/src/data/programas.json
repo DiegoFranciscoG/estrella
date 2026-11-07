@@ -208,7 +208,7 @@
     "status": "en-construccion",
     "sizeKb": null,
     "demand": "baja",
-    "phase": "Llega en la fase 6",
+    "phase": "Planificado",
     "appPath": null,
     "basedOn": null,
     "honestNote": "Organizar y buscar sí. Catálogos de miles de fotos, en escritorio."
@@ -227,7 +227,7 @@
     "status": "en-construccion",
     "sizeKb": null,
     "demand": "alta",
-    "phase": "Instalador en la fase 8",
+    "phase": "Escritorio, gratis",
     "appPath": null,
     "basedOn": {
       "name": "Blender",
@@ -247,7 +247,7 @@
     "status": "en-construccion",
     "sizeKb": null,
     "demand": "media",
-    "phase": "Instalador en la fase 8",
+    "phase": "Escritorio, gratis",
     "appPath": null,
     "basedOn": {
       "name": "Scribus",
@@ -267,7 +267,7 @@
     "status": "en-construccion",
     "sizeKb": null,
     "demand": "alta",
-    "phase": "Instalador en la fase 8",
+    "phase": "Escritorio, gratis",
     "appPath": null,
     "basedOn": {
       "name": "Kdenlive",

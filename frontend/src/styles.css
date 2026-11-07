@@ -182,7 +182,7 @@ legend { font-weight: 700; padding: 0 6px; }
 .program.ready:hover { transform: translateY(-2px); box-shadow: var(--shadow-raised); }
 .program.soon { border-style: dashed; }
 .program p { margin: 0; }
-.program > button { margin-top: auto; }
+.program > button, .program > .button { margin-top: auto; }
 .program-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .badge { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; border: 1px solid var(--strong-line); border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
 .program.ready .badge { background: var(--inverse-bg); color: var(--inverse-fg); }
