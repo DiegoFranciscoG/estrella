@@ -2,6 +2,7 @@ package ec.estrella.api.support;
 
 import com.jayway.jsonpath.JsonPath;
 import ec.estrella.api.common.JsonSizeLimitFilter;
+import ec.estrella.api.common.SignedProxyFilter;
 import ec.estrella.api.mail.MailService;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -81,8 +82,9 @@ public abstract class IntegrationTest {
 
     @BeforeEach
     void setUpMvc() {
-        // Same order as the running server: the size check comes before security and controllers.
-        mvc = MockMvcBuilders.webAppContextSetup(context).addFilters(context.getBean(JsonSizeLimitFilter.class))
+        // Same order as the running server: size check and proxy signature before security and controllers.
+        mvc = MockMvcBuilders.webAppContextSetup(context)
+                .addFilters(context.getBean(JsonSizeLimitFilter.class), context.getBean(SignedProxyFilter.class))
                 .apply(springSecurity()).build();
         mail.clear();
         OPENROUTER.clearScript();

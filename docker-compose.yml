@@ -64,6 +64,9 @@ services:
       APP_MAX_JSON_BYTES: ${APP_MAX_JSON_BYTES:-131072}
       # Swagger UI at http://localhost:8088/api/docs on this local stack; production leaves it off.
       APP_API_DOCS: ${APP_API_DOCS:-true}
+      APP_MAIL_PROVIDER: ${APP_MAIL_PROVIDER:-smtp}
+      BREVO_API_KEY: ${BREVO_API_KEY:-}
+      APP_PROXY_SECRET: ${APP_PROXY_SECRET:-}
       MAIL_HOST: ${MAIL_HOST:?Define MAIL_HOST}
       MAIL_PORT: ${MAIL_PORT:-587}
       MAIL_USERNAME: ${MAIL_USERNAME:-}

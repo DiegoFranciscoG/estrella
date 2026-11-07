@@ -10,7 +10,8 @@ spring:
   flyway:
     enabled: true
   mail:
-    host: ${MAIL_HOST}
+    # Only used with APP_MAIL_PROVIDER=smtp, which then checks that it is set.
+    host: ${MAIL_HOST:}
     port: ${MAIL_PORT:587}
     username: ${MAIL_USERNAME:}
     password: ${MAIL_PASSWORD:}
@@ -73,7 +74,16 @@ app:
   cookie-secure: ${APP_COOKIE_SECURE:true}
   cookie-same-site: ${APP_COOKIE_SAME_SITE:Strict}
   mail-from: ${MAIL_FROM}
-  # 25 MiB per student by default: with a 0.5 GB free database that is room for about twenty
+  # smtp (local stack: Mailpit) or brevo (HTTPS API; Render's free plan blocks SMTP ports).
+  mail-provider: ${APP_MAIL_PROVIDER:smtp}
+  brevo:
+    api-key: ${BREVO_API_KEY:}
+    base-url: ${APP_BREVO_BASE_URL:https://api.brevo.com/v3}
+  # Netlify's signed proxy in front of the API. Empty when clients reach the API directly (local stack).
+  proxy:
+    secret: ${APP_PROXY_SECRET:}
+    client-ip-header: ${APP_PROXY_CLIENT_IP_HEADER:X-Nf-Client-Connection-Ip}
+  # 25 MiB per student by default: with a 1 GB free database that is room for about forty
   # heavy users, and far more in practice (a drawing weighs kilobytes).
   storage-quota-bytes: ${APP_STORAGE_QUOTA_BYTES:26214400}
   sync:

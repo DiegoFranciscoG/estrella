@@ -6,7 +6,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
@@ -48,10 +47,6 @@ public class JsonSizeLimitFilter extends OncePerRequestFilter {
     }
 
     private static void reject(HttpServletResponse response, int status, String code, String detail) throws IOException {
-        response.setStatus(status);
-        response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
-        response.setHeader("Cache-Control", "no-store");
-        response.getOutputStream().write(("{\"type\":\"about:blank\",\"status\":" + status + ",\"detail\":\"" + detail
-                + "\",\"code\":\"" + code + "\"}").getBytes(StandardCharsets.UTF_8));
+        FilterProblems.write(response, status, code, detail);
     }
 }
