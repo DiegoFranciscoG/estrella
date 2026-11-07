@@ -57,7 +57,7 @@ Todo funciona en equipos modestos y sin conexión, y el servidor nunca puede lee
 - **Medidor de consumo del equipo**, y un agradecimiento a cada proyecto libre la primera vez que se abre su programa.
 - **Instalable:**
   - Como app web en Android, iPhone, Windows, Mac y Linux.
-  - Como **ESTRELLA para Windows**: 1,3 MB, sin permisos de administrador. Instala los programas libres de escritorio con winget, desde su fuente oficial.
+  - Como **ESTRELLA para Windows**: 1,3 MB, sin permisos de administrador. Instala los programas libres de escritorio con winget, desde su fuente oficial. Cada versión se compila y publica en GitHub Releases, con su SHA-256.
 - **Diseño en blanco y negro con una estrella 3D**, temas claro y oscuro, accesible (WCAG 2.2 AA).
 - **Privacidad según la LOPDP de Ecuador:** consentimientos separados, exportación de datos y borrado total de la cuenta.
 
@@ -259,8 +259,8 @@ Los errores siguen el RFC 9457 (`application/problem+json`): traen un `code` est
 
 | Parte | Qué cubre | Resultado |
 |---|---|---|
-| Backend (JUnit 5, Testcontainers con PostgreSQL 18 real) | 91 pruebas: cuentas, frenos, sincronización, asistente, contrato OpenAPI, proxy firmado y correo | **93,5 % de líneas**, 79,2 % de ramas (JaCoCo; el build falla por debajo de 70 %) |
-| Frontend (Vitest) | 182 pruebas: criptografía, sincronización, guía, programas, service workers y cabeceras de Netlify | **88,2 % de líneas** de la lógica |
+| Backend (JUnit 5, Testcontainers con PostgreSQL 18 real) | 92 pruebas: cuentas, frenos, sincronización, asistente, contrato OpenAPI, proxy firmado y correo | **93,5 % de líneas**, 79,2 % de ramas (JaCoCo; el build falla por debajo de 70 %) |
+| Frontend (Vitest) | 184 pruebas: criptografía, sincronización, guía, programas, service workers y cabeceras de Netlify | **88,2 % de líneas** de la lógica |
 | Extremo a extremo (Playwright, contra `docker compose`) | Recorridos completos de estudiante, cada programa, sin conexión, móvil, accesibilidad WCAG 2.2 AA con axe en ambos temas, y rendimiento T-06 | En CI |
 | ESTRELLA para Windows (xUnit) | Navegación permitida, mensajes y lista de instalación | En CI |
 
@@ -336,4 +336,5 @@ Las razones completas, con sus fuentes, están en [docs/investigacion.md](docs/i
 **Diego Francisco Granda Zhingre**
 
 - GitHub: [DiegoFranciscoG](https://github.com/DiegoFranciscoG)
+- Instagram: [@diego.granda.z](https://www.instagram.com/diego.granda.z/)
 - LinkedIn: pendiente

@@ -68,7 +68,7 @@ Pruebas de esta sección: `AiAssistantIntegrationTest`, `AiKeyCipherTest` y `tes
 
 | Riesgo | Mitigación actual | Qué haría después |
 |---|---|---|
-| Netlify no documenta qué cabecera lleva la IP del visitante | Solo se confía en ella con la firma válida, y la fuente queda en el registro (`docs/despliegue.md`, paso 7) | Confirmarla en el primer despliegue |
+| Netlify no documenta qué cabecera lleva la IP del visitante | Solo se confía en ella con la firma válida, y la fuente queda en el registro (`docs/despliegue.md`, paso 8) | Confirmarla en el primer despliegue |
 | Imágenes Docker sin escanear (sin trivy en este equipo; Docker Scout no respondió) | Imágenes oficiales con versión fija, JRE y nginx sin privilegios | Escanear con trivy en CI |
 | Sin alertas automáticas | Eventos de seguridad en los registros de Render | Alertas cuando el plan lo permita |
 | El token de acceso vale hasta 15 minutos después de salir | Vive solo en memoria; renovación con rotación y detección de reutilización | Lista de revocación si crece el riesgo |

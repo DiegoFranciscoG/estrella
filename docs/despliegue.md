@@ -96,7 +96,19 @@ Debe responder `403` con `PROXY_REQUIRED`.
 
 Igual que el panel, con **Package directory** `deploy/netlify/programs` y el nombre `estrella-programas`. Este sitio no necesita secretos.
 
-## 7. Comprobar
+## 7. ESTRELLA para Windows
+
+El flujo `.github/workflows/release.yml` corre al subir una etiqueta de versión. Prueba la app de escritorio, compila `ESTRELLA.exe` apuntando al panel publicado y lo adjunta, con su SHA-256, a una «Release» de GitHub. La página «Instalar» enlaza a `releases/latest/download/ESTRELLA.exe`:
+
+```bash
+git tag v1.0.0
+```
+
+```bash
+git push origin v1.0.0
+```
+
+## 8. Comprobar
 
 1. Las cabeceras del panel deben incluir la CSP con `frame-src https://estrella-programas.netlify.app` y `frame-ancestors 'none'`:
 
@@ -125,7 +137,7 @@ Igual que el panel, con **Package directory** `deploy/netlify/programs` y el nom
 | Si cambia… | Edita |
 |---|---|
 | La URL de la API | `deploy/netlify/panel/netlify.toml`: `to` |
-| El sitio del panel | `render.yaml`: `APP_PUBLIC_URL` y `APP_CORS_ORIGINS`. Los dos `netlify.toml`: `PANEL_ORIGIN` |
+| El sitio del panel | `render.yaml`: `APP_PUBLIC_URL` y `APP_CORS_ORIGINS`. Los dos `netlify.toml`: `PANEL_ORIGIN`. `.github/workflows/release.yml`: `ESTRELLA_URL` |
 | El sitio de programas | Los dos `netlify.toml`: `APPS_ORIGIN` y `VITE_APPS_ORIGIN` |
 
 Con un dominio propio aplica lo mismo. La firma de Netlify lleva la URL del sitio (`site_url`), y la API la compara con `APP_PUBLIC_URL`.
@@ -143,7 +155,7 @@ Con un dominio propio aplica lo mismo. La firma de Netlify lleva la URL del siti
 
 - **Dirección del estudiante.** Netlify documenta la firma (`x-nf-sign`, HS256, con `iss`, `exp`, `site_url`, `deploy_context` y `netlify_id`), pero no qué cabecera lleva la IP del visitante al origen.
   - La API usa `X-Nf-Client-Connection-Ip` y, si falta, la última dirección de `X-Forwarded-For`.
-  - Solo confía en ellas cuando la firma es válida. El paso 7.4 lo confirma.
+  - Solo confía en ellas cuando la firma es válida. El paso 8.4 lo confirma.
   - La cabecera se cambia con `APP_PROXY_CLIENT_IP_HEADER`.
 - **Builds cancelados por `ignore`.** Netlify cobra los despliegues de producción exitosos. No encontré escrito que uno cancelado no cueste, pero no es un despliegue exitoso.
 - **El token de acceso** sigue siendo válido hasta que vence (15 minutos) aunque el estudiante salga. Vive solo en memoria y se renueva con rotación y detección de reutilización.
