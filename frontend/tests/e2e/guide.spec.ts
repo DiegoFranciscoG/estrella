@@ -25,6 +25,8 @@ test("the guide finds tasks by command name, filters, and keeps the search in a 
   // A card backed by an official manual links to it.
   await page.getByLabel("Qué quieres hacer").fill("curvas libres");
   await expect(page.locator(".guide-card").first().getByRole("link", { name: /FreeCAD Documentation/ })).toHaveAttribute("href", "https://wiki.freecad.org/Sketcher_CreateBSpline");
+  // Installing desktop programs is offered only inside ESTRELLA for Windows, never in a browser.
+  await expect(page.getByTestId("install-freecad")).toHaveCount(0);
   await expect(page).toHaveURL(/#\/guia\?q=curvas\+libres$/);
 
   // Accents and case do not matter; every word must match.

@@ -125,6 +125,9 @@ test("installs for the user, keeps projects through an update and an uninstall, 
     webview.postMessage("estrella:desktop:install:calc");
   }));
   expect(reply).toBe("estrella:desktop:rejected:calc");
+  // The guide offers installing official desktop programs only here (not clicked: it would install FreeCAD).
+  await app.page.goto(`${APP}/#/guia?q=curvas+libres`);
+  await expect(app.page.locator(".guide-card").first().getByTestId("install-freecad")).toHaveText("Instalar en este equipo");
   await app.close();
 
   // Update to 0.8.1: the program changes, the student's data does not.
