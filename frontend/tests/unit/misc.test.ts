@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { findProgram, programs, validateCatalog } from "../../src/core/catalog";
 import { passwordProblems } from "../../src/core/password";
 import { advice, DeviceInfo, formatMb, isLite, liteReasons, readDevice } from "../../src/core/resources";
-import { api, ApiError, refresh, setAccessToken, userIdFromToken } from "../../src/core/api";
+import { api, ApiError, IDLE_MS, refresh, setAccessToken, userIdFromToken } from "../../src/core/api";
 import { safeStorage } from "../../src/core/storage";
 
 const modest: DeviceInfo = { memoryGb: 4, cores: 2, saveData: false, reducedMotion: false };
@@ -118,6 +118,42 @@ describe("api client", () => {
 
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("", { status: 503 })));
     await expect(api("/me", {}, wait)).rejects.toMatchObject({ code: "WAKING" });
+  });
+
+  it("before changing data after a quiet while, waits until the API itself answers", async () => {
+    vi.setSystemTime(Date.now() + IDLE_MS + 1000);
+    const waits: number[] = [];
+    const fetchMock = vi.fn()
+      // The host's loading page and a proxy error while the server starts: not the API.
+      .mockResolvedValueOnce(new Response("<html>cargando</html>", { status: 200, headers: { "Content-Type": "text/html" } }))
+      .mockResolvedValueOnce(new Response("<html>bad gateway</html>", { status: 502 }))
+      .mockResolvedValueOnce(new Response(null, { status: 204 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ ok: true }), { status: 200, headers: { "Content-Type": "application/json" } }));
+    vi.stubGlobal("fetch", fetchMock);
+    expect(await api("/ai/chat", { method: "POST", body: { message: "hola" } }, async (ms) => { waits.push(ms); })).toEqual({ ok: true });
+    expect(fetchMock.mock.calls.map(([url, init]) => `${init.method} ${url}`)).toEqual([
+      "GET /api/v1/health", "GET /api/v1/health", "GET /api/v1/health", "POST /api/v1/ai/chat",
+    ]);
+    expect(waits).toHaveLength(2);
+  });
+
+  it("never repeats a request that changes data, and asks nothing while the API answers", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response("<html>bad gateway</html>", { status: 502 }));
+    vi.stubGlobal("fetch", fetchMock);
+    // The API answered moments ago (previous test): no health check before this POST.
+    await expect(api("/ai/chat", { method: "POST", body: {} }, async () => undefined)).rejects.toMatchObject({ code: "WAKING" });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("checks that the API is awake before rotating the session after a quiet while", async () => {
+    vi.setSystemTime(Date.now() + IDLE_MS + 1000);
+    const token = `x.${btoa(JSON.stringify({ sub: "11111111-1111-4111-8111-111111111111" }))}.y`;
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(null, { status: 204 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ accessToken: token, expiresIn: 900, email: "a@b.c", keys: {} }), { status: 200, headers: { "Content-Type": "application/json" } }));
+    vi.stubGlobal("fetch", fetchMock);
+    expect(await refresh()).toBe(true);
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual(["/api/v1/health", "/api/v1/auth/refresh"]);
   });
 
   it("reads the user id from the token", () => {

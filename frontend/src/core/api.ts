@@ -63,11 +63,15 @@ async function send(path: string, opts: Options): Promise<Response> {
     body = JSON.stringify(opts.body);
   }
   if (opts.auth && accessToken) headers.Authorization = `Bearer ${accessToken}`;
+  let response: Response;
   try {
-    return await fetch(BASE + path, { method: opts.method ?? "GET", headers, body, credentials: "include", cache: "no-store" });
+    response = await fetch(BASE + path, { method: opts.method ?? "GET", headers, body, credentials: "include", cache: "no-store" });
   } catch {
     throw new ApiError(0, "NETWORK", "No hay conexión con el servidor. Tu trabajo local sigue guardado.");
   }
+  // An answer from the API itself (not a proxy's or host's error or loading page) means it is awake.
+  if (!waking(response) && !(response.headers.get("Content-Type") ?? "").startsWith("text/html")) lastAnswer = Date.now();
+  return response;
 }
 
 async function toError(response: Response): Promise<ApiError> {
@@ -84,6 +88,9 @@ async function toError(response: Response): Promise<ApiError> {
 export function refresh(): Promise<boolean> {
   refreshing ??= (async () => {
     try {
+      // Rotation must never be cut halfway: a lost answer would leave the old cookie, whose reuse
+      // closes every session of the account (reuse detection).
+      await ensureAwake(sleep);
       const response = await send("/auth/refresh", { method: "POST" });
       if (!response.ok) {
         accessToken = null;
@@ -105,6 +112,36 @@ export function refresh(): Promise<boolean> {
 const WAKING = new Set([502, 503, 504]);
 export const WAKE_RETRIES = 6;
 export const WAKE_DELAY_MS = 2500;
+const WAKING_MESSAGE = "El servidor está despertando. Intenta de nuevo en unos segundos; tu trabajo local sigue guardado.";
+/** The free host puts the API to sleep after 15 idle minutes; after 10 the app checks before writing. */
+export const IDLE_MS = 10 * 60_000;
+/** Safe to send twice (RFC 9110 §9.2.2): only these are repeated while the server wakes up. */
+const IDEMPOTENT = new Set(["GET", "HEAD", "PUT", "DELETE"]);
+
+let lastAnswer = 0;
+let wakingUp: Promise<void> | null = null;
+
+/**
+ * Before a request that changes data, after a while without contact: ask the cheap, repeatable
+ * /health until the API itself answers. A proxy can cut a request to a server still starting while
+ * the server goes on to run it, and repeating it would then do it twice.
+ */
+async function ensureAwake(wait: (ms: number) => Promise<void>): Promise<void> {
+  if (Date.now() - lastAnswer < IDLE_MS) return;
+  wakingUp ??= (async () => {
+    try {
+      for (let attempt = 0; ; attempt++) {
+        await send("/health", {});
+        if (Date.now() - lastAnswer < IDLE_MS) return;
+        if (attempt >= WAKE_RETRIES) throw new ApiError(503, "WAKING", WAKING_MESSAGE);
+        await wait(WAKE_DELAY_MS);
+      }
+    } finally {
+      wakingUp = null;
+    }
+  })();
+  return wakingUp;
+}
 
 /**
  * A sleeping server answers through its proxy, never with the API's own problem details. A 502-504
@@ -115,14 +152,14 @@ function waking(response: Response): boolean {
 }
 
 async function sendWaiting(path: string, opts: Options, wait: (ms: number) => Promise<void>): Promise<Response> {
+  const repeatable = IDEMPOTENT.has(opts.method ?? "GET");
+  if (!repeatable) await ensureAwake(wait);
   let response = await send(path, opts);
-  for (let i = 0; i < WAKE_RETRIES && waking(response); i++) {
+  for (let i = 0; i < WAKE_RETRIES && repeatable && waking(response); i++) {
     await wait(WAKE_DELAY_MS);
     response = await send(path, opts);
   }
-  if (waking(response)) {
-    throw new ApiError(response.status, "WAKING", "El servidor está despertando. Intenta de nuevo en unos segundos; tu trabajo local sigue guardado.");
-  }
+  if (waking(response)) throw new ApiError(response.status, "WAKING", WAKING_MESSAGE);
   return response;
 }
 
