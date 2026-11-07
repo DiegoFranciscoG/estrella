@@ -9,6 +9,8 @@ No abras un issue público. Escríbeme por GitHub (perfil DiegoFranciscoG) con l
 - Dependencias con versión exacta, publicadas hace al menos dos semanas, revisadas con `npm audit` y con la lista de licencias permitidas (prueba T-02).
 - Autenticación y autorización deny-by-default; validación de entradas; errores sin detalles internos.
 - La contraseña nunca llega al servidor; los proyectos sincronizados se cifran en el equipo del estudiante (AES-GCM) y el servidor no puede leerlos.
+- App web instalable: la API nunca pasa por los service workers, y una versión nueva solo se aplica cuando el estudiante lo pide, después de guardar lo abierto.
+- ESTRELLA para Windows: corre sin permisos de administrador y sigue la guía de seguridad de WebView2 (navegaciones filtradas, sin objetos del host, un solo mensaje aceptado y solo desde ESTRELLA, permisos sensibles negados). Instala programas oficiales solo desde una lista cerrada, con confirmación nativa, y winget verifica el hash. El `.exe` no está firmado; ver `docs/escritorio.md`.
 - Asistente de IA: la llave de OpenRouter de cada estudiante se obtiene por OAuth PKCE, nunca llega al navegador y se guarda cifrada (AES-256-GCM con `AI_KEY_SECRET`, que no está en la base). Solo modelos gratuitos, límite de preguntas por minuto, una pregunta a la vez y respuestas mostradas como texto (OWASP Top 10 for LLM Applications 2025).
 
 ## Si se vulneran datos personales (LOPDP, arts. 43 y 46)

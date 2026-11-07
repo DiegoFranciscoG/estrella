@@ -29,7 +29,7 @@ Medición útil: las demos de LibreCAD y OpenSCAD abrieron con `crossOriginIsola
 | F5 Guía | 8 | Equivalencias de arquitectura y diseño gráfico, con buscador | Cada ficha con fuente |
 | F6 Sincronización | 10 | Cifrado, versiones, exportar todo, borrar cuenta, aviso de privacidad | T-08, T-09, T-10 |
 | F7 IA | 6 | PKCE, contexto visible antes de enviar, modo sin IA | Integración contra un OpenRouter falso y e2e contra el simulador local. La prueba de CORS ya no aplica: el navegador no llama a OpenRouter |
-| F8 Escritorio y móvil | 10 | Instalador para Windows; macOS y Linux según lo que se pueda probar. PWA móvil | Instalar, desinstalar y actualizar sin perder datos |
+| F8 Escritorio y móvil | 10 | Instalador para Windows; macOS y Linux según lo que se pueda probar. PWA móvil | Instalar, desinstalar y actualizar sin perder datos. **Hecho:** PWA instalable y sin conexión en todas las plataformas; ESTRELLA para Windows de 1,3 MB, probada de verdad en este equipo. macOS, Linux y teléfonos reales quedan sin probar (`docs/escritorio.md`) |
 | F9 Cierre | 8 | Auditoría OWASP, accesibilidad, rendimiento, README | T-01, T-02, T-06; checklist "VOY A SUBIR" |
 
 **Total: unas 78 h.** T-12 (cinco estudiantes reales) depende de ti: no se puede simular.
@@ -56,3 +56,5 @@ Medición útil: las demos de LibreCAD y OpenSCAD abrieron con `crossOriginIsola
 | 6 | Donaciones | Como pediste, al final; queda preparado por configuración |
 | 7 | Dónde vive la llave de IA | El plan la dejaba en el navegador, pero tu regla global prohíbe llaves en el frontend. **Aplicado en F7:** el servidor la guarda cifrada y hace de proxy con límites |
 | 8 | El asistente es solo para mayores de 18 años | Lo exigen los términos de OpenRouter (§2 y §5.2). **Aplicado en F7:** de 15 a 17 años se usa la guía sin IA. Dar IA a menores requeriría otro proveedor que lo permita, por investigar |
+| 9 | Firmar ESTRELLA para Windows | Fuera de la Store cuesta USD 150–400 al año, y Azure Artifact Signing no está disponible para personas en Ecuador. **Pendiente:** se publica sin firma (Windows avisa una vez), o tú la publicas en la Microsoft Store, gratis y con firma incluida |
+| 10 | Apps en tiendas móviles | Google Play cobra USD 25 con tarjeta y la App Store USD 99 al año. **Aplicado en F8:** no se usan; en el móvil, ESTRELLA se instala como PWA. Si quieres estar en las tiendas, es tu decisión y tu pago |
