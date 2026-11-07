@@ -1,4 +1,4 @@
-import { ApiError, apiResponse } from "./api";
+import { api, ApiError, apiResponse } from "./api";
 import { fromBase64, toBase64 } from "./crypto";
 import { RemoteList, SyncError, SyncServer, Uploaded } from "./sync";
 import { sha256Base64 } from "./vault";
@@ -37,6 +37,16 @@ const versionOf = (etag: string | null): number => {
 
 /** The sync API over HTTP (backend: ProjectController). Every body it sends is already encrypted. */
 export const httpSyncServer: SyncServer = {
+  /** From the profile's consents. When unsure (offline, for example), the sync pass decides. */
+  async enabled(): Promise<boolean> {
+    try {
+      const profile = await api<{ consents: string[] }>("/me", { auth: true });
+      return profile.consents.includes("PROJECT_SYNC");
+    } catch {
+      return true;
+    }
+  },
+
   async list(): Promise<RemoteList> {
     const body = (await (await call("/projects", {})).json()) as ListBody;
     return { ...body, projects: body.projects.map((p) => ({ ...p, name: fromBase64(p.name) })) };

@@ -46,6 +46,8 @@ export class SyncError extends Error {
 
 /** What the server offers. The HTTP implementation is in syncApi.ts; tests use an in-memory one. */
 export interface SyncServer {
+  /** Whether the account has the cloud on. Without it, sync waits instead of being refused. */
+  enabled?(): Promise<boolean>;
   list(): Promise<RemoteList>;
   saveMeta(id: string, programId: string, name: Bytes): Promise<void>;
   upload(id: string, baseVersion: number, body: Bytes): Promise<Uploaded>;

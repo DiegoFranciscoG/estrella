@@ -99,6 +99,18 @@ describe("Sync manager", () => {
     expect(syncStatus()).toMatchObject({ state: "idle", report: { storageQuotaBytes: 1000 } });
   });
 
+  it("does not ask the server for projects when the account has the cloud off", async () => {
+    server.enabled = vi.fn().mockResolvedValue(false);
+    await startSync(USER, await keys());
+    expect(syncStatus()).toMatchObject({ state: "off", message: expect.stringContaining("desactivada") });
+    expect(server.list).not.toHaveBeenCalled();
+    // Turning the cloud on (Mi cuenta) runs a pass right away.
+    server.enabled = vi.fn().mockResolvedValue(true);
+    await syncNow();
+    expect(syncStatus().state).toBe("idle");
+    expect(server.list).toHaveBeenCalledTimes(1);
+  });
+
   it("says plainly when the cloud is off or the server cannot be reached", async () => {
     const states: string[] = [];
     const stop = onSyncStatus((s) => states.push(s.state));

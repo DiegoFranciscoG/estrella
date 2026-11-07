@@ -80,7 +80,9 @@ export function forgetKeys(userId: string): Promise<void> {
   return withStore(userId, (s) => s.deleteMeta(KEYS)).catch(() => undefined);
 }
 
-const onOnline = () => { void syncNow(); };
+const OFF_MESSAGE = "La nube está desactivada. Tus proyectos quedan solo en este equipo.";
+
+const onOnline = () => { if (status.state !== "off") void syncNow(); };
 
 function stopTimers(): void {
   if (interval) clearInterval(interval);
@@ -102,6 +104,11 @@ export async function startSync(userId: string, keys: SyncKeys | null): Promise<
     if (document.visibilityState === "visible" && status.state !== "off") void syncNow();
   }, INTERVAL_MS);
   window.addEventListener("online", onOnline);
+  // Accounts without the cloud skip the pass the server would refuse; turning it on starts one.
+  if (server.enabled && !(await server.enabled())) {
+    set({ state: "off", message: OFF_MESSAGE });
+    return;
+  }
   await syncNow();
 }
 
@@ -114,7 +121,8 @@ export function stopSync(): void {
 
 /** Schedules a pass soon (debounced): after a save, a rename or a deletion. */
 export function requestSync(delayMs = AFTER_SAVE_MS): void {
-  if (!session?.keys) return;
+  // With the cloud off, saves stay on this device; turning it on in Mi cuenta syncs right away.
+  if (!session?.keys || status.state === "off") return;
   if (pending) clearTimeout(pending);
   pending = setTimeout(() => {
     pending = null;
@@ -137,7 +145,7 @@ export async function syncNow(): Promise<SyncStatus> {
       set({ state: "idle", lastSync: report.at, report, message: "" });
     } catch (e) {
       if (e instanceof SyncError && e.code === "SYNC_DISABLED") {
-        set({ state: "off", message: "La nube está desactivada. Tus proyectos quedan solo en este equipo." });
+        set({ state: "off", message: OFF_MESSAGE });
       } else if (e instanceof SyncError && (e.code === "NETWORK" || e.code === "WAKING")) {
         set({ state: "offline", message: "Sin conexión con el servidor: se sincroniza al volver." });
       } else if (e instanceof SyncError && e.code === "TOO_MANY_UPLOADS") {
