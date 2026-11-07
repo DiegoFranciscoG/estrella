@@ -1,3 +1,4 @@
+import { desktopBridge, installOfficialProgram, type InstallOutcome } from "../../core/desktop";
 import { guide, paidPrograms, resolveTool, search, type Area, type Card } from "../../core/guide";
 import { isSignedIn } from "../../core/session";
 import { h } from "../dom";
@@ -59,6 +60,31 @@ export function guideView(query: URLSearchParams): HTMLElement {
   );
 }
 
+const INSTALL_RESULT: Record<InstallOutcome, (name: string) => string> = {
+  started: (name) => `Se abrió la instalación de ${name} en otra ventana. Al terminar, búscalo en el menú Inicio.`,
+  cancelled: () => "No se instaló.",
+  unavailable: (name) => `Este Windows no tiene winget: se abrió la página oficial de ${name}.`,
+  rejected: () => "Ese programa no está en la lista de ESTRELLA.",
+};
+
+/** Only in ESTRELLA for Windows: the app confirms in its own window and installs with winget. */
+function installButton(toolId: string, name: string): HTMLElement {
+  const status = h("span", { class: "hint", role: "status" });
+  const button = h("button", { type: "button", class: "ghost small", "data-testid": `install-${toolId}` }, "Instalar en este equipo");
+  button.addEventListener("click", async () => {
+    button.disabled = true;
+    status.textContent = "Confirma en la ventana de ESTRELLA…";
+    try {
+      status.textContent = INSTALL_RESULT[await installOfficialProgram(toolId)](name);
+    } catch (e) {
+      status.textContent = e instanceof Error ? e.message : "No se pudo instalar";
+    } finally {
+      button.disabled = false;
+    }
+  });
+  return h("span", { class: "guide-install" }, button, " ", status);
+}
+
 /** One card. Inside the program's help panel its title is one level lower than on the guide page. */
 export function cardView(card: Card, heading: "h2" | "h3" = "h2"): HTMLElement {
   const tool = resolveTool(card.tool);
@@ -68,7 +94,8 @@ export function cardView(card: Card, heading: "h2" | "h3" = "h2"): HTMLElement {
       tool.available ? h("a", { href: isSignedIn() ? "#/" : "#/registro" }, isSignedIn() ? "Abrir desde el panel" : "Crear cuenta para usarlo") : "(en construcción)")
     : h("p", { class: "guide-tool" },
       h("span", { class: "badge" }, "Escritorio, gratis"), " ", h("strong", {}, tool.name), " ",
-      h("a", { href: tool.site, target: "_blank", rel: "noopener noreferrer" }, "Sitio oficial"));
+      h("a", { href: tool.site, target: "_blank", rel: "noopener noreferrer" }, "Sitio oficial"),
+      desktopBridge() ? installButton(tool.id, tool.name) : null);
   const source = card.source.kind === "official"
     ? h("p", { class: "guide-source" }, "Fuente: ", h("a", { href: card.source.url, target: "_blank", rel: "noopener noreferrer" }, card.source.title))
     // ESTRELLA's own programs are backed by a test in this repository that does exactly this.

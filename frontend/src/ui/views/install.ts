@@ -13,7 +13,7 @@ function windowsInstaller(): HTMLElement {
   const url: string | null = contact.windowsInstaller;
   return h("div", { class: "notice", "data-testid": "windows-installer" },
     h("p", {}, h("strong", {}, "ESTRELLA para Windows (opcional). "),
-      "Un archivo de alrededor de 1 MB que se instala solo para tu usuario, sin permisos de administrador. Abre ESTRELLA en su propia ventana y, desde la Guía, instala con un clic los programas libres de escritorio (FreeCAD, Blender, GIMP y otros) desde su fuente oficial."),
+      "Un archivo de 1,3 MB que se instala solo para tu usuario, sin permisos de administrador. Abre ESTRELLA en su propia ventana y, desde la Guía, instala con un clic los programas libres de escritorio (FreeCAD, Blender, GIMP y otros) desde su fuente oficial."),
     h("p", {}, "No está firmado, porque firmarlo cuesta dinero. Windows mostrará «Windows protegió tu PC»: elige «Más información» y luego «Ejecutar de todas formas». Si prefieres no ver ese aviso, instala ESTRELLA como app web con Edge o Chrome; funciona igual."),
     url
       ? h("a", { class: "button", href: url, rel: "noopener noreferrer", "data-testid": "windows-download" }, "Descargar ESTRELLA para Windows")
