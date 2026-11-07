@@ -1,0 +1,1862 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "description" : "Cuentas, consentimientos (LOPDP), proyectos cifrados de extremo a extremo y asistente.\n\n- **Sesión:** `POST /api/v1/auth/login` devuelve un token de acceso de 15 minutos y deja la cookie de renovación (`HttpOnly`, `Secure`, `SameSite`). `refresh` y `logout` exigen además la cabecera `X-Estrella-Client`, que un formulario de otro sitio no puede enviar.\n- **La contraseña nunca viaja:** el dispositivo deriva de ella `authKey` y una llave que no sale del equipo; con esa llave cifra nombres y contenido de los proyectos.\n- **Errores:** RFC 9457 (`application/problem+json`) con un `code` estable para programas y un `detail` en español para mostrar.\n",
+    "license" : {
+      "name" : "MIT",
+      "url" : "https://opensource.org/license/mit"
+    },
+    "title" : "ESTRELLA API",
+    "version" : "v1"
+  },
+  "servers" : [ {
+    "url" : "/",
+    "description" : "El mismo sitio que sirve el panel"
+  } ],
+  "tags" : [ {
+    "description" : "Registro, verificación del correo, sesión y cambio de contraseña",
+    "name" : "Auth"
+  }, {
+    "description" : "Perfil, foto, consentimientos y derechos del titular (LOPDP)",
+    "name" : "Account"
+  }, {
+    "description" : "Proyectos cifrados en el dispositivo; versiones con If-Match y ETag (RFC 9110)",
+    "name" : "Projects"
+  }, {
+    "description" : "Asistente con la cuenta de OpenRouter de cada estudiante (PKCE); solo modelos gratuitos",
+    "name" : "AI"
+  }, {
+    "description" : "Para saber si la API ya despertó",
+    "name" : "Health"
+  } ],
+  "paths" : {
+    "/api/v1/ai/chat" : {
+      "post" : {
+        "operationId" : "ask",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AskRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Answer"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "summary" : "Preguntar al asistente",
+        "tags" : [ "AI" ]
+      }
+    },
+    "/api/v1/ai/connection" : {
+      "delete" : {
+        "operationId" : "disconnect",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Disconnected"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "summary" : "Desconectar y borrar la clave guardada",
+        "tags" : [ "AI" ]
+      },
+      "put" : {
+        "operationId" : "connect",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ConnectRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Status"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "summary" : "Conectar OpenRouter: canjear el código PKCE por la clave",
+        "tags" : [ "AI" ]
+      }
+    },
+    "/api/v1/ai/status" : {
+      "get" : {
+        "operationId" : "status",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Status"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "summary" : "Estado de la conexión y modelos disponibles",
+        "tags" : [ "AI" ]
+      }
+    },
+    "/api/v1/auth/login" : {
+      "post" : {
+        "operationId" : "login",
+        "parameters" : [ {
+          "description" : "Solo para nombrar el equipo en el aviso de inicio de sesión",
+          "in" : "header",
+          "name" : "User-Agent",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TokenResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "summary" : "Entrar: token de acceso y cookie de renovación",
+        "tags" : [ "Auth" ]
+      }
+    },
+    "/api/v1/auth/logout" : {
+      "post" : {
+        "operationId" : "logout",
+        "parameters" : [ {
+          "in" : "header",
+          "name" : "X-Estrella-Client",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "cookie",
+          "name" : "estrella_rt",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Sesión cerrada y cookie borrada"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "summary" : "Salir: cierra esta sesión y borra la cookie",
+        "tags" : [ "Auth" ]
+      }
+    },
+    "/api/v1/auth/password-reset/bundle" : {
+      "post" : {
+        "operationId" : "resetBundle",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TokenRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResetBundleResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "summary" : "Llaves cifradas para restablecer con la clave de recuperación",
+        "tags" : [ "Auth" ]
+      }
+    },
+    "/api/v1/auth/password-reset/confirm" : {
+      "post" : {
+        "operationId" : "confirmReset",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ResetConfirmRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MessageResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "summary" : "Cambiar la contraseña; cierra todas las sesiones",
+        "tags" : [ "Auth" ]
+      }
+    },
+    "/api/v1/auth/password-reset/request" : {
+      "post" : {
+        "operationId" : "requestReset",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/EmailRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "202" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MessageResponse"
+                }
+              }
+            },
+            "description" : "Accepted"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "summary" : "Pedir el correo para cambiar la contraseña",
+        "tags" : [ "Auth" ]
+      }
+    },
+    "/api/v1/auth/refresh" : {
+      "post" : {
+        "operationId" : "refresh",
+        "parameters" : [ {
+          "in" : "header",
+          "name" : "X-Estrella-Client",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "cookie",
+          "name" : "estrella_rt",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TokenResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "summary" : "Renovar la sesión; la cookie rota en cada uso",
+        "tags" : [ "Auth" ]
+      }
+    },
+    "/api/v1/auth/register" : {
+      "post" : {
+        "operationId" : "register",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RegisterRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "202" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MessageResponse"
+                }
+              }
+            },
+            "description" : "Accepted"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "summary" : "Crear una cuenta; envía un correo de verificación",
+        "tags" : [ "Auth" ]
+      }
+    },
+    "/api/v1/auth/resend-verification" : {
+      "post" : {
+        "operationId" : "resend",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/EmailRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "202" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MessageResponse"
+                }
+              }
+            },
+            "description" : "Accepted"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "summary" : "Reenviar el correo de verificación",
+        "tags" : [ "Auth" ]
+      }
+    },
+    "/api/v1/auth/verify-email" : {
+      "post" : {
+        "operationId" : "verifyEmail",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TokenRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MessageResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "summary" : "Confirmar el correo con el token del enlace",
+        "tags" : [ "Auth" ]
+      }
+    },
+    "/api/v1/health" : {
+      "get" : {
+        "operationId" : "health",
+        "responses" : {
+          "204" : {
+            "description" : "Despierta"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "summary" : "¿Está despierta la API? 204 sin cuerpo",
+        "tags" : [ "Health" ]
+      }
+    },
+    "/api/v1/me" : {
+      "get" : {
+        "operationId" : "me",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Profile"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "summary" : "Perfil de la cuenta",
+        "tags" : [ "Account" ]
+      }
+    },
+    "/api/v1/me/avatar" : {
+      "delete" : {
+        "operationId" : "removeAvatar",
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "summary" : "Quitar la foto de perfil",
+        "tags" : [ "Account" ]
+      },
+      "get" : {
+        "operationId" : "avatar",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "image/jpeg" : { },
+              "image/png" : { },
+              "image/webp" : { }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "summary" : "Descargar la foto de perfil",
+        "tags" : [ "Account" ]
+      },
+      "put" : {
+        "operationId" : "setAvatar",
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "file" : {
+                    "type" : "string",
+                    "format" : "binary"
+                  }
+                },
+                "required" : [ "file" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "summary" : "Subir la foto de perfil (JPEG, PNG o WebP, hasta 256 KB)",
+        "tags" : [ "Account" ]
+      }
+    },
+    "/api/v1/me/consents/{purpose}" : {
+      "delete" : {
+        "operationId" : "revoke",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "purpose",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "ACCOUNT", "PROJECT_SYNC", "SECURITY_EMAIL", "AI_ASSISTANT" ]
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RevokeResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "summary" : "Retirar un consentimiento y borrar los datos que dependen de él",
+        "tags" : [ "Account" ]
+      },
+      "put" : {
+        "operationId" : "grant",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "purpose",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "ACCOUNT", "PROJECT_SYNC", "SECURITY_EMAIL", "AI_ASSISTANT" ]
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "summary" : "Dar un consentimiento",
+        "tags" : [ "Account" ]
+      }
+    },
+    "/api/v1/me/delete" : {
+      "post" : {
+        "operationId" : "delete_1",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DeleteAccountRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "summary" : "Eliminar la cuenta y todos sus datos",
+        "tags" : [ "Account" ]
+      }
+    },
+    "/api/v1/me/export" : {
+      "get" : {
+        "operationId" : "export",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Export"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "summary" : "Exportar todos mis datos (portabilidad)",
+        "tags" : [ "Account" ]
+      }
+    },
+    "/api/v1/me/thanks" : {
+      "get" : {
+        "operationId" : "thanks",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ThanksResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "summary" : "Programas cuyo agradecimiento ya se mostró",
+        "tags" : [ "Account" ]
+      }
+    },
+    "/api/v1/me/thanks/{programId}" : {
+      "put" : {
+        "operationId" : "markThanks",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "programId",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^[a-z0-9-]{1,40}$"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "summary" : "Marcar como visto el agradecimiento de un programa",
+        "tags" : [ "Account" ]
+      }
+    },
+    "/api/v1/projects" : {
+      "get" : {
+        "operationId" : "list",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ListView"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "summary" : "Listar proyectos y uso del almacenamiento",
+        "tags" : [ "Projects" ]
+      }
+    },
+    "/api/v1/projects/{id}" : {
+      "delete" : {
+        "operationId" : "delete",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Proyecto borrado"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "summary" : "Borrar un proyecto con todas sus versiones",
+        "tags" : [ "Projects" ]
+      },
+      "put" : {
+        "operationId" : "save",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaveRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProjectView"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "summary" : "Crear un proyecto o cambiar su nombre cifrado",
+        "tags" : [ "Projects" ]
+      }
+    },
+    "/api/v1/projects/{id}/content" : {
+      "get" : {
+        "operationId" : "content",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }, {
+          "in" : "header",
+          "name" : "If-None-Match",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/octet-stream" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "binary"
+                }
+              }
+            },
+            "description" : "Contenido cifrado; ETag con la versión y X-Content-SHA256"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "summary" : "Descargar la versión actual; 304 si If-None-Match coincide",
+        "tags" : [ "Projects" ]
+      },
+      "put" : {
+        "operationId" : "upload",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }, {
+          "in" : "header",
+          "name" : "If-Match",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "header",
+          "name" : "X-Content-SHA256",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/octet-stream" : {
+              "schema" : {
+                "type" : "string",
+                "format" : "binary"
+              }
+            }
+          },
+          "description" : "Contenido cifrado",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Upload"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "summary" : "Subir una versión nueva; If-Match con la versión de partida",
+        "tags" : [ "Projects" ]
+      }
+    },
+    "/api/v1/projects/{id}/versions" : {
+      "get" : {
+        "operationId" : "versions",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/VersionView"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "summary" : "Listar las versiones guardadas",
+        "tags" : [ "Projects" ]
+      }
+    },
+    "/api/v1/projects/{id}/versions/{version}" : {
+      "get" : {
+        "operationId" : "version",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }, {
+          "in" : "path",
+          "name" : "version",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64",
+            "minimum" : 1
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/octet-stream" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "binary"
+                }
+              }
+            },
+            "description" : "Contenido cifrado de esa versión"
+          },
+          "default" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Error (RFC 9457)"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "summary" : "Descargar una versión anterior",
+        "tags" : [ "Projects" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "AccountData" : {
+        "type" : "object",
+        "properties" : {
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "emailVerifiedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "hasAvatar" : {
+            "type" : "boolean"
+          },
+          "storageQuotaBytes" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "storageUsedBytes" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }
+      },
+      "Answer" : {
+        "type" : "object",
+        "properties" : {
+          "model" : {
+            "type" : "string"
+          },
+          "text" : {
+            "type" : "string"
+          },
+          "truncated" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "AskRequest" : {
+        "type" : "object",
+        "properties" : {
+          "allowProviderStorage" : {
+            "type" : "boolean"
+          },
+          "message" : {
+            "type" : "string",
+            "maxLength" : 20000,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "message" ]
+      },
+      "AssistantData" : {
+        "type" : "object",
+        "properties" : {
+          "connectedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "lastUsedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "ConnectRequest" : {
+        "type" : "object",
+        "properties" : {
+          "adult" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "string",
+            "pattern" : "^[A-Za-z0-9._~-]{8,512}$"
+          },
+          "codeVerifier" : {
+            "type" : "string",
+            "pattern" : "^[A-Za-z0-9._~-]{43,128}$"
+          }
+        },
+        "required" : [ "code", "codeVerifier" ]
+      },
+      "DeleteAccountRequest" : {
+        "type" : "object",
+        "properties" : {
+          "authKey" : {
+            "type" : "string",
+            "pattern" : "^[A-Za-z0-9+/]{43}=$"
+          }
+        },
+        "required" : [ "authKey" ]
+      },
+      "Disconnected" : {
+        "type" : "object",
+        "properties" : {
+          "keySettingsUrl" : {
+            "type" : "string"
+          }
+        }
+      },
+      "EmailRequest" : {
+        "type" : "object",
+        "properties" : {
+          "email" : {
+            "type" : "string",
+            "format" : "email",
+            "maxLength" : 254,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "email" ]
+      },
+      "Entry" : {
+        "type" : "object",
+        "properties" : {
+          "grantedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "noticeVersion" : {
+            "type" : "string"
+          },
+          "purpose" : {
+            "type" : "string",
+            "enum" : [ "ACCOUNT", "PROJECT_SYNC", "SECURITY_EMAIL", "AI_ASSISTANT" ]
+          },
+          "revokedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "Export" : {
+        "type" : "object",
+        "properties" : {
+          "account" : {
+            "$ref" : "#/components/schemas/AccountData"
+          },
+          "assistant" : {
+            "$ref" : "#/components/schemas/AssistantData"
+          },
+          "consents" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Entry"
+            }
+          },
+          "format" : {
+            "type" : "string"
+          },
+          "generatedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "note" : {
+            "type" : "string"
+          },
+          "programs" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ProgramData"
+            }
+          },
+          "projects" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ProjectData"
+            }
+          },
+          "sessions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SessionData"
+            }
+          }
+        }
+      },
+      "KeyBundle" : {
+        "type" : "object",
+        "properties" : {
+          "kdfSalt" : {
+            "type" : "string",
+            "pattern" : "^[A-Za-z0-9+/]{22}==$"
+          },
+          "wrappedKeyPassword" : {
+            "type" : "string",
+            "pattern" : "^[A-Za-z0-9+/]{54,128}={0,2}$"
+          },
+          "wrappedKeyRecovery" : {
+            "type" : "string",
+            "pattern" : "^[A-Za-z0-9+/]{54,128}={0,2}$"
+          }
+        },
+        "required" : [ "kdfSalt", "wrappedKeyPassword", "wrappedKeyRecovery" ]
+      },
+      "ListView" : {
+        "type" : "object",
+        "properties" : {
+          "maxVersionBytes" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "projects" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ProjectView"
+            }
+          },
+          "storageQuotaBytes" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "storageUsedBytes" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "syncEpoch" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }
+      },
+      "LoginKeys" : {
+        "type" : "object",
+        "properties" : {
+          "kdfSalt" : {
+            "type" : "string"
+          },
+          "wrappedKeyPassword" : {
+            "type" : "string"
+          }
+        }
+      },
+      "LoginRequest" : {
+        "type" : "object",
+        "properties" : {
+          "authKey" : {
+            "type" : "string",
+            "pattern" : "^[A-Za-z0-9+/]{43}=$"
+          },
+          "email" : {
+            "type" : "string",
+            "format" : "email",
+            "maxLength" : 254,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "authKey", "email" ]
+      },
+      "MessageResponse" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Problem" : {
+        "type" : "object",
+        "description" : "Problem details (RFC 9457)",
+        "properties" : {
+          "code" : {
+            "type" : "string",
+            "description" : "Código estable, para programas",
+            "example" : "VALIDATION"
+          },
+          "detail" : {
+            "type" : "string",
+            "description" : "Mensaje para mostrar",
+            "example" : "Hay datos inválidos"
+          },
+          "fields" : {
+            "type" : "array",
+            "description" : "Campos inválidos, si los hay",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "instance" : {
+            "type" : "string",
+            "example" : "/api/v1/auth/register"
+          },
+          "status" : {
+            "type" : "integer",
+            "format" : "int32",
+            "example" : 400
+          },
+          "title" : {
+            "type" : "string",
+            "example" : "Bad Request"
+          },
+          "type" : {
+            "type" : "string",
+            "example" : "about:blank"
+          }
+        }
+      },
+      "Profile" : {
+        "type" : "object",
+        "properties" : {
+          "consents" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "ACCOUNT", "PROJECT_SYNC", "SECURITY_EMAIL", "AI_ASSISTANT" ]
+            },
+            "uniqueItems" : true
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "hasAvatar" : {
+            "type" : "boolean"
+          },
+          "storageQuotaBytes" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "storageUsedBytes" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }
+      },
+      "ProgramData" : {
+        "type" : "object",
+        "properties" : {
+          "programId" : {
+            "type" : "string"
+          },
+          "thanksSeenAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "ProjectData" : {
+        "type" : "object",
+        "properties" : {
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "currentVersion" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "programId" : {
+            "type" : "string"
+          },
+          "updatedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "versions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/VersionData"
+            }
+          }
+        }
+      },
+      "ProjectView" : {
+        "type" : "object",
+        "properties" : {
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "programId" : {
+            "type" : "string"
+          },
+          "sizeBytes" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "updatedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }
+      },
+      "RegisterRequest" : {
+        "type" : "object",
+        "properties" : {
+          "ageConfirmed" : {
+            "type" : "boolean"
+          },
+          "authKey" : {
+            "type" : "string",
+            "pattern" : "^[A-Za-z0-9+/]{43}=$"
+          },
+          "consents" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "ACCOUNT", "PROJECT_SYNC", "SECURITY_EMAIL", "AI_ASSISTANT" ]
+            },
+            "maxItems" : 3,
+            "minItems" : 0,
+            "uniqueItems" : true
+          },
+          "email" : {
+            "type" : "string",
+            "format" : "email",
+            "maxLength" : 254,
+            "minLength" : 0
+          },
+          "keyBundle" : {
+            "$ref" : "#/components/schemas/KeyBundle"
+          }
+        },
+        "required" : [ "authKey", "consents", "email", "keyBundle" ]
+      },
+      "ResetBundleResponse" : {
+        "type" : "object",
+        "properties" : {
+          "kdfSalt" : {
+            "type" : "string"
+          },
+          "wrappedKeyRecovery" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ResetConfirmRequest" : {
+        "type" : "object",
+        "properties" : {
+          "authKey" : {
+            "type" : "string",
+            "pattern" : "^[A-Za-z0-9+/]{43}=$"
+          },
+          "discardEncryptedData" : {
+            "type" : "boolean"
+          },
+          "keyBundle" : {
+            "$ref" : "#/components/schemas/KeyBundle"
+          },
+          "token" : {
+            "type" : "string",
+            "pattern" : "^[A-Za-z0-9_-]{43}$"
+          }
+        },
+        "required" : [ "authKey", "keyBundle", "token" ]
+      },
+      "RevokeResponse" : {
+        "type" : "object",
+        "properties" : {
+          "deletedProjects" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "SaveRequest" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "maxLength" : 2732,
+            "minLength" : 40,
+            "pattern" : "^[A-Za-z0-9+/]+={0,2}$"
+          },
+          "programId" : {
+            "type" : "string",
+            "pattern" : "^[a-z0-9-]{1,40}$"
+          }
+        },
+        "required" : [ "name", "programId" ]
+      },
+      "SessionData" : {
+        "type" : "object",
+        "properties" : {
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "expiresAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "revokedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "Status" : {
+        "type" : "object",
+        "properties" : {
+          "authUrl" : {
+            "type" : "string"
+          },
+          "connected" : {
+            "type" : "boolean"
+          },
+          "connectedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "instructions" : {
+            "type" : "string"
+          },
+          "lastUsedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "maxMessageChars" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "models" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "ThanksResponse" : {
+        "type" : "object",
+        "properties" : {
+          "programs" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "TokenRequest" : {
+        "type" : "object",
+        "properties" : {
+          "token" : {
+            "type" : "string",
+            "pattern" : "^[A-Za-z0-9_-]{43}$"
+          }
+        },
+        "required" : [ "token" ]
+      },
+      "TokenResponse" : {
+        "type" : "object",
+        "properties" : {
+          "accessToken" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "expiresIn" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "keys" : {
+            "$ref" : "#/components/schemas/LoginKeys"
+          }
+        }
+      },
+      "Upload" : {
+        "type" : "object",
+        "properties" : {
+          "sizeBytes" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "storageQuotaBytes" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "storageUsedBytes" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }
+      },
+      "VersionData" : {
+        "type" : "object",
+        "properties" : {
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "sizeBytes" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }
+      },
+      "VersionView" : {
+        "type" : "object",
+        "properties" : {
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "sizeBytes" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "bearer" : {
+        "bearerFormat" : "JWT",
+        "description" : "Token de acceso de login o refresh",
+        "scheme" : "bearer",
+        "type" : "http"
+      }
+    }
+  }
+}

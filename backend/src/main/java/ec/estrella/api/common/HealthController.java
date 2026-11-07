@@ -1,5 +1,8 @@
 package ec.estrella.api.common;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,9 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
  * The app asks here (a GET, safe to repeat) before sending anything that changes data, so a request
  * like a session refresh is never lost halfway while the server starts.
  */
+@Tag(name = "Health", description = "Para saber si la API ya despertó")
 @RestController
 public class HealthController {
 
+    @Operation(summary = "¿Está despierta la API? 204 sin cuerpo")
+    @ApiResponse(responseCode = "204", description = "Despierta")
     @GetMapping("/api/v1/health")
     ResponseEntity<Void> health() {
         return ResponseEntity.noContent().cacheControl(CacheControl.noStore()).build();

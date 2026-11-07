@@ -2,8 +2,10 @@ package ec.estrella.api.config;
 
 import ec.estrella.api.common.ProblemAuthenticationEntryPoint;
 import java.util.List;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -18,6 +20,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Configuration
 public class SecurityConfig {
 
+    static final String[] PUBLIC_GETS = {"/actuator/health", "/api/v1/health"};
+
     static final String[] PUBLIC_POSTS = {
         "/api/v1/auth/register",
         "/api/v1/auth/verify-email",
@@ -30,6 +34,41 @@ public class SecurityConfig {
         "/api/v1/auth/password-reset/confirm"
     };
 
+    /** OpenAPI document and Swagger UI (springdoc.api-docs.path and springdoc.swagger-ui.path). */
+    static final String[] API_DOCS = {"/api/v1/openapi", "/api/v1/openapi/**", "/api/v1/openapi.yaml", "/api/docs",
+        "/api/swagger-ui/**"};
+
+    /**
+     * Swagger UI is a page: its own scripts, styles and images, nothing from other sites. The one
+     * inline style allowed, by its SHA-256, is the colouring inside Swagger's logo; no other inline
+     * style or script runs.
+     */
+    static final String DOCS_CSP = "default-src 'self'; script-src 'self'; "
+            + "style-src 'self' 'sha256-RL3ie0nH+Lzz2YNqQN83mnU0J1ot4QL7b99vMdIX99w='; img-src 'self' data:; "
+            + "connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'";
+
+    /**
+     * Only with the docs turned on (local stack): read-only and public, with a page's CSP instead of
+     * the API's "default-src 'none'". Checked before the API chain; any other method is refused.
+     */
+    @Bean
+    @Order(1)
+    @ConditionalOnProperty(name = "springdoc.api-docs.enabled", havingValue = "true")
+    SecurityFilterChain apiDocsChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher(API_DOCS)
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.GET, API_DOCS).permitAll()
+                        .anyRequest().denyAll())
+                .headers(h -> h
+                        .contentSecurityPolicy(csp -> csp.policyDirectives(DOCS_CSP))
+                        .referrerPolicy(r -> r.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.NO_REFERRER))
+                        .frameOptions(f -> f.deny()));
+        return http.build();
+    }
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http, ProblemAuthenticationEntryPoint entryPoint)
             throws Exception {
@@ -40,7 +79,7 @@ public class SecurityConfig {
                 .cors(cors -> { })
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.GET, "/actuator/health", "/api/v1/health").permitAll()
+                        .requestMatchers(HttpMethod.GET, PUBLIC_GETS).permitAll()
                         .requestMatchers(HttpMethod.POST, PUBLIC_POSTS).permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(o -> o.jwt(jwt -> { }).authenticationEntryPoint(entryPoint))

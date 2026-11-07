@@ -210,6 +210,19 @@ class AuthFlowIntegrationTest extends IntegrationTest {
                 .andExpect(header().string("Cache-Control", "no-store"));
     }
 
+    /**
+     * Without APP_API_DOCS=true (production) there is no OpenAPI document or Swagger UI: strangers meet
+     * the deny-by-default rule, and even a signed-in student finds nothing there.
+     */
+    @Test
+    void apiDocsAreNotPublishedByDefault() throws Exception {
+        for (String path : new String[] {"/api/v1/openapi", "/api/docs", "/api/swagger-ui/index.html"}) {
+            mvc.perform(get(path)).andExpect(status().isUnauthorized());
+        }
+        Student student = signUp("192.0.2.60", "\"ACCOUNT\"");
+        mvc.perform(get("/api/v1/openapi").header("Authorization", student.bearer())).andExpect(status().isNotFound());
+    }
+
     /** One student's typos in a lab must not lock out a classmate on the same address. */
     @Test
     void failuresOfOneAccountDoNotLockOthersOnTheSameAddress() throws Exception {

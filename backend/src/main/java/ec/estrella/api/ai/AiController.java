@@ -1,5 +1,7 @@
 package ec.estrella.api.ai;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /** The assistant. Every route needs a signed-in student; nothing here returns the OpenRouter key. */
+@Tag(name = "AI", description = "Asistente con la cuenta de OpenRouter de cada estudiante (PKCE); solo modelos gratuitos")
 @RestController
 @RequestMapping("/api/v1/ai")
 public class AiController {
@@ -44,21 +47,25 @@ public class AiController {
         this.ai = ai;
     }
 
+    @Operation(summary = "Estado de la conexión y modelos disponibles")
     @GetMapping("/status")
     AiService.Status status(@AuthenticationPrincipal Jwt jwt) {
         return ai.status(userId(jwt));
     }
 
+    @Operation(summary = "Conectar OpenRouter: canjear el código PKCE por la clave")
     @PutMapping("/connection")
     AiService.Status connect(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody ConnectRequest request) {
         return ai.connect(userId(jwt), request.code(), request.codeVerifier());
     }
 
+    @Operation(summary = "Desconectar y borrar la clave guardada")
     @DeleteMapping("/connection")
     AiService.Disconnected disconnect(@AuthenticationPrincipal Jwt jwt) {
         return ai.disconnect(userId(jwt));
     }
 
+    @Operation(summary = "Preguntar al asistente")
     @PostMapping("/chat")
     ResponseEntity<AiService.Answer> ask(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody AskRequest request) {
         return ResponseEntity.ok().cacheControl(CacheControl.noStore())

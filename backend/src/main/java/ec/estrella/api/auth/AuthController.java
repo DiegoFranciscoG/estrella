@@ -10,6 +10,10 @@ import ec.estrella.api.auth.dto.AuthDtos.TokenRequest;
 import ec.estrella.api.auth.dto.AuthDtos.TokenResponse;
 import ec.estrella.api.common.ClientIp;
 import ec.estrella.api.config.AppProperties;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.time.Duration;
@@ -25,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Auth", description = "Registro, verificación del correo, sesión y cambio de contraseña")
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
@@ -44,6 +49,7 @@ public class AuthController {
         this.properties = properties;
     }
 
+    @Operation(summary = "Crear una cuenta; envía un correo de verificación")
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.ACCEPTED)
     MessageResponse register(@Valid @RequestBody RegisterRequest request, HttpServletRequest http) {
@@ -51,12 +57,14 @@ public class AuthController {
         return CHECK_EMAIL;
     }
 
+    @Operation(summary = "Confirmar el correo con el token del enlace")
     @PostMapping("/verify-email")
     MessageResponse verifyEmail(@Valid @RequestBody TokenRequest request) {
         auth.verifyEmail(request.token());
         return new MessageResponse("Correo confirmado. Ya puedes entrar.");
     }
 
+    @Operation(summary = "Reenviar el correo de verificación")
     @PostMapping("/resend-verification")
     @ResponseStatus(HttpStatus.ACCEPTED)
     MessageResponse resend(@Valid @RequestBody EmailRequest request, HttpServletRequest http) {
@@ -64,20 +72,25 @@ public class AuthController {
         return CHECK_EMAIL;
     }
 
+    @Operation(summary = "Entrar: token de acceso y cookie de renovación")
     @PostMapping("/login")
     ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request, HttpServletRequest http,
+                                        @Parameter(description = "Solo para nombrar el equipo en el aviso de inicio de sesión")
                                         @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String agent) {
         AuthService.LoginResult result = auth.login(request.email(), request.authKey(), ClientIp.of(http),
                 DeviceLabel.of(agent));
         return withSession(result);
     }
 
+    @Operation(summary = "Renovar la sesión; la cookie rota en cada uso")
     @PostMapping("/refresh")
     ResponseEntity<TokenResponse> refresh(@RequestHeader(CLIENT_HEADER) String client,
                                           @CookieValue(REFRESH_COOKIE) String refreshToken) {
         return withSession(auth.refresh(refreshToken));
     }
 
+    @Operation(summary = "Salir: cierra esta sesión y borra la cookie")
+    @ApiResponse(responseCode = "204", description = "Sesión cerrada y cookie borrada")
     @PostMapping("/logout")
     ResponseEntity<Void> logout(@RequestHeader(CLIENT_HEADER) String client,
                                 @CookieValue(value = REFRESH_COOKIE, required = false) String refreshToken) {
@@ -87,6 +100,7 @@ public class AuthController {
         return ResponseEntity.noContent().header(HttpHeaders.SET_COOKIE, cookie("", Duration.ZERO)).build();
     }
 
+    @Operation(summary = "Pedir el correo para cambiar la contraseña")
     @PostMapping("/password-reset/request")
     @ResponseStatus(HttpStatus.ACCEPTED)
     MessageResponse requestReset(@Valid @RequestBody EmailRequest request, HttpServletRequest http) {
@@ -94,11 +108,13 @@ public class AuthController {
         return CHECK_EMAIL;
     }
 
+    @Operation(summary = "Llaves cifradas para restablecer con la clave de recuperación")
     @PostMapping("/password-reset/bundle")
     ResetBundleResponse resetBundle(@Valid @RequestBody TokenRequest request) {
         return auth.resetBundle(request.token());
     }
 
+    @Operation(summary = "Cambiar la contraseña; cierra todas las sesiones")
     @PostMapping("/password-reset/confirm")
     MessageResponse confirmReset(@Valid @RequestBody ResetConfirmRequest request) {
         auth.confirmPasswordReset(request);

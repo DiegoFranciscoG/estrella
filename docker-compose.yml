@@ -60,6 +60,10 @@ services:
       APP_SYNC_VERSIONS_KEPT: ${APP_SYNC_VERSIONS_KEPT:-5}
       APP_SYNC_MAX_PROJECTS: ${APP_SYNC_MAX_PROJECTS:-500}
       APP_SYNC_UPLOADS_PER_MINUTE: ${APP_SYNC_UPLOADS_PER_MINUTE:-60}
+      APP_MAIL_PER_HOUR: ${APP_MAIL_PER_HOUR:-200}
+      APP_MAX_JSON_BYTES: ${APP_MAX_JSON_BYTES:-131072}
+      # Swagger UI at http://localhost:8088/api/docs on this local stack; production leaves it off.
+      APP_API_DOCS: ${APP_API_DOCS:-true}
       MAIL_HOST: ${MAIL_HOST:?Define MAIL_HOST}
       MAIL_PORT: ${MAIL_PORT:-587}
       MAIL_USERNAME: ${MAIL_USERNAME:-}

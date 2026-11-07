@@ -1,6 +1,10 @@
 package ec.estrella.api.account;
 
 import ec.estrella.api.auth.dto.AuthDtos;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -9,6 +13,7 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -26,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @Validated
+@Tag(name = "Account", description = "Perfil, foto, consentimientos y derechos del titular (LOPDP)")
 @RestController
 @RequestMapping("/api/v1/me")
 public class AccountController {
@@ -47,12 +53,14 @@ public class AccountController {
         this.accounts = accounts;
     }
 
+    @Operation(summary = "Perfil de la cuenta")
     @GetMapping
     AccountService.Profile me(@AuthenticationPrincipal Jwt jwt) {
         return accounts.profile(userId(jwt));
     }
 
-    @PutMapping("/avatar")
+    @Operation(summary = "Subir la foto de perfil (JPEG, PNG o WebP, hasta 256 KB)")
+    @PutMapping(path = "/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void setAvatar(@AuthenticationPrincipal Jwt jwt, @RequestPart("file") MultipartFile file) throws IOException {
         if (file.getSize() > MAX_AVATAR_BYTES) {
@@ -62,6 +70,8 @@ public class AccountController {
         accounts.setAvatar(userId(jwt), file.getBytes());
     }
 
+    @Operation(summary = "Descargar la foto de perfil")
+    @ApiResponse(responseCode = "200", content = {@Content(mediaType = "image/jpeg"), @Content(mediaType = "image/png"), @Content(mediaType = "image/webp")})
     @GetMapping("/avatar")
     ResponseEntity<byte[]> avatar(@AuthenticationPrincipal Jwt jwt) {
         byte[] image = accounts.avatar(userId(jwt));
@@ -72,17 +82,20 @@ public class AccountController {
                 .body(image);
     }
 
+    @Operation(summary = "Quitar la foto de perfil")
     @DeleteMapping("/avatar")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void removeAvatar(@AuthenticationPrincipal Jwt jwt) {
         accounts.removeAvatar(userId(jwt));
     }
 
+    @Operation(summary = "Programas cuyo agradecimiento ya se mostró")
     @GetMapping("/thanks")
     ThanksResponse thanks(@AuthenticationPrincipal Jwt jwt) {
         return new ThanksResponse(accounts.thanksSeen(userId(jwt)));
     }
 
+    @Operation(summary = "Marcar como visto el agradecimiento de un programa")
     @PutMapping("/thanks/{programId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void markThanks(@AuthenticationPrincipal Jwt jwt,
@@ -90,22 +103,26 @@ public class AccountController {
         accounts.markThanksSeen(userId(jwt), programId);
     }
 
+    @Operation(summary = "Dar un consentimiento")
     @PutMapping("/consents/{purpose}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void grant(@AuthenticationPrincipal Jwt jwt, @PathVariable Consent purpose) {
         accounts.grant(userId(jwt), purpose);
     }
 
+    @Operation(summary = "Retirar un consentimiento y borrar los datos que dependen de él")
     @DeleteMapping("/consents/{purpose}")
     RevokeResponse revoke(@AuthenticationPrincipal Jwt jwt, @PathVariable Consent purpose) {
         return new RevokeResponse(accounts.revoke(userId(jwt), purpose));
     }
 
+    @Operation(summary = "Exportar todos mis datos (portabilidad)")
     @GetMapping("/export")
     ResponseEntity<AccountService.Export> export(@AuthenticationPrincipal Jwt jwt) {
         return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(accounts.export(userId(jwt)));
     }
 
+    @Operation(summary = "Eliminar la cuenta y todos sus datos")
     @PostMapping("/delete")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void delete(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody DeleteAccountRequest request) {

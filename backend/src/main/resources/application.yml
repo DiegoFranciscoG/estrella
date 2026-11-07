@@ -50,6 +50,19 @@ management:
     health:
       show-details: never
 
+# The API contract (OpenAPI) and Swagger UI exist only with APP_API_DOCS=true, as in the local
+# stack. Production publishes neither: a smaller surface, and the contract is in docs/openapi.json.
+springdoc:
+  api-docs:
+    enabled: ${APP_API_DOCS:false}
+    path: /api/v1/openapi
+  swagger-ui:
+    enabled: ${APP_API_DOCS:false}
+    path: /api/docs
+  # Stable output, so the committed copy can be compared with the one the code generates.
+  writer-with-order-by-keys: true
+  writer-with-default-pretty-printer: true
+
 app:
   jwt-secret: ${JWT_SECRET}
   access-token-ttl: 15m

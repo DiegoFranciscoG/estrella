@@ -1,7 +1,11 @@
 package ec.estrella.api.project;
 
 import ec.estrella.api.common.ApiException;
-import ec.estrella.api.project.ProjectRepository.Content;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -37,6 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
  * use HTTP preconditions (RFC 9110: If-Match, ETag, 412) so two devices never overwrite each other.
  */
 @Validated
+@Tag(name = "Projects", description = "Proyectos cifrados en el dispositivo; versiones con If-Match y ETag (RFC 9110)")
 @RestController
 @RequestMapping("/api/v1/projects")
 public class ProjectController {
@@ -68,6 +73,7 @@ public class ProjectController {
         this.service = service;
     }
 
+    @Operation(summary = "Listar proyectos y uso del almacenamiento")
     @GetMapping
     ListView list(@AuthenticationPrincipal Jwt jwt) {
         ProjectService.Listing listing = service.list(userId(jwt));
@@ -75,11 +81,15 @@ public class ProjectController {
                 listing.storageUsedBytes(), listing.storageQuotaBytes(), listing.maxVersionBytes(), listing.syncEpoch());
     }
 
+    @Operation(summary = "Crear un proyecto o cambiar su nombre cifrado")
     @PutMapping("/{id}")
     ProjectView save(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id, @Valid @RequestBody SaveRequest request) {
         return view(service.save(userId(jwt), id, request.programId(), Base64.getDecoder().decode(request.name())));
     }
 
+    @Operation(summary = "Subir una versión nueva; If-Match con la versión de partida")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true, description = "Contenido cifrado",
+            content = @Content(mediaType = "application/octet-stream", schema = @Schema(type = "string", format = "binary")))
     @PutMapping(path = "/{id}/content", consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     ResponseEntity<ProjectService.Upload> upload(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id,
                                                  @RequestHeader(name = HttpHeaders.IF_MATCH, required = false) String ifMatch,
@@ -96,6 +106,9 @@ public class ProjectController {
         return ResponseEntity.ok().eTag(etag(result.version())).cacheControl(CacheControl.noStore()).body(result);
     }
 
+    @Operation(summary = "Descargar la versión actual; 304 si If-None-Match coincide")
+    @ApiResponse(responseCode = "200", description = "Contenido cifrado; ETag con la versión y X-Content-SHA256",
+            content = @Content(mediaType = "application/octet-stream", schema = @Schema(type = "string", format = "binary")))
     @GetMapping("/{id}/content")
     ResponseEntity<byte[]> content(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id,
                                    @RequestHeader(name = HttpHeaders.IF_NONE_MATCH, required = false) String ifNoneMatch) {
@@ -107,6 +120,7 @@ public class ProjectController {
         return bytes(service.content(user, id, current));
     }
 
+    @Operation(summary = "Listar las versiones guardadas")
     @GetMapping("/{id}/versions")
     List<VersionView> versions(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id) {
         return service.versions(userId(jwt), id).stream()
@@ -114,12 +128,17 @@ public class ProjectController {
                 .toList();
     }
 
+    @Operation(summary = "Descargar una versión anterior")
+    @ApiResponse(responseCode = "200", description = "Contenido cifrado de esa versión",
+            content = @Content(mediaType = "application/octet-stream", schema = @Schema(type = "string", format = "binary")))
     @GetMapping("/{id}/versions/{version}")
     ResponseEntity<byte[]> version(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id,
                                    @PathVariable @Min(1) long version) {
         return bytes(service.content(userId(jwt), id, version));
     }
 
+    @Operation(summary = "Borrar un proyecto con todas sus versiones")
+    @ApiResponse(responseCode = "204", description = "Proyecto borrado")
     @DeleteMapping("/{id}")
     ResponseEntity<Void> delete(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id) {
         service.delete(userId(jwt), id);
@@ -162,7 +181,7 @@ public class ProjectController {
         }
     }
 
-    private static ResponseEntity<byte[]> bytes(Content content) {
+    private static ResponseEntity<byte[]> bytes(ProjectRepository.Content content) {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .eTag(etag(content.version()))
