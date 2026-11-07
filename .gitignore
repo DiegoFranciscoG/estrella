@@ -8,6 +8,12 @@ target/
 *.class
 *.log
 
+# .NET (desktop/windows)
+desktop/**/bin/
+desktop/**/obj/
+desktop/**/TestResults/
+*.user
+
 # Node / Vite
 node_modules/
 dist/

@@ -1,0 +1,61 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    ESTRELLA for Windows: one small .exe that installs itself for the current user and shows the
+    ESTRELLA web app in WebView2. It targets .NET Framework 4.8 and WebView2 because both already
+    come with Windows 10 (1903+) and Windows 11, so students download about 1 MB instead of a
+    bundled browser (docs/investigacion.md, section 11).
+  -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <AssemblyName>ESTRELLA</AssemblyName>
+    <RootNamespace>Estrella.Desktop</RootNamespace>
+    <Version>0.8.0</Version>
+    <Product>ESTRELLA</Product>
+    <Company>Diego Francisco Granda Zhingre</Company>
+    <Copyright>Copyright (c) 2026 Diego Francisco Granda Zhingre. MIT License.</Copyright>
+    <ApplicationIcon>estrella.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Deterministic>true</Deterministic>
+    <!-- Local development points at docker compose; a release must say where ESTRELLA lives. -->
+    <EstrellaUrl Condition="'$(EstrellaUrl)' == '' and '$(Configuration)' == 'Debug'">http://localhost:8088</EstrellaUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Drawing" />
+    <!-- `dynamic` for the Start menu shortcut (WScript.Shell). -->
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+  <!-- Single file: WebView2's assemblies, its native loaders and its licence travel inside ESTRELLA.exe. -->
+  <ItemGroup Condition="'$(PkgMicrosoft_Web_WebView2)' != ''">
+    <EmbeddedResource Include="$(PkgMicrosoft_Web_WebView2)\lib\net462\Microsoft.Web.WebView2.Core.dll" LogicalName="lib/Microsoft.Web.WebView2.Core.dll" />
+    <EmbeddedResource Include="$(PkgMicrosoft_Web_WebView2)\lib\net462\Microsoft.Web.WebView2.WinForms.dll" LogicalName="lib/Microsoft.Web.WebView2.WinForms.dll" />
+    <EmbeddedResource Include="$(PkgMicrosoft_Web_WebView2)\build\native\x64\WebView2Loader.dll" LogicalName="native/win-x64/WebView2Loader.dll" />
+    <EmbeddedResource Include="$(PkgMicrosoft_Web_WebView2)\build\native\arm64\WebView2Loader.dll" LogicalName="native/win-arm64/WebView2Loader.dll" />
+    <EmbeddedResource Include="$(PkgMicrosoft_Web_WebView2)\build\native\x86\WebView2Loader.dll" LogicalName="native/win-x86/WebView2Loader.dll" />
+    <EmbeddedResource Include="$(PkgMicrosoft_Web_WebView2)\LICENSE.txt" LogicalName="notices/WebView2-LICENSE.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Only compiled against: its assemblies travel inside the .exe (below), not next to it. -->
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4258.31" GeneratePathProperty="true" ExcludeAssets="runtime" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyMetadata Include="EstrellaUrl" Value="$(EstrellaUrl)" />
+    <InternalsVisibleTo Include="Estrella.Desktop.Tests" />
+  </ItemGroup>
+
+  <Target Name="RequireEstrellaUrl" BeforeTargets="CoreCompile" Condition="'$(EstrellaUrl)' == ''">
+    <Error Text="Falta la dirección de ESTRELLA. Ejemplo: dotnet publish -c Release -p:EstrellaUrl=https://estrella.example" />
+  </Target>
+
+</Project>
