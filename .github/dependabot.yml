@@ -1,0 +1,46 @@
+# Weekly update pull requests for every ecosystem in the repo. Versions wait 14 days after release
+# (SECURITY.md: dependencies at least two weeks old); security updates are not delayed.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 14
+
+  - package-ecosystem: maven
+    directory: /backend
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 14
+
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 14
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: nuget
+    directories:
+      - /desktop/windows/Estrella.Desktop
+      - /desktop/windows/Estrella.Desktop.Tests
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 14
+
+  - package-ecosystem: docker
+    directories:
+      - /backend
+      - /frontend
+      - /dev/openrouter-sim
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 14
