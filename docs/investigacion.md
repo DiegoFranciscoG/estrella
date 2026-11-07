@@ -341,7 +341,7 @@ Los pasos de Lienzo y Plano se tomaron de su interfaz real (menús de miniPaint 
 | TLS en pgJDBC | pgJDBC, SSL; Connection parameters | https://jdbc.postgresql.org/documentation/ssl/ · https://jdbc.postgresql.org/documentation/use/ | `require` acepta cualquier certificado; `verify-full` verifica el nombre. `channelBinding=require` exige SCRAM ligado al canal (PostgreSQL 11 o posterior) |
 | Correo por API | Brevo, Send a transactional email | https://developers.brevo.com/reference/sendtransacemail | `POST https://api.brevo.com/v3/smtp/email`, cabecera `api-key`, `sender`, `to`, `subject`, `htmlContent` y `textContent`; responde 201 |
 | Plan gratuito de Brevo | Brevo, Email API | https://www.brevo.com/features/email-api/ | 300 correos al día, sin tarjeta, con la API completa, después de aprobar la cuenta. La página de precios se arma con JavaScript y no se pudo leer |
-| Vulnerabilidades conocidas | OSV.dev | https://osv.dev | 0 vulnerabilidades en las 91 dependencias Maven (2026-11-06) |
+| Vulnerabilidades conocidas | OSV.dev | https://osv.dev | 0 vulnerabilidades en las 103 dependencias Maven de ejecución, springdoc incluido (2026-11-07) |
 
 | Hallazgo | Decisión |
 |---|---|
