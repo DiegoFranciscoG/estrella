@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Archivo</title>
+  </head>
+  <body>
+    <header class="bar" role="toolbar" aria-label="Herramientas de Archivo">
+      <label class="button" for="folder">Elegir carpeta<input id="folder" type="file" webkitdirectory multiple hidden /></label>
+      <label class="button" for="add">Añadir archivos<input id="add" type="file" multiple hidden /></label>
+      <span class="sep" aria-hidden="true"></span>
+      <label class="visually-hidden" for="query">Buscar archivos</label>
+      <input id="query" type="search" autocomplete="off" placeholder="Buscar nombre, carpeta o palabra clave" />
+      <label class="visually-hidden" for="kind">Filtrar por tipo</label>
+      <select id="kind"></select>
+      <label class="visually-hidden" for="min-rating">Calificación mínima</label>
+      <select id="min-rating">
+        <option value="0">Toda calificación</option>
+        <option value="1">★ o más</option>
+        <option value="2">★★ o más</option>
+        <option value="3">★★★ o más</option>
+        <option value="4">★★★★ o más</option>
+        <option value="5">★★★★★</option>
+      </select>
+      <label class="visually-hidden" for="label-filter">Filtrar por etiqueta</label>
+      <select id="label-filter"></select>
+      <label class="visually-hidden" for="sort">Ordenar por</label>
+      <select id="sort">
+        <option value="name">Por nombre</option>
+        <option value="date">Más recientes</option>
+        <option value="size">Más grandes</option>
+        <option value="rating">Mejor calificados</option>
+      </select>
+      <span class="spacer"></span>
+      <button type="button" id="select-all" title="Seleccionar todos los archivos a la vista (Ctrl+A)">Seleccionar todo</button>
+      <button type="button" id="rename" title="Descargar copias renombradas en un ZIP">Renombrar en lote</button>
+      <button type="button" id="export-csv" class="primary">Exportar lista CSV</button>
+    </header>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+    <main class="layout">
+      <section class="browser" aria-labelledby="count">
+        <p id="count" class="count">Sin archivos</p>
+        <div id="empty" class="empty">
+          <p><strong>Elige una carpeta para organizar tus archivos.</strong></p>
+          <p>Califica con estrellas, marca con colores, añade palabras clave y encuentra cualquier archivo al instante. Los archivos no salen de tu equipo: el proyecto guarda solo sus nombres, fechas y tus marcas.</p>
+        </div>
+        <ul id="grid" class="grid" aria-label="Archivos"></ul>
+      </section>
+      <aside class="side" aria-label="Detalles del archivo">
+        <div id="preview" class="preview" hidden></div>
+        <h2 id="detail-title">Detalles</h2>
+        <p id="no-file" class="hint">Selecciona un archivo para ver sus datos. Ctrl o Mayús + clic seleccionan varios.</p>
+        <dl id="details" class="props"></dl>
+        <div id="editor" class="editor" hidden>
+          <label for="rating">Calificación</label>
+          <select id="rating">
+            <option value="0">Sin calificar</option>
+            <option value="1">★ 1 estrella</option>
+            <option value="2">★★ 2 estrellas</option>
+            <option value="3">★★★ 3 estrellas</option>
+            <option value="4">★★★★ 4 estrellas</option>
+            <option value="5">★★★★★ 5 estrellas</option>
+          </select>
+          <label for="label">Etiqueta de color</label>
+          <select id="label"></select>
+          <label for="tags">Palabras clave</label>
+          <input id="tags" type="text" autocomplete="off" placeholder="Separadas por comas" />
+        </div>
+        <p class="hint">Atajos: teclas 0 a 5 califican los archivos seleccionados. Renombrar en lote descarga copias con los nombres nuevos; tus archivos originales no cambian.</p>
+      </aside>
+    </main>
+    <dialog id="rename-dialog" aria-labelledby="rename-title">
+      <form id="rename-form">
+        <h2 id="rename-title">Renombrar en lote</h2>
+        <p id="rename-scope" class="hint"></p>
+        <label for="pattern">Nombre nuevo</label>
+        <input id="pattern" type="text" value="{nombre}" autocomplete="off" />
+        <p class="hint">{nombre} es el nombre actual, {n} un número con ceros a la izquierda y {fecha} la fecha del archivo. La extensión se conserva.</p>
+        <label for="start">Primer número</label>
+        <input id="start" type="number" min="0" max="999999" value="1" />
+        <h3>Vista previa</h3>
+        <ol id="rename-preview" class="rename-preview"></ol>
+        <div class="actions">
+          <button type="button" id="rename-cancel">Cancelar</button>
+          <button type="submit" class="primary">Descargar ZIP</button>
+        </div>
+      </form>
+    </dialog>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

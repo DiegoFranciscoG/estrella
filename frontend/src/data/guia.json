@@ -1329,6 +1329,41 @@
         "file": "frontend/tests/e2e/solido.spec.ts",
         "test": "Sólido: places and sizes solids, raises a drawn footprint, exports STL and glTF, and keeps the model"
       }
+    },
+    {
+      "id": "organizar-archivos",
+      "area": "diseno",
+      "task": "Organizar, calificar y renombrar los archivos de un proyecto",
+      "keywords": [
+        "organizar",
+        "carpeta",
+        "calificar",
+        "estrellas",
+        "etiquetas",
+        "palabras clave",
+        "renombrar",
+        "lote",
+        "buscar archivo"
+      ],
+      "from": [
+        {
+          "program": "Bridge",
+          "term": "calificaciones, etiquetas, palabras clave y cambio de nombre por lotes"
+        }
+      ],
+      "tool": "archivo",
+      "steps": [
+        "Abre Archivo y pulsa Elegir carpeta (o Añadir archivos): verás miniaturas de fotos, RAW y SVG.",
+        "Selecciona un archivo y dale estrellas (teclas 0 a 5), una etiqueta de color y palabras clave.",
+        "Busca por nombre, carpeta o palabra clave y filtra por tipo, calificación o etiqueta.",
+        "Pulsa Renombrar en lote, escribe un patrón como entrega-{n} y descarga el ZIP con las copias renombradas.",
+        "Pulsa Exportar lista CSV para llevar el inventario a tu hoja de cálculo."
+      ],
+      "source": {
+        "kind": "test",
+        "file": "frontend/tests/e2e/archivo.spec.ts",
+        "test": "Archivo: catalogs files, rates and tags them, finds them, renames a batch into a ZIP and keeps the marks"
+      }
     }
   ]
 }

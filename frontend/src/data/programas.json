@@ -192,18 +192,18 @@
   {
     "id": "archivo",
     "name": "Archivo",
-    "summary": "Organiza y busca tus proyectos y archivos.",
+    "summary": "Organiza los archivos de tus proyectos: miniaturas, estrellas, etiquetas de color, palabras clave, búsqueda y filtros, renombrado en lote y lista en CSV.",
     "replaces": [
       "Bridge"
     ],
     "availability": "web",
-    "status": "en-construccion",
-    "sizeKb": null,
+    "status": "disponible",
+    "sizeKb": 14,
     "demand": "baja",
-    "phase": "Planificado",
-    "appPath": null,
+    "phase": "Disponible",
+    "appPath": "/apps/archivo/index.html",
     "basedOn": null,
-    "honestNote": "Organizar y buscar sí. Catálogos de miles de fotos, en escritorio."
+    "honestNote": "Organiza y busca sí. Los archivos se quedan en tu equipo: al volver eliges la carpeta otra vez para ver miniaturas y renombrar; tus marcas se conservan. Todavía no lee datos EXIF de cámara ni hace colecciones inteligentes."
   },
   {
     "id": "modelado-render",
