@@ -225,14 +225,19 @@ export function verifyView(token: string | null): HTMLElement {
   const status = h("p", { role: "status" }, "Confirmando tu correo...");
   const main = authLayout("Confirmar correo", status);
   if (!token) {
-    status.textContent = "El enlace está incompleto. Ábrelo de nuevo desde tu correo.";
+    // The token leaves the address once used, so reloading after confirming also lands here.
+    status.replaceChildren("Si ya confirmaste tu correo, ", h("a", { href: "#/ingresar" }, "entra aquí"),
+      ". Si no, abre otra vez el enlace del correo; vence en 24 horas.");
     return main;
   }
   api("/auth/verify-email", { method: "POST", body: { token } })
     .then(() => {
       status.replaceChildren("Correo confirmado. ", h("a", { href: "#/ingresar" }, "Entrar ahora"));
     })
-    .catch((e) => { status.textContent = errorText(e); });
+    .catch((e) => {
+      status.replaceChildren(errorText(e), " ", h("a", { href: "#/ingresar" }, "Ir a Entrar"),
+        ": si tu cuenta aún no está confirmada, ahí puedes pedir un enlace nuevo.");
+    });
   return main;
 }
 
