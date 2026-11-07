@@ -102,7 +102,8 @@ app:
     models: "${APP_AI_MODELS:google/gemma-4-31b-it:free,google/gemma-4-26b-a4b-it:free,openrouter/free}"
     requests-per-minute: ${APP_AI_REQUESTS_PER_MINUTE:6}
     max-message-chars: ${APP_AI_MAX_MESSAGE_CHARS:4000}
-    max-output-tokens: ${APP_AI_MAX_OUTPUT_TOKENS:800}
+    # Longest answer, in tokens.
+    max-output-tokens: ${APP_AI_MAX_OUTPUT:800}
     timeout: ${APP_AI_TIMEOUT:60s}
   privacy-notice-version: "2026-11-07.1"
   unverified-account-retention: 7d

@@ -232,7 +232,7 @@ La API no arranca si falta una variable marcada como obligatoria. Ningún secret
 | `APP_SYNC_MAX_VERSION_BYTES`, `APP_SYNC_VERSIONS_KEPT`, `APP_SYNC_MAX_PROJECTS`, `APP_SYNC_UPLOADS_PER_MINUTE` | No | Límites de la sincronización |
 | `APP_MAIL_PER_HOUR` | No (200) | Techo de correos por hora, para todos |
 | `APP_MAX_JSON_BYTES` | No (128 KB) | Cuerpo JSON más grande aceptado |
-| `APP_AI_BASE_URL`, `APP_AI_AUTH_URL`, `APP_AI_MODELS`, `APP_AI_REQUESTS_PER_MINUTE`, `APP_AI_MAX_MESSAGE_CHARS`, `APP_AI_MAX_OUTPUT_TOKENS`, `APP_AI_TIMEOUT` | No | Asistente; solo acepta modelos `:free` |
+| `APP_AI_BASE_URL`, `APP_AI_AUTH_URL`, `APP_AI_MODELS`, `APP_AI_REQUESTS_PER_MINUTE`, `APP_AI_MAX_MESSAGE_CHARS`, `APP_AI_MAX_OUTPUT`, `APP_AI_TIMEOUT` | No | Asistente; solo acepta modelos `:free` |
 | `APP_API_DOCS` | No (`false`) | Publica OpenAPI y Swagger UI (solo en local) |
 | `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `PANEL_ORIGIN`, `APPS_ORIGIN` | Solo Docker Compose | Base local y orígenes de los dos sitios |
 
