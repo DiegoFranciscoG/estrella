@@ -6,6 +6,8 @@ import ec.estrella.api.config.AppProperties;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
@@ -21,6 +23,8 @@ public class TokenService {
 
     public record IssuedTokens(String accessToken, long expiresIn, String refreshToken) {
     }
+
+    private static final Logger log = LoggerFactory.getLogger(TokenService.class);
 
     private final JwtEncoder encoder;
     private final SessionRepository sessions;
@@ -53,6 +57,7 @@ public class TokenService {
                 .orElseThrow(TokenService::invalidSession);
         if (session.revokedAt() != null) {
             sessions.revokeAllForUser(session.userId(), now);
+            log.warn("Security event: a rotated refresh token was used again; all sessions of that account were closed");
             throw invalidSession();
         }
         if (!session.expiresAt().isAfter(now) || !sessions.revoke(session.id(), now)) {

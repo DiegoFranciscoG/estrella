@@ -29,7 +29,10 @@ spring:
 
 server:
   port: ${PORT:8080}
-  forward-headers-strategy: framework
+  # Tomcat reads X-Forwarded-For from the right and trusts only internal proxies (10/8, 172.16/12,
+  # 192.168/16, 127/8...): whatever a client writes at the left is ignored, so nobody can pose as
+  # another address to escape the per-address limits (OWASP API2 and API4).
+  forward-headers-strategy: native
   error:
     include-stacktrace: never
     include-message: never
@@ -80,6 +83,11 @@ app:
     timeout: ${APP_AI_TIMEOUT:60s}
   privacy-notice-version: "2026-11-06.2"
   unverified-account-retention: 7d
+  # Emails of every kind per hour, all addresses together: a ceiling for the mail provider's quota
+  # even if someone spreads requests over many addresses (OWASP API6).
+  mail-per-hour: ${APP_MAIL_PER_HOUR:200}
+  # Largest JSON body accepted; the biggest legitimate one is an assistant question (about 80 KB).
+  max-json-bytes: ${APP_MAX_JSON_BYTES:131072}
 
 logging:
   level:

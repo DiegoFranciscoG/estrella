@@ -29,6 +29,8 @@ public record AppProperties(
         @Positive long storageQuotaBytes,
         @NotBlank String privacyNoticeVersion,
         @NotNull Duration unverifiedAccountRetention,
+        @Min(1) @Max(100_000) int mailPerHour,
+        @Min(1024) @Max(1024 * 1024) int maxJsonBytes,
         @NotNull @Valid Sync sync,
         @NotNull @Valid Ai ai) {
 

@@ -22,6 +22,8 @@ import java.util.Base64;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -45,6 +47,14 @@ public class AuthService {
      * Guessing one account is limited per account and address instead.
      */
     static final int ADDRESS_FREE_FAILURES = 100;
+    /**
+     * Failed sign-ins tolerated for one account from all addresses together. Guessing must stay slow
+     * even for someone who connects from many addresses; above this, the account is slowed down
+     * progressively (never locked for good, so an attacker cannot shut a student out).
+     */
+    static final int ACCOUNT_FREE_FAILURES = 20;
+
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
 
     public record LoginResult(TokenService.IssuedTokens tokens, String email, LoginKeys keys) {
     }
@@ -137,8 +147,12 @@ public class AuthService {
     public LoginResult login(String rawEmail, String authKey, String ip, String device) {
         String email = normalize(rawEmail);
         String key = "login:" + ip + ":" + email;
-        long wait = Math.max(limiter.lockedSeconds(key), limiter.lockedSeconds("login-ip:" + ip));
+        String accountKey = "login-account:" + email;
+        long wait = Math.max(Math.max(limiter.lockedSeconds(key), limiter.lockedSeconds("login-ip:" + ip)),
+                limiter.lockedSeconds(accountKey));
         if (wait > 0) {
+            // A security event without personal data: no email, no address (LOPDP, minimisation).
+            log.warn("Security event: sign-in slowed down after repeated failures");
             throw new ApiException(HttpStatus.TOO_MANY_REQUESTS, "TOO_MANY_ATTEMPTS",
                     "Demasiados intentos. Espera " + wait + " segundos");
         }
@@ -147,6 +161,7 @@ public class AuthService {
         if (found.isEmpty() || !matches) {
             limiter.recordFailure(key);
             limiter.recordFailure("login-ip:" + ip, ADDRESS_FREE_FAILURES);
+            limiter.recordFailure(accountKey, ACCOUNT_FREE_FAILURES);
             throw new ApiException(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS", "Correo o contraseña incorrectos");
         }
         UserRecord user = found.get();
@@ -230,8 +245,15 @@ public class AuthService {
         boolean addressOk = limiter.tryAcquire(action + ":ip:" + ip, EMAIL_ACTIONS_PER_ADDRESS_HOUR, hour);
         boolean emailOk = limiter.tryAcquire(action + ":email:" + email, EMAIL_ACTIONS_PER_EMAIL_HOUR, hour);
         if (!addressOk || !emailOk) {
+            log.warn("Security event: email requests over the per-address or per-inbox budget ({})", action);
             throw new ApiException(HttpStatus.TOO_MANY_REQUESTS, "TOO_MANY_ATTEMPTS",
                     "Hiciste muchas solicitudes. Intenta en una hora");
+        }
+        // Counted last, so requests refused above do not use up everyone's budget.
+        if (!limiter.tryAcquire("email:all", properties.mailPerHour(), hour)) {
+            log.warn("Security event: hourly email ceiling reached");
+            throw new ApiException(HttpStatus.TOO_MANY_REQUESTS, "TOO_MANY_ATTEMPTS",
+                    "Hay muchas solicitudes en este momento. Intenta en unos minutos");
         }
     }
 

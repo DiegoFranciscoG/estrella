@@ -10,6 +10,8 @@ app:
   cookie-same-site: Strict
   mail-from: no-reply@example.com
   storage-quota-bytes: 52428800
+  # Every test class shares one budget within the hour; the ceiling itself is tested separately.
+  mail-per-hour: 100000
   ai:
     # The browser never reaches it in these tests; the server half points at FakeOpenRouter.
     auth-url: http://127.0.0.1:9/auth

@@ -1,6 +1,7 @@
 package ec.estrella.api.support;
 
 import com.jayway.jsonpath.JsonPath;
+import ec.estrella.api.common.JsonSizeLimitFilter;
 import ec.estrella.api.mail.MailService;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -80,7 +81,9 @@ public abstract class IntegrationTest {
 
     @BeforeEach
     void setUpMvc() {
-        mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+        // Same order as the running server: the size check comes before security and controllers.
+        mvc = MockMvcBuilders.webAppContextSetup(context).addFilters(context.getBean(JsonSizeLimitFilter.class))
+                .apply(springSecurity()).build();
         mail.clear();
         OPENROUTER.clearScript();
     }

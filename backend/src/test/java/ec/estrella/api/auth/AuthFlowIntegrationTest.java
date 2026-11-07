@@ -171,6 +171,45 @@ class AuthFlowIntegrationTest extends IntegrationTest {
                 .andExpect(jsonPath("$.code").value("TOO_MANY_ATTEMPTS"));
     }
 
+    /** OWASP API2: someone who changes address on every attempt still gets only a few guesses per account. */
+    @Test
+    void guessingOneAccountStaysSlowFromManyAddresses() throws Exception {
+        String bad = "{\"email\":\"%s\",\"authKey\":\"%s\"}".formatted(uniqueEmail(), randomKey(32));
+        for (int i = 0; i < AuthService.ACCOUNT_FREE_FAILURES; i++) {
+            String address = "192.0.2." + (i + 1);
+            mvc.perform(post("/api/v1/auth/login").with(r -> {
+                r.setRemoteAddr(address);
+                return r;
+            }).contentType(MediaType.APPLICATION_JSON).content(bad)).andExpect(status().isUnauthorized());
+        }
+        mvc.perform(post("/api/v1/auth/login").with(r -> {
+            r.setRemoteAddr("192.0.2.200");
+            return r;
+        }).contentType(MediaType.APPLICATION_JSON).content(bad))
+                .andExpect(status().isTooManyRequests())
+                .andExpect(jsonPath("$.code").value("TOO_MANY_ATTEMPTS"));
+    }
+
+    /** OWASP API4: a JSON body is measured before Spring reads it into memory. */
+    @Test
+    void jsonBodiesHaveASizeLimit() throws Exception {
+        String huge = "{\"email\":\"" + "a".repeat(200_000) + "@example.com\",\"authKey\":\"x\"}";
+        mvc.perform(json(post("/api/v1/auth/login"), huge))
+                .andExpect(status().is(413))
+                .andExpect(jsonPath("$.code").value("TOO_LARGE"));
+        mvc.perform(post("/api/v1/auth/login").with(fromIp()).contentType(MediaType.APPLICATION_JSON).header("Transfer-Encoding", "chunked"))
+                .andExpect(status().is(411))
+                .andExpect(jsonPath("$.code").value("LENGTH_REQUIRED"));
+    }
+
+    /** The app asks here whether a sleeping free server has woken up, before changing anything. */
+    @Test
+    void healthAnswersWithoutSigningInAndIsNeverCached() throws Exception {
+        mvc.perform(get("/api/v1/health"))
+                .andExpect(status().isNoContent())
+                .andExpect(header().string("Cache-Control", "no-store"));
+    }
+
     /** One student's typos in a lab must not lock out a classmate on the same address. */
     @Test
     void failuresOfOneAccountDoNotLockOthersOnTheSameAddress() throws Exception {

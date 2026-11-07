@@ -40,7 +40,7 @@ public class SecurityConfig {
                 .cors(cors -> { })
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/actuator/health", "/api/v1/health").permitAll()
                         .requestMatchers(HttpMethod.POST, PUBLIC_POSTS).permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(o -> o.jwt(jwt -> { }).authenticationEntryPoint(entryPoint))
