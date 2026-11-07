@@ -176,22 +176,18 @@
   {
     "id": "revelado",
     "name": "Revelado",
-    "summary": "Vista previa y ajustes básicos de fotos RAW.",
+    "summary": "Revelado de fotos: exposición, balance de blancos, luces y sombras, contraste, color, blanco y negro, recorte y giro. Abre JPG, PNG, WebP y RAW de cámara.",
     "replaces": [
       "Lightroom"
     ],
     "availability": "web",
-    "status": "en-construccion",
-    "sizeKb": null,
+    "status": "disponible",
+    "sizeKb": 10,
     "demand": "media",
-    "phase": "Planificado",
-    "appPath": null,
-    "basedOn": {
-      "name": "libraw-wasm",
-      "license": "ISC",
-      "source": "https://www.npmjs.com/package/libraw-wasm"
-    },
-    "honestNote": "El revelado completo y los catálogos grandes solo en escritorio."
+    "phase": "Disponible",
+    "appPath": "/apps/revelado/index.html",
+    "basedOn": null,
+    "honestNote": "Con un RAW revela la vista previa a tamaño completo que guarda la cámara, no los datos del sensor. Todavía sin pinceles, ajustes por zonas ni catálogo de muchas fotos."
   },
   {
     "id": "archivo",

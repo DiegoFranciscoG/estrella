@@ -1220,6 +1220,39 @@
         "file": "frontend/tests/e2e/trazo.spec.ts",
         "test": "Trazo: draws, colors and writes, exports SVG, imports safely and survives a lost tab"
       }
+    },
+    {
+      "id": "revelar-foto",
+      "area": "diseno",
+      "task": "Revelar una foto: exposición, balance de blancos, recorte y exportación",
+      "keywords": [
+        "foto",
+        "raw",
+        "exposicion",
+        "balance de blancos",
+        "temperatura",
+        "recortar",
+        "revelar",
+        "jpg"
+      ],
+      "from": [
+        {
+          "program": "Lightroom",
+          "term": "Módulo Revelar"
+        }
+      ],
+      "tool": "revelado",
+      "steps": [
+        "Abre Revelado y pulsa Abrir foto: JPG, PNG, WebP o RAW de cámara.",
+        "Mueve Exposición, Temperatura y los demás controles; doble clic en uno lo devuelve a cero.",
+        "Pulsa Recortar, elige la proporción y arrastra sobre la foto.",
+        "Pulsa Exportar JPG: sale a tamaño completo y sin datos de ubicación."
+      ],
+      "source": {
+        "kind": "test",
+        "file": "frontend/tests/e2e/revelado.spec.ts",
+        "test": "Revelado: develops a RAW photo, crops it, exports a JPG and keeps the work"
+      }
     }
   ]
 }

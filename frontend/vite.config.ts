@@ -48,7 +48,7 @@ export default defineConfig({
     setupFiles: ["tests/unit/setup.ts"],
     coverage: {
       provider: "v8",
-      include: ["src/core/**", "apps/shared/bridge.ts", "apps/shared/offline.ts", "apps/folio/ops.ts", "apps/plano/model.ts", "apps/plano/dxf.ts", "apps/plano/svg.ts", "apps/shared/base64.ts", "apps/visor/detect.ts", "apps/visor/raw.ts", "apps/visor/cad-bounds.ts", "apps/visor/convert.ts", "apps/trazo/model.ts", "apps/trazo/svg-io.ts"],
+      include: ["src/core/**", "apps/shared/bridge.ts", "apps/shared/offline.ts", "apps/folio/ops.ts", "apps/plano/model.ts", "apps/plano/dxf.ts", "apps/plano/svg.ts", "apps/shared/base64.ts", "apps/visor/detect.ts", "apps/visor/raw.ts", "apps/visor/cad-bounds.ts", "apps/visor/convert.ts", "apps/trazo/model.ts", "apps/trazo/svg-io.ts", "apps/revelado/develop.ts"],
       thresholds: { lines: 70 },
     },
   },

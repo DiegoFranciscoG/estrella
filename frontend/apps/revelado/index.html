@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Revelado</title>
+  </head>
+  <body>
+    <header class="bar" role="toolbar" aria-label="Herramientas de Revelado">
+      <label class="button" for="open">Abrir foto<input id="open" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp,.cr2,.cr3,.nef,.nrw,.arw,.srf,.sr2,.dng,.orf,.rw2,.pef,.srw,.raf,.erf,.kdc,.3fr,.mrw,.x3f" hidden /></label>
+      <span class="sep" aria-hidden="true"></span>
+      <button type="button" id="rotate-left" title="Girar a la izquierda">Girar ⟲</button>
+      <button type="button" id="rotate-right" title="Girar a la derecha">Girar ⟳</button>
+      <button type="button" id="flip" title="Voltear de izquierda a derecha" aria-pressed="false">Voltear</button>
+      <span class="sep" aria-hidden="true"></span>
+      <button type="button" id="crop" aria-pressed="false" title="Recortar: arrastra sobre la foto">Recortar</button>
+      <label class="visually-hidden" for="aspect">Proporción del recorte</label>
+      <select id="aspect" title="Proporción del recorte">
+        <option value="">Libre</option>
+        <option value="1">1:1</option>
+        <option value="1.3333333333">4:3</option>
+        <option value="1.5">3:2</option>
+        <option value="1.7777777778">16:9</option>
+        <option value="0.8">4:5</option>
+      </select>
+      <button type="button" id="uncrop">Quitar recorte</button>
+      <span class="sep" aria-hidden="true"></span>
+      <button type="button" id="before" aria-pressed="false" title="Ver la foto sin ajustes mientras está activo">Ver original</button>
+      <button type="button" id="undo" title="Deshacer (Ctrl+Z)">Deshacer</button>
+      <button type="button" id="redo" title="Rehacer (Ctrl+Y)">Rehacer</button>
+      <button type="button" id="reset" title="Volver a la foto original">Restablecer</button>
+      <span class="spacer"></span>
+      <button type="button" id="export-png">Exportar PNG</button>
+      <button type="button" id="export-jpg" class="primary">Exportar JPG</button>
+    </header>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+    <main class="layout">
+      <section id="stage" class="stage" aria-label="Foto">
+        <div id="empty" class="empty">
+          <p><strong>Abre una foto para revelarla.</strong></p>
+          <p>JPG, PNG, WebP o RAW de cámara. Todo se hace en tu equipo: la foto no se sube a ningún servidor.</p>
+        </div>
+        <canvas id="view" hidden aria-label="Foto revelada"></canvas>
+        <div id="crop-box" class="crop-box" hidden></div>
+      </section>
+      <aside class="side" aria-label="Ajustes">
+        <h2>Histograma</h2>
+        <canvas id="histogram" class="histogram" width="256" height="72" role="img" aria-label="Histograma de luminancia"></canvas>
+        <h2>Luz</h2>
+        <div id="light"></div>
+        <h2>Color</h2>
+        <div id="color"></div>
+        <label class="check"><input id="bw" type="checkbox" /> Blanco y negro</label>
+        <p id="info" class="hint"></p>
+        <p class="hint">Doble clic en un control lo devuelve a cero. Exportar quita los datos de la cámara y la ubicación (EXIF).</p>
+      </aside>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>
