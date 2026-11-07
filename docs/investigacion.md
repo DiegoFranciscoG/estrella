@@ -269,7 +269,49 @@ Los pasos de Lienzo y Plano se tomaron de su interfaz real (menús de miniPaint 
 3. **La vuelta de OpenRouter** agrega `code` y `state` a una `callback_url` sin fragmento (`https://dominio/`), según la documentación. Falta confirmarlo con la cuenta real.
 4. **Transferencia internacional:** las preguntas van a OpenRouter (EE. UU.) y al proveedor del modelo. Se pide consentimiento explícito al conectar (art. 60), pero debe revisarlo un abogado.
 
-## 11. Conclusiones de diseño
+## 11. Fase 8: escritorio y móvil (2026-11-06)
+
+| Tema | Fuente | URL | Qué sale de ahí |
+|---|---|---|---|
+| Cuándo se puede instalar una web | web.dev, Install criteria | https://web.dev/articles/install-criteria | HTTPS y un manifiesto con `name` o `short_name`, íconos de **192 y 512 px**, `start_url`, `display` standalone (o similar) y sin `prefer_related_applications` |
+| Navegadores que instalan | MDN, Making PWAs installable | https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable | El service worker no es requisito para instalar. Safari 17 en macOS Sonoma: Archivo > Añadir al Dock. iOS 16.4 o posterior: desde el menú Compartir de Safari, Chrome, Edge o Firefox. Firefox de escritorio no instala con manifiesto |
+| Manifiesto | W3C, Web Application Manifest | https://www.w3.org/TR/appmanifest/ | Miembros `id`, `start_url`, `scope`, `display`, `icons` (con `purpose` maskable), `shortcuts` y `lang` |
+| Que no se borren los datos | MDN, Storage quotas and eviction criteria; MDN, `persist()` | https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria · https://developer.mozilla.org/en-US/docs/Web/API/StorageManager/persist | Por defecto el almacenamiento es "best-effort" y el navegador puede borrarlo; con `persist()` solo lo borra el usuario. Chrome, Edge y Safari aprueban o niegan sin preguntar; Firefox pregunta |
+| Política de Safari | WebKit, Updates to Storage Policy | https://webkit.org/blog/14403/updates-to-storage-policy/ | Safari puede borrar los datos de un sitio sin uso. Concede `persist()` según heurísticas, por ejemplo si la web está instalada en la pantalla de inicio. Un marco de otro origen tiene una cuota de solo el 10 % |
+| Ciclo de vida del service worker | web.dev, The service worker lifecycle | https://web.dev/articles/service-worker-lifecycle | Una versión nueva queda "en espera" hasta que se cierran las pestañas, o hasta que la página le pide `skipWaiting()` |
+| WebView2 en Windows | Microsoft Learn, Distribute your app and the WebView2 Runtime | https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution | Viene con Windows 11 y está en casi todos los Windows 10. Si falta, hay un instalador oficial de unos 2 MB |
+| .NET Framework 4.8 | Microsoft Learn, .NET Framework versions and dependencies | https://learn.microsoft.com/en-us/dotnet/framework/install/versions-and-dependencies | Viene preinstalado desde Windows 10 May 2019 Update (1903) y en Windows 11. Se seguirá incluyendo en Windows |
+| WebView2 con .NET Framework | Microsoft Learn, Get started with WebView2 in WinForms apps | https://learn.microsoft.com/en-us/microsoft-edge/webview2/get-started/winforms | Funciona con .NET Framework 4.7.2 o posterior |
+| Seguridad de WebView2 | Microsoft Learn, Develop secure WebView2 apps | https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/security | Verificar el origen de cada mensaje; mensajes específicos, no puentes genéricos; desactivar objetos del host; filtrar navegaciones con `NavigationStarting` y `FrameNavigationStarting` |
+| Datos de WebView2 | Microsoft Learn, Manage user data folders | https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/user-data-folder | La carpeta de datos puede ir en una ubicación propia con permisos de lectura y escritura |
+| Probar la app de escritorio | Playwright, WebView2 | https://playwright.dev/docs/webview2 | `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=…` y `connectOverCDP`. Microsoft Learn remite a esta guía |
+| Instalar por usuario | Medición propia en este equipo (registro de Windows) | `HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall` | Windows lista allí, sin permisos de administrador, programas instalados por usuario, con `DisplayName`, `UninstallString` e `InstallLocation` |
+| Programas oficiales | Microsoft Learn, `winget install` | https://learn.microsoft.com/en-us/windows/package-manager/winget/install | `--id`, `--exact`, `--source winget`. winget verifica el hash del instalador; saltarlo exige `--ignore-security-hash`, "no recomendado" |
+| Identificadores de winget | Medición propia (`winget show`, solo consulta) | — | Los 9 programas de escritorio de la guía existen, y sus instaladores salen de sus fuentes oficiales (releases del proyecto, download.blender.org, download.gimp.org, download.kde.org…) |
+| Firma de código | Microsoft Learn, Code signing options for Windows app developers | https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/code-signing-options | Microsoft Store (MSIX): firma gratis y sin avisos de SmartScreen. Azure Artifact Signing: unos USD 9,99 al mes, para personas solo en EE. UU. y Canadá. Certificados OV: USD 150–300 al año; EV: más de USD 400. Autofirmado: bloquea la instalación |
+| Cuenta de la Microsoft Store | Microsoft Learn, Account types, locations, and fees | https://learn.microsoft.com/en-us/windows/apps/publish/partner-center/account-types-locations-and-fees | Sin costo de registro, ni para personas ni para empresas |
+| Google Play | Ayuda de Play Console | https://support.google.com/googleplay/android-developer/answer/6112435 | USD 25 una sola vez, con tarjeta; las cuentas personales deben cumplir requisitos de prueba |
+| App Store | Apple Developer Program | https://developer.apple.com/programs/enroll/ | USD 99 por año |
+| Licencia del SDK de WebView2 | NuGet, Microsoft.Web.WebView2 1.0.4258.31 | https://www.nuget.org/packages/Microsoft.Web.WebView2/1.0.4258.31/license | Licencia tipo BSD: se puede redistribuir conservando el aviso de copyright |
+
+| Hallazgo | Decisión |
+|---|---|
+| El manifiesto actual solo trae un SVG; Chrome pide PNG de 192 y 512 px, y iOS no usa SVG para la pantalla de inicio | Íconos PNG generados desde la estrella (normal, *maskable* y Apple) con un script que se puede repetir |
+| El service worker toma el control apenas hay una versión nueva, y sirve primero el `index.html` guardado: puede mezclar versiones | La página principal siempre se pide primero a la red y, si no hay conexión, sale de la caché. Los archivos con hash, primero de la caché. Una versión nueva espera hasta que el estudiante pulsa "Actualizar", y antes se guarda el programa abierto |
+| Los programas corren en otro origen, y el service worker del panel no los guarda: sin conexión no abrían | Service worker propio en el origen de los programas, que guarda cada programa la primera vez que se abre. No se guardan todos de una vez, para no gastar datos móviles |
+| Tauri necesita Rust y el compilador C++ de Visual Studio, que no hay en este equipo; Electron pesa unos 80–100 MB | App de Windows con .NET Framework 4.8 y WebView2, que ya vienen con Windows: un solo archivo de alrededor de 1 MB que se instala por usuario, sin permisos de administrador |
+| "Instalador pequeño que baja los programas oficiales" (plan) | La app de Windows instala FreeCAD, Blender, GIMP y los demás con winget, solo desde una lista cerrada, previa confirmación nativa, y con el hash verificado por winget |
+| Firmar fuera de la Store cuesta dinero, y la opción barata de Azure no está disponible para personas en Ecuador | El instalador va sin firma y Windows mostrará un aviso, como se explica en la página "Instalar". La vía gratis es publicar en la Microsoft Store: queda como tu decisión |
+| Tiendas móviles: Google Play (USD 25 con tarjeta) y App Store (USD 99 al año) | No se usan; en el móvil, ESTRELLA se instala como PWA. Regla del proyecto: avisar antes de cualquier pago |
+| Los datos del panel y de los programas son "best-effort" | Se pide `persist()` y se muestra el estado en el medidor de recursos. La nube cifrada de la fase 6 es el respaldo. La app de Windows guarda sus datos aparte y nunca los toca al actualizar; al desinstalar, se conservan salvo que el estudiante elija borrarlos |
+
+**SUPUESTOS de esta fase:**
+1. **macOS, Linux y teléfonos reales:** no hay esos equipos aquí. Se prueba con la emulación móvil de Playwright y Chromium; Safari queda sin probar.
+2. **Service worker dentro del marco de otro origen:** solo se prueba en Chromium. Firefox y Safari también particionan, pero no lo comprobé.
+3. **SmartScreen con el instalador sin firma:** no se probó una descarga real con "marca de la web"; el aviso se describe según la documentación.
+4. **Windows 10 anterior a 1903 o sin WebView2:** no se probó. La app avisa y enlaza la descarga oficial de WebView2.
+
+## 12. Conclusiones de diseño
 
 - **La línea legal se mantiene:** cambiar el nombre no legaliza una copia. Código, interfaz, nombre e íconos propios, y programas libres con su licencia.
 - **"Todas las opciones de los 19 programas" no es alcanzable.** ESTRELLA debe decir qué hace cada herramienta y qué no.
