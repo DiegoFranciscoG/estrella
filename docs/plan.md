@@ -40,7 +40,7 @@ Medición útil: las demos de LibreCAD y OpenSCAD abrieron con `crossOriginIsola
 |---|---|
 | Recuperar el trabajo tras un cierre brusco, con menos de 30 s de pérdida | "Cero errores" o "nunca se traba" |
 | Que un programa caído no tumbe el panel | Las mismas opciones que cada programa de pago |
-| Panel en menos de 1 s en perfil modesto | Que el equipo no se caliente nunca |
+| Panel en menos de 1 s en perfil modesto, con la app instalada (criterio confirmado en F9) | Que el equipo no se caliente nunca |
 | Ningún contenido legible en el servidor | Render, video o 3D pesado fluidos en equipos de 4 GB |
 | Cero marcas ajenas fuera de equivalencias | Fidelidad total de DWG, PSD o AI |
 

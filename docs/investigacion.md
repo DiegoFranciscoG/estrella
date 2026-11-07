@@ -363,20 +363,21 @@ Los pasos de Lienzo y Plano se tomaron de su interfaz real (menús de miniPaint 
 
 | Medición | Resultado |
 |---|---|
-| T-06, «Entrar», primera visita, perfil móvil de Lighthouse | 1,88–2,0 s y 148 KB (cota superior: Playwright descomprime antes de contar) |
-| T-06, «Entrar», app instalada | 311–636 ms |
+| T-06, «Entrar», primera visita, perfil móvil de Lighthouse | 1,72–2,0 s y 148 KB (cota superior: Playwright descomprime antes de contar) |
+| T-06, «Entrar», app instalada | 271–636 ms |
 | T-06, panel con sesión, app instalada | 428–543 ms |
 | axe, WCAG 2.2 AA | 0 incumplimientos en todas las pantallas del panel (temas claro y oscuro) y en los 4 programas propios |
 | Cabeceras de Netlify frente a nginx | 511 archivos, 0 diferencias |
 
+**Criterio de T-06, confirmado el 2026-11-07:** «panel en menos de 1 s en perfil modesto» se mide con la app instalada, que es como se usa a diario. La primera visita se mide y se informa, con un tope de 300 KB: en ese perfil tarda unos 2 s, porque solo transferir 148 KB a 1,6 Mbps lleva unos 0,74 s, más 150 ms por cada ida y vuelta.
+
 **SUPUESTOS de esta fase:**
-1. **T-06 («panel en menos de 1 s en perfil modesto»)** se cumple con la app instalada, que es como se usa a diario. La primera visita tarda unos 2 s en ese perfil: solo transferir 148 KB a 1,6 Mbps lleva unos 0,74 s, más 150 ms por cada ida y vuelta. Falta que confirmes esta lectura.
-2. **Dirección del visitante en Netlify:** no está documentado qué cabecera llega al origen. Se usa `X-Nf-Client-Connection-Ip` y, si falta, `X-Forwarded-For`; el primer despliegue lo confirma en el registro.
-3. **Builds cancelados por `ignore`:** no encontré escrito que no consuman créditos; se infiere porque no son despliegues exitosos.
-4. **Tarjeta en Netlify:** su página de precios no lo dice.
-5. **Brevo:** las cifras del plan gratuito salen de sus páginas de producto, no de la de precios.
-6. **Accesibilidad:** axe no revisa todos los criterios (por ejemplo, la experiencia con lector de pantalla). No se probó con NVDA ni VoiceOver.
-7. **Imágenes Docker:** no se escanearon; trivy no está instalado y Docker Scout no respondió.
+1. **Dirección del visitante en Netlify:** no está documentado qué cabecera llega al origen. Se usa `X-Nf-Client-Connection-Ip` y, si falta, `X-Forwarded-For`; el primer despliegue lo confirma en el registro.
+2. **Builds cancelados por `ignore`:** no encontré escrito que no consuman créditos; se infiere porque no son despliegues exitosos.
+3. **Tarjeta en Netlify:** su página de precios no lo dice.
+4. **Brevo:** las cifras del plan gratuito salen de sus páginas de producto, no de la de precios.
+5. **Accesibilidad:** axe no revisa todos los criterios (por ejemplo, la experiencia con lector de pantalla). No se probó con NVDA ni VoiceOver.
+6. **Imágenes Docker:** no se escanearon; trivy no está instalado y Docker Scout no respondió.
 
 ## 13. Conclusiones de diseño
 

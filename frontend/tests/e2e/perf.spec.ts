@@ -2,9 +2,11 @@ import { CDPSession, expect, Page, test } from "@playwright/test";
 import { signIn, useAccount } from "./helpers";
 
 /**
- * T-06, rendimiento: "panel en menos de 1 s en perfil modesto" (docs/plan.md). The modest profile is
- * Lighthouse's mobile one (docs/investigacion.md): 4× slower CPU, 150 ms of latency, 1.6 Mbps down
- * and 750 Kbps up. Times run from the start of the navigation until the page's main heading shows.
+ * T-06, rendimiento: "panel en menos de 1 s en perfil modesto" (docs/plan.md), measured once the app
+ * is installed, as confirmed in F9; the first visit is measured and reported, within its 300 KB
+ * budget. The modest profile is Lighthouse's mobile one (docs/investigacion.md): 4× slower CPU,
+ * 150 ms of latency, 1.6 Mbps down and 750 Kbps up. Times run from the start of the navigation
+ * until the page's main heading shows.
  */
 
 useAccount();
