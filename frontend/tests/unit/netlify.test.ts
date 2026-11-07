@@ -13,7 +13,7 @@ const BUILD = [
   "/index.html", "/sw.js", "/manifest.webmanifest", "/estrella.svg", "/THIRD-PARTY-NOTICES.txt",
   "/icons/icon-192.png", "/icons/maskable-512.png", "/assets/index-AbC123.js", "/assets/index-AbC123.css",
   "/apps/sw.js", "/apps/plano/index.html", "/apps/apuntes/index.html", "/apps/folio/index.html",
-  "/apps/visor/index.html", "/apps/visor/web-ifc.wasm", "/apps/pizarra/index.html", "/apps/pizarra/fonts/Xiaolai/a.woff2",
+  "/apps/visor/index.html", "/apps/visor/web-ifc.wasm", "/apps/bim/index.html", "/apps/pizarra/index.html", "/apps/pizarra/fonts/Xiaolai/a.woff2",
   "/apps/assets/main-Xy9.js", "/apps/assets/dwg.worker-DfqzCOa1.js", "/apps/assets/pdf.worker.min-CIqJB0yW.mjs",
   "/apps/assets/subset-worker.chunk-B8OytGiL.js", "/apps/assets/libredwg-Q1.wasm",
 ];
@@ -45,6 +45,8 @@ describe("Netlify headers come from nginx.conf.template", () => {
     expect(csp(programs, "/apps/assets/main-Xy9.js")).toContain("'wasm-unsafe-eval'");
     expect(selectLocation(programs, "/apps/assets/pdf.worker.min-CIqJB0yW.mjs")?.headers).toContainEqual(["Content-Type", "application/javascript"]);
     expect(csp(programs, "/apps/visor/index.html")).toContain("'wasm-unsafe-eval'");
+    expect(csp(programs, "/apps/bim/index.html")).toContain("'wasm-unsafe-eval'");
+    expect(csp(programs, "/apps/bim/index.html")).toContain(`frame-ancestors ${ENV.PANEL_ORIGIN}`);
     expect(csp(programs, "/apps/plano/index.html")).not.toContain("wasm");
     expect(selectLocation(programs, "/index.html")?.servesFiles).toBe(false);
     expect(selectLocation(panel, "/apps/plano/index.html")?.servesFiles).toBe(false);

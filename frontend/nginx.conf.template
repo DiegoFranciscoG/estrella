@@ -102,9 +102,16 @@ server {
         try_files $uri =404;
     }
 
-    # Visor compiles WebAssembly readers (IFC on the page, DWG in a worker), the only program that
-    # needs 'wasm-unsafe-eval'. It allows compiling wasm served by this site, not eval().
+    # Visor and BIM compile WebAssembly readers (IFC on the page, DWG in a worker), the only programs
+    # that need 'wasm-unsafe-eval'. It allows compiling wasm served by this site, not eval().
     location /apps/visor/ {
+        include /etc/nginx/snippets/security-headers.conf;
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; worker-src 'self' blob:; connect-src 'self' data: blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors ${PANEL_ORIGIN}" always;
+        add_header Cache-Control "no-cache";
+        try_files $uri =404;
+    }
+
+    location /apps/bim/ {
         include /etc/nginx/snippets/security-headers.conf;
         add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; worker-src 'self' blob:; connect-src 'self' data: blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors ${PANEL_ORIGIN}" always;
         add_header Cache-Control "no-cache";

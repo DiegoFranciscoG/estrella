@@ -131,7 +131,7 @@ Se eligió la 0.7.5. Antes de subir de versión, hay que repetir esta prueba.
 | El SVG que genera inserta los textos del plano sin escapar | Lectura de su código (`svgConverter.js`) | Se muestra siempre dentro de `<img>`: ahí un SVG no ejecuta código ni carga nada externo |
 | Las líneas de construcción infinitas (XLINE, RAY) inflan la extensión del plano y lo abren como un punto | Ejemplo 2018: extensión de 3,5 millones de unidades | El encuadre se calcula solo con la geometría finita (`cad-bounds.ts`) |
 | El código de Emscripten del lector usa `new Function`; la política de seguridad lo bloqueó en el navegador | Prueba de extremo a extremo: `EvalError` en el worker | `unsafe-eval` **solo** para ese worker, que no tiene página, almacenamiento ni red externa. Recompilarlo sin eso exigiría modificar y volver a publicar código GPL |
-| WebAssembly necesita `'wasm-unsafe-eval'` | Documentación de CSP (W3C) | Solo en `/apps/visor/` y en los workers; permite compilar wasm del propio sitio, no `eval()` |
+| WebAssembly necesita `'wasm-unsafe-eval'` | Documentación de CSP (W3C) | Solo en `/apps/visor/`, `/apps/bim/` y en los workers; permite compilar wasm del propio sitio, no `eval()` |
 | El lector avisa del resultado por consola, no como valor de retorno | Prueba en Node | El worker lee ese aviso; desde 128 el archivo no se pudo leer (umbral crítico de LibreDWG) |
 | web-ifc con hilos exige aislamiento entre orígenes, que rompe los editores integrados | Documentación de web-ifc | Modo de un solo hilo |
 | Las fotos RAW guardan una vista previa JPG completa | Formatos TIFF/EP y DNG | Se extrae esa vista previa con código propio (sin biblioteca) en vez de revelar el sensor |

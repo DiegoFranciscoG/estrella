@@ -59,7 +59,7 @@ for (const scheme of ["light", "dark"] as const) {
 }
 
 test("ESTRELLA's own programs pass WCAG 2.2 AA checks", async ({ page }) => {
-  for (const program of ["apuntes", "plano", "folio", "visor", "trazo", "revelado"]) {
+  for (const program of ["apuntes", "plano", "folio", "visor", "trazo", "revelado", "bim"]) {
     await page.goto(`${APPS}/apps/${program}/index.html`);
     await page.waitForLoadState("load");
     await audit(page, program);

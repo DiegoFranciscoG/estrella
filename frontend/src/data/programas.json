@@ -105,7 +105,7 @@
     ],
     "availability": "web",
     "status": "disponible",
-    "sizeKb": 12,
+    "sizeKb": 14,
     "demand": "media",
     "phase": "Disponible",
     "appPath": "/apps/visor/index.html",
@@ -156,22 +156,22 @@
   {
     "id": "bim",
     "name": "BIM",
-    "summary": "Ver modelos IFC de edificios por pisos y elementos.",
+    "summary": "Recorre modelos IFC de edificios: niveles, categorías, propiedades y cantidades de cada elemento, plantas por corte, medidas y cuadro de elementos en CSV.",
     "replaces": [
       "Revit"
     ],
     "availability": "web",
-    "status": "en-construccion",
-    "sizeKb": null,
+    "status": "disponible",
+    "sizeKb": 14,
     "demand": "media",
-    "phase": "Planificado",
-    "appPath": null,
+    "phase": "Disponible",
+    "appPath": "/apps/bim/index.html",
     "basedOn": {
-      "name": "web-ifc",
-      "license": "MPL-2.0",
+      "name": "web-ifc (IFC) y three.js (3D)",
+      "license": "MPL-2.0 y MIT",
       "source": "https://github.com/ThatOpen/engine_web-ifc"
     },
-    "honestNote": "Ver y medir sí. Modelar BIM completo requiere la versión de escritorio."
+    "honestNote": "Ver, consultar, cortar, medir y sacar cuadros sí. Todavía no modela ni edita: para dibujar un proyecto BIM completo hace falta un programa de escritorio. Modelos de más de 200 MB no caben en el navegador."
   },
   {
     "id": "revelado",

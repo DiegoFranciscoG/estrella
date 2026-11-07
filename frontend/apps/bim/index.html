@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BIM</title>
+  </head>
+  <body>
+    <header class="bar" role="toolbar" aria-label="Herramientas de BIM">
+      <label class="button" for="open">Abrir IFC<input id="open" type="file" accept=".ifc,application/x-step" hidden /></label>
+      <span class="sep" aria-hidden="true"></span>
+      <button type="button" id="fit" title="Ver todo el modelo en 3D" disabled>Vista 3D</button>
+      <button type="button" id="top" title="Ver desde arriba" disabled>Desde arriba</button>
+      <span class="sep" aria-hidden="true"></span>
+      <button type="button" id="measure" aria-pressed="false" title="Medir: clic en dos puntos del modelo" disabled>Medir</button>
+      <button type="button" id="clear-measures" disabled>Borrar medidas</button>
+      <span class="sep" aria-hidden="true"></span>
+      <label class="check"><input id="section-on" type="checkbox" disabled /> Corte horizontal</label>
+      <label class="visually-hidden" for="section">Altura del corte</label>
+      <input id="section" type="range" min="0" max="1" step="0.01" value="0" disabled />
+      <output id="section-value" for="section" class="muted"></output>
+      <span class="spacer"></span>
+      <button type="button" id="export-png" disabled>Exportar PNG</button>
+      <button type="button" id="export-csv" class="primary" disabled>Exportar cuadro CSV</button>
+    </header>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+    <main class="layout">
+      <section class="stage" aria-label="Modelo 3D">
+        <div id="empty" class="empty">
+          <p><strong>Abre un modelo IFC para recorrerlo.</strong></p>
+          <p>IFC 2x3, IFC4 o IFC4.3, exportado desde cualquier programa BIM. Se lee en tu equipo: el modelo no se sube a ningún servidor.</p>
+        </div>
+        <div id="view3d" class="view3d" hidden></div>
+      </section>
+      <aside class="side" aria-label="Modelo">
+        <p id="summary" class="hint">Sin modelo abierto.</p>
+        <h2 id="levels-title">Niveles</h2>
+        <ul id="levels" class="list" aria-labelledby="levels-title"></ul>
+        <h2 id="categories-title">Categorías</h2>
+        <ul id="categories" class="list" aria-labelledby="categories-title"></ul>
+        <h2>Elementos</h2>
+        <label class="field" for="search">Buscar elemento</label>
+        <input id="search" type="search" autocomplete="off" placeholder="Nombre, tipo o nivel" disabled />
+        <ul id="results" class="results" aria-label="Elementos encontrados"></ul>
+        <h2>Propiedades</h2>
+        <div id="properties"><p class="hint">Selecciona un elemento en el modelo o en la búsqueda.</p></div>
+        <h2>Medidas</h2>
+        <ol id="measures" class="measures"></ol>
+        <p class="hint">Exportar cuadro CSV crea la lista de los elementos visibles con su longitud, área y volumen, lista para una hoja de cálculo.</p>
+      </aside>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

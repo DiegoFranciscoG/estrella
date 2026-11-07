@@ -1253,6 +1253,42 @@
         "file": "frontend/tests/e2e/revelado.spec.ts",
         "test": "Revelado: develops a RAW photo, crops it, exports a JPG and keeps the work"
       }
+    },
+    {
+      "id": "recorrer-modelo-ifc",
+      "area": "arquitectura",
+      "task": "Recorrer un modelo BIM: ver una planta, consultar propiedades y sacar un cuadro de cantidades",
+      "keywords": [
+        "bim",
+        "ifc",
+        "planta",
+        "nivel",
+        "propiedades",
+        "cantidades",
+        "cuadro",
+        "tabla",
+        "medir",
+        "corte"
+      ],
+      "from": [
+        {
+          "program": "Revit",
+          "term": "vistas de planta, propiedades y tablas de planificación"
+        }
+      ],
+      "tool": "bim",
+      "steps": [
+        "Exporta tu modelo a IFC desde tu programa BIM y ábrelo en BIM con Abrir IFC.",
+        "En Niveles pulsa Ver planta: el modelo se corta a 1,20 m sobre ese nivel y se ve desde arriba.",
+        "Busca un elemento por su nombre o haz clic en él para ver su clase IFC, nivel, materiales, propiedades y cantidades.",
+        "Pulsa Medir y haz clic en dos puntos del modelo para ver la distancia en metros.",
+        "Oculta las categorías o niveles que no quieras y pulsa Exportar cuadro CSV: la lista sale con longitudes, áreas y volúmenes para tu hoja de cálculo."
+      ],
+      "source": {
+        "kind": "test",
+        "file": "frontend/tests/e2e/bim.spec.ts",
+        "test": "BIM: opens an IFC, shows a plan, reads properties, measures, exports a schedule and keeps the view"
+      }
     }
   ]
 }
