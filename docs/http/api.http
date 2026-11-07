@@ -1,0 +1,128 @@
+# Ejemplos de la API de ESTRELLA, en orden de uso.
+#
+# Con `docker compose up --build` en marcha, abre este archivo en VS Code con la extensión
+# REST Client (humao.rest-client) y pulsa "Send Request" sobre cada bloque, de arriba abajo.
+# Contrato completo: docs/openapi.json, o Swagger UI en http://localhost:8088/api/docs.
+#
+# La contraseña nunca viaja. La app deriva en el dispositivo (PBKDF2-SHA256 de 600 000 iteraciones
+# y HKDF) la `authKey` que recibe el servidor y las llaves que cifran los proyectos. Aquí van
+# valores con la forma correcta pero no derivados de ninguna contraseña: sirven para probar la
+# API; esa cuenta no se puede abrir desde la app. Al final hay un bloque para borrarla.
+
+@base = http://localhost:8088/api/v1
+@email = demo.api@example.com
+@authKey = AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+@projectId = 0b6f8a52-3c1e-4d7a-9a51-6c2f0e4b8d19
+# Token de acceso de la última respuesta de "login" (dura 15 minutos).
+@token = {{login.response.body.$.accessToken}}
+
+### ¿Está despierta la API? 204 sin cuerpo
+GET {{base}}/health
+
+### 1. Crear la cuenta (202). El correo de verificación llega a Mailpit: http://localhost:8025
+POST {{base}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "authKey": "{{authKey}}",
+  "ageConfirmed": true,
+  "consents": ["ACCOUNT", "PROJECT_SYNC"],
+  "keyBundle": {
+    "kdfSalt": "AAAAAAAAAAAAAAAAAAAAAA==",
+    "wrappedKeyPassword": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+    "wrappedKeyRecovery": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=="
+  }
+}
+
+### 2. Confirmar el correo: pega el valor de token= del enlace que llegó a Mailpit
+POST {{base}}/auth/verify-email
+Content-Type: application/json
+
+{ "token": "PEGA_AQUI_EL_TOKEN_DEL_CORREO" }
+
+### 3. Entrar: devuelve el token de acceso y deja la cookie de renovación
+# @name login
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{email}}", "authKey": "{{authKey}}" }
+
+### Perfil de la cuenta
+GET {{base}}/me
+Authorization: Bearer {{token}}
+
+### Crear el proyecto. El nombre llega cifrado desde el dispositivo; aquí, 40 bytes de ejemplo
+PUT {{base}}/projects/{{projectId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "programId": "apuntes", "name": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==" }
+
+### Subir la primera versión: If-Match "0" (se parte de nada) y la SHA-256 del contenido exacto
+PUT {{base}}/projects/{{projectId}}/content
+Authorization: Bearer {{token}}
+Content-Type: application/octet-stream
+If-Match: "0"
+X-Content-SHA256: /eq5rPNxA2K9JljNyaKej5x1f8+YEWA6jER80dkVEQg=
+
+< ./contenido-ejemplo.bin
+
+### Otro equipo que todavía tiene la versión 0 intenta guardar: 412 VERSION_CONFLICT, no se pisa nada
+PUT {{base}}/projects/{{projectId}}/content
+Authorization: Bearer {{token}}
+Content-Type: application/octet-stream
+If-Match: "0"
+X-Content-SHA256: /eq5rPNxA2K9JljNyaKej5x1f8+YEWA6jER80dkVEQg=
+
+< ./contenido-ejemplo.bin
+
+### Descargar la versión actual: ETag "1" y X-Content-SHA256 para comprobar que llegó entera
+GET {{base}}/projects/{{projectId}}/content
+Authorization: Bearer {{token}}
+
+### Si ya tienes la versión 1: 304 sin cuerpo
+GET {{base}}/projects/{{projectId}}/content
+Authorization: Bearer {{token}}
+If-None-Match: "1"
+
+### Proyectos y uso del almacenamiento
+GET {{base}}/projects
+Authorization: Bearer {{token}}
+
+### Versiones guardadas del proyecto
+GET {{base}}/projects/{{projectId}}/versions
+Authorization: Bearer {{token}}
+
+### Estado del asistente (sin conectar todavía)
+GET {{base}}/ai/status
+Authorization: Bearer {{token}}
+
+### Exportar todos mis datos (derecho de portabilidad, LOPDP)
+GET {{base}}/me/export
+Authorization: Bearer {{token}}
+
+### Renovar la sesión con la cookie. La cabecera X-Estrella-Client impide que otro sitio lo haga por ti
+POST {{base}}/auth/refresh
+X-Estrella-Client: web
+
+### Datos inválidos: 400 application/problem+json con "code" y "fields"
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{ "email": "esto-no-es-un-correo", "authKey": "corta" }
+
+### Sin token: 401 problem+json
+GET {{base}}/me
+
+### Salir: cierra esta sesión y borra la cookie (204)
+POST {{base}}/auth/logout
+X-Estrella-Client: web
+
+### Limpieza: borrar la cuenta de ejemplo y todos sus datos (204); pide otra vez la authKey.
+# El token de acceso vale 15 minutos aunque hayas salido; si venció, vuelve a entrar (paso 3).
+POST {{base}}/me/delete
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "authKey": "{{authKey}}" }
