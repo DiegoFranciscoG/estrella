@@ -19,7 +19,8 @@ const ALLOWED = [
   "frontend/apps/static/lienzo/vendor/",
   "frontend/apps/static/lienzo/images/",
 ];
-const SKIP_DIRS = new Set([".git", "node_modules", "target", "dist", "coverage", "playwright-report", "test-results"]);
+// Build output and generated folders (deploy/netlify/*/publish is made from dist by netlify-site.mjs).
+const SKIP_DIRS = new Set([".git", "node_modules", "target", "dist", "publish", "coverage", "playwright-report", "test-results"]);
 const TEXT = /\.(java|ts|js|mjs|json|html|css|md|yml|yaml|xml|sql|conf|template|toml|txt|webmanifest|svg)$|Dockerfile$/;
 
 const pattern = new RegExp(`\\b(${BRANDS.map((b) => b.replace(/[.*+?^${}()|[\]\\-]/g, "\\$&")).join("|")})\\b`, "i");

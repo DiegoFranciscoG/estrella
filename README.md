@@ -28,7 +28,7 @@ Las capturas salen del stack local con `E2E_SCREENSHOTS=1 npx playwright test --
 
 ## Problema que resuelve
 
-Un estudiante de arquitectura o diseño gráfico necesita unos 19 programas de pago: AutoCAD, Photoshop, InDesign, Revit y otros. Las licencias cuestan más de lo que muchos pueden pagar, y las copias piratas traen malware y riesgo legal.
+Un estudiante de arquitectura o diseño gráfico necesita unos 19 programas de pago: CAD, edición de imagen, maquetación, BIM, render y otros (la lista y su equivalente libre están en [docs/catalogo.md](docs/catalogo.md)). Las licencias cuestan más de lo que muchos pueden pagar, y las copias piratas traen malware y riesgo legal.
 
 ESTRELLA ofrece una alternativa legal y gratuita:
 
