@@ -1289,6 +1289,46 @@
         "file": "frontend/tests/e2e/bim.spec.ts",
         "test": "BIM: opens an IFC, shows a plan, reads properties, measures, exports a schedule and keeps the view"
       }
+    },
+    {
+      "id": "maqueta-volumetrica",
+      "area": "arquitectura",
+      "task": "Hacer una maqueta volumétrica 3D con medidas exactas",
+      "keywords": [
+        "3d",
+        "maqueta",
+        "volumen",
+        "solido",
+        "caja",
+        "extruir",
+        "empujar",
+        "planta",
+        "stl",
+        "impresion 3d"
+      ],
+      "from": [
+        {
+          "program": "SketchUp",
+          "term": "Rectángulo, Empujar/tirar y medidas escritas"
+        },
+        {
+          "program": "Rhino",
+          "term": "Box, Cylinder y extrusión de curvas"
+        }
+      ],
+      "tool": "solido",
+      "steps": [
+        "Abre Sólido, elige Caja y haz clic en el suelo para colocarla.",
+        "Escribe Ancho, Profundidad y Alto en Propiedades: las medidas son exactas, en metros.",
+        "Para una planta irregular elige Polígono, haz clic en cada esquina y pulsa Enter: se levanta como prisma y luego cambias su Alto.",
+        "Mueve el sólido seleccionado con sus flechas (siguen el Paso de la cuadrícula) o gíralo con Girar.",
+        "Exporta en glTF u OBJ para otros programas 3D, o en STL (milímetros) para imprimir en 3D."
+      ],
+      "source": {
+        "kind": "test",
+        "file": "frontend/tests/e2e/solido.spec.ts",
+        "test": "Sólido: places and sizes solids, raises a drawn footprint, exports STL and glTF, and keeps the model"
+      }
     }
   ]
 }

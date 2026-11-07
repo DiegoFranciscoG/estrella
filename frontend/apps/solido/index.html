@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sólido</title>
+  </head>
+  <body>
+    <header class="bar" role="toolbar" aria-label="Herramientas de Sólido">
+      <div class="group" role="group" aria-label="Crear sólidos">
+        <button type="button" data-tool="select" aria-pressed="true" title="Seleccionar (Esc)">Seleccionar</button>
+        <button type="button" data-tool="box" aria-pressed="false" title="Clic en el suelo para colocar una caja">Caja</button>
+        <button type="button" data-tool="cylinder" aria-pressed="false" title="Clic en el suelo para colocar un cilindro">Cilindro</button>
+        <button type="button" data-tool="sphere" aria-pressed="false" title="Clic en el suelo para colocar una esfera">Esfera</button>
+        <button type="button" data-tool="cone" aria-pressed="false" title="Clic en el suelo para colocar un cono">Cono</button>
+        <button type="button" data-tool="roof" aria-pressed="false" title="Clic en el suelo para colocar una cubierta a dos aguas">Cubierta</button>
+        <button type="button" data-tool="polygon" aria-pressed="false" title="Clic en cada esquina de la planta; Enter para cerrar y levantar">Polígono</button>
+      </div>
+      <span class="sep" aria-hidden="true"></span>
+      <button type="button" id="move" aria-pressed="true" title="Mover con las flechas del sólido seleccionado">Mover</button>
+      <button type="button" id="rotate" aria-pressed="false" title="Girar el sólido seleccionado alrededor del eje vertical">Girar</button>
+      <button type="button" id="duplicate" title="Duplicar (Ctrl+D)">Duplicar</button>
+      <button type="button" id="delete" title="Eliminar (Supr)">Eliminar</button>
+      <span class="sep" aria-hidden="true"></span>
+      <button type="button" id="undo" title="Deshacer (Ctrl+Z)">Deshacer</button>
+      <button type="button" id="redo" title="Rehacer (Ctrl+Y)">Rehacer</button>
+      <span class="sep" aria-hidden="true"></span>
+      <div class="group" role="group" aria-label="Vistas">
+        <button type="button" data-view="iso">3D</button>
+        <button type="button" data-view="top">Planta</button>
+        <button type="button" data-view="front">Frente</button>
+        <button type="button" data-view="side">Lado</button>
+      </div>
+      <label class="inline" for="step">Paso</label>
+      <select id="step" title="Paso de la cuadrícula al colocar y mover">
+        <option value="0.01">1 cm</option>
+        <option value="0.05">5 cm</option>
+        <option value="0.1">10 cm</option>
+        <option value="0.5">50 cm</option>
+        <option value="1">1 m</option>
+      </select>
+      <span class="spacer"></span>
+      <div class="group" role="group" aria-label="Exportar">
+        <span class="inline" aria-hidden="true">Exportar</span>
+        <button type="button" id="export-png" title="Imagen de la vista">PNG</button>
+        <button type="button" id="export-stl" title="STL en milímetros con Z hacia arriba, para impresión 3D">STL</button>
+        <button type="button" id="export-obj" title="OBJ en metros">OBJ</button>
+        <button type="button" id="export-glb" class="primary" title="glTF binario (.glb) en metros, con colores">glTF</button>
+      </div>
+    </header>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+    <main class="layout">
+      <section class="stage" aria-label="Modelo 3D">
+        <div id="view3d" class="view3d"></div>
+      </section>
+      <aside class="side" aria-label="Sólidos y propiedades">
+        <h2 id="solids-title">Sólidos</h2>
+        <ul id="solids" class="list" aria-labelledby="solids-title"></ul>
+        <p id="totals" class="hint"></p>
+        <h2>Propiedades</h2>
+        <form id="props" class="props" hidden>
+          <label for="p-name">Nombre</label><input id="p-name" type="text" maxlength="80" autocomplete="off" />
+          <span class="label">Tipo</span><span id="p-kind"></span>
+          <label for="p-x">X (m)</label><input id="p-x" type="number" step="0.1" />
+          <label for="p-z">Z (m)</label><input id="p-z" type="number" step="0.1" />
+          <label for="p-y">Elevación (m)</label><input id="p-y" type="number" step="0.1" />
+          <label for="p-width">Ancho (m)</label><input id="p-width" type="number" step="0.1" min="0.001" />
+          <label for="p-depth">Profundidad (m)</label><input id="p-depth" type="number" step="0.1" min="0.001" />
+          <label for="p-height">Alto (m)</label><input id="p-height" type="number" step="0.1" min="0.001" />
+          <label for="p-rotation">Giro (°)</label><input id="p-rotation" type="number" step="15" />
+          <label for="p-color">Color</label><input id="p-color" type="color" />
+          <span class="label">Área en planta</span><span id="p-area"></span>
+          <span class="label">Volumen</span><span id="p-volume"></span>
+        </form>
+        <p id="no-selection" class="hint">Selecciona un sólido en la vista o en la lista para editar sus medidas.</p>
+        <p class="hint">Elige Caja, Cilindro, Esfera, Cono o Cubierta y haz clic en el suelo. Con Polígono dibuja una planta esquina por esquina y pulsa Enter: se levanta como prisma. Escribe medidas exactas aquí; las flechas del sólido lo mueven por la cuadrícula.</p>
+      </aside>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

@@ -135,23 +135,23 @@
   {
     "id": "solido",
     "name": "Sólido",
-    "summary": "Modelado 3D paramétrico escrito, ideal para piezas y maquetas.",
+    "summary": "Modelado 3D para maquetas y piezas: cajas, cilindros, esferas, conos, cubiertas y prismas levantados desde una planta, con medidas exactas en metros. Exporta STL, OBJ y glTF.",
     "replaces": [
       "SketchUp",
       "Rhino"
     ],
     "availability": "web",
-    "status": "en-construccion",
-    "sizeKb": 8900,
+    "status": "disponible",
+    "sizeKb": 181,
     "demand": "media",
-    "phase": "Planificado (experimental)",
-    "appPath": null,
+    "phase": "Disponible",
+    "appPath": "/apps/solido/index.html",
     "basedOn": {
-      "name": "OpenSCAD",
-      "license": "GPL-3.0",
-      "source": "https://github.com/openscad/openscad-playground"
+      "name": "three.js (3D)",
+      "license": "MIT",
+      "source": "https://github.com/mrdoob/three.js"
     },
-    "honestNote": "Versión web en etapa alfa. No es modelado por empuje directo; para eso conviene escritorio."
+    "honestNote": "Modela por sólidos con medidas exactas, como una maqueta. Todavía no empuja caras, no resta ni une sólidos (booleanas), no hace curvas libres ni importa modelos: para eso conviene un programa de escritorio."
   },
   {
     "id": "bim",
