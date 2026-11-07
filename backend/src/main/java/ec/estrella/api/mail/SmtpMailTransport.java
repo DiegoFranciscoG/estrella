@@ -1,12 +1,15 @@
 package ec.estrella.api.mail;
 
 import ec.estrella.api.config.AppProperties;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import java.nio.charset.StandardCharsets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.mail.MailException;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
 /** SMTP, as in the local stack (Mailpit). Hosts that block SMTP ports use {@link BrevoMailTransport}. */
@@ -30,16 +33,18 @@ class SmtpMailTransport implements MailTransport {
         this.from = from;
     }
 
+    /** Text and HTML as alternatives of one message: each client shows the one it can. */
     @Override
-    public void send(String to, String subject, String text) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(from);
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(text);
+    public void send(String to, String subject, String text, String html) {
         try {
+            MimeMessage message = sender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
+            helper.setFrom(from);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(text, html);
             sender.send(message);
-        } catch (MailException e) {
+        } catch (MailException | MessagingException e) {
             throw new MailDeliveryException(e.getClass().getSimpleName());
         }
     }
