@@ -337,4 +337,4 @@ Las razones completas, con sus fuentes, están en [docs/investigacion.md](docs/i
 
 - GitHub: [DiegoFranciscoG](https://github.com/DiegoFranciscoG)
 - Instagram: [@diego.granda.z](https://www.instagram.com/diego.granda.z/)
-- LinkedIn: pendiente
+- LinkedIn: [Diego Francisco Granda Zhingre](https://www.linkedin.com/in/diego-francisco-g-61b793254/)

@@ -110,6 +110,7 @@ export function privacyView(): HTMLElement {
     h("p", {}, "Desde los 15 años puedes dar tu consentimiento. Si eres menor, tu representante legal debe acompañarte y conocer este aviso. El asistente de IA es solo para mayores de 18 años, porque así lo exigen los términos de OpenRouter; la Guía (sin IA) de cada programa es para todos."),
 
     h("h2", {}, "Contacto"),
-    h("p", {}, `Correo: ${pending(owner.correo)}. Instagram `, h("a", { href: contact.instagram.url, target: "_blank", rel: "noopener noreferrer" }, contact.instagram.handle), "."),
+    h("p", {}, `Correo: ${pending(owner.correo)}. Instagram `, h("a", { href: contact.instagram.url, target: "_blank", rel: "noopener noreferrer" }, contact.instagram.handle),
+      ". LinkedIn: ", h("a", { href: contact.linkedin.url, target: "_blank", rel: "noopener noreferrer" }, contact.linkedin.label), "."),
   );
 }

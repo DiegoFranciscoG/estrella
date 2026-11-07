@@ -51,6 +51,7 @@ export function maybeShowThanks(program: Program, container: HTMLElement): void 
         h("li", {}, "Compártelo con tus compañeros."),
         h("li", {}, "¿Falta un programa o algo falla? Escríbeme por Instagram ",
           h("a", { href: contact.instagram.url, target: "_blank", rel: "noopener noreferrer" }, contact.instagram.handle),
+          ", por ", h("a", { href: contact.linkedin.url, target: "_blank", rel: "noopener noreferrer" }, "LinkedIn"),
           emailPart(),
           "."),
         contact.donations.enabled && contact.donations.url
