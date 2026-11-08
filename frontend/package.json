@@ -31,7 +31,7 @@
   "dependencies": {
     "@excalidraw/excalidraw": "0.18.1",
     "@mlightcad/libredwg-web": "0.7.5",
-    "ag-psd": "31.0.3",
+    "ag-psd": "33.0.0",
     "dxf-parser": "1.1.2",
     "pdf-lib": "1.17.1",
     "pdfjs-dist": "6.5.438",
