@@ -101,7 +101,7 @@ flowchart LR
 
 | Pieza | Elección | Por qué |
 |---|---|---|
-| Panel | Vite 8 + TypeScript, sin framework | Primera carga de 148 KB comprimidos; abre en menos de 1 s instalado |
+| Panel | Vite 8 + TypeScript, sin framework | Primera visita de 158 KB como máximo (T-06); abre en menos de 1 s instalado |
 | Programas | Propios (Apuntes, Plano, Folio, Visor, Trazo, Revelado, Sólido, BIM, Archivo y Análisis de sitio) e integrados (Excalidraw, miniPaint), cada uno aislado | Fallos y licencias quedan separados (GPL solo dentro de su propio worker) |
 | API | Spring Boot 4.1 y Java 17, Spring Security, `JdbcClient` | SQL explícito y parametrizado, sin ORM: se ve exactamente qué se consulta |
 | Base de datos | PostgreSQL 18 con Flyway | Migraciones versionadas; Neon gratis en producción |
@@ -270,10 +270,10 @@ Los errores siguen el RFC 9457 (`application/problem+json`): traen un `code` est
 
 | Parte | Qué cubre | Resultado |
 |---|---|---|
-| Backend (JUnit 5, Testcontainers con PostgreSQL 18 real) | 92 pruebas: cuentas, frenos, sincronización, asistente, contrato OpenAPI, proxy firmado y correo | **93,5 % de líneas**, 79,2 % de ramas (JaCoCo; el build falla por debajo de 70 %) |
-| Frontend (Vitest) | 184 pruebas: criptografía, sincronización, guía, programas, service workers y cabeceras de Netlify | **88,2 % de líneas** de la lógica |
-| Extremo a extremo (Playwright, contra `docker compose`) | Recorridos completos de estudiante, cada programa, sin conexión, móvil, accesibilidad WCAG 2.2 AA con axe en ambos temas, y rendimiento T-06 | En CI |
-| ESTRELLA para Windows (xUnit) | Navegación permitida, mensajes y lista de instalación | En CI |
+| Backend (JUnit 5, Testcontainers con PostgreSQL 18 real) | 92 pruebas: cuentas, frenos, sincronización, asistente, contrato OpenAPI, proxy firmado y correo | **93,8 % de líneas**, 79,5 % de ramas (JaCoCo; el build falla por debajo de 70 %) |
+| Frontend (Vitest) | 247 pruebas: criptografía, sincronización, guía, la lógica de cada programa (geometría, unidades IFC, sol, catálogo, ZIP y CSV), service workers y cabeceras de Netlify | **91,2 % de líneas** de la lógica |
+| Extremo a extremo (Playwright, contra `docker compose`) | Recorridos completos de estudiante, cada programa, sin conexión, móvil, accesibilidad WCAG 2.2 AA con axe en ambos temas, y rendimiento T-06 | 44 pasan; 5 se omiten a propósito (3 capturas que se generan a pedido y 2 que necesitan un DWG real con permiso de uso). También en CI |
+| ESTRELLA para Windows (xUnit) | Navegación permitida, mensajes y lista de instalación | 58 pruebas. También en CI |
 
 ```bash
 cd backend && mvn verify

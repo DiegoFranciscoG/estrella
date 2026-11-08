@@ -54,7 +54,17 @@ En total se publican 265 paquetes, todos con licencias permitidas. El archivo `T
 
 **Pendiente antes de publicar (SUPUESTO legal):** hoy la fuente se ofrece enlazando al repositorio del autor. La GPL-3.0 (sección 6) pide que la fuente siga disponible mientras se distribuya el binario; un enlace a un servidor ajeno puede desaparecer. Antes de "VOY A SUBIR", conviene guardar una copia del código fuente de esa etiqueta junto a la publicación (por ejemplo, como archivo de la versión en GitHub).
 
-## 5. Controles obligatorios
+## 5. Lo que se agrega en la fase 10 (programas propios)
+
+| Programa | Componentes de terceros | Obligación |
+|---|---|---|
+| Trazo, Revelado, Archivo, Análisis de sitio | Ninguno: código propio (MIT). Revelado y Archivo reutilizan el lector de vistas previas RAW de Visor, también propio | Ninguna adicional |
+| Sólido | three.js 0.186.1 (MIT), el mismo de la fase 4 | Conservar copyright y aviso: ya están en `THIRD-PARTY-NOTICES.txt` |
+| BIM | web-ifc 0.0.78 (MPL-2.0) y three.js 0.186.1 (MIT), sin modificar, los mismos archivos que usa Visor | Mismas que en la fase 4: avisos en `THIRD-PARTY-NOTICES.txt`, texto de la MPL-2.0 en `/apps/visor/licencias/` y enlace al código fuente en la página de licencias |
+
+No se agregó ninguna dependencia nueva: T-02 sigue en verde (271 paquetes distribuidos, todos con licencia permitida).
+
+## 6. Controles obligatorios
 
 - Lista permitida: MIT, ISC, BSD, Apache-2.0, MPL-2.0, LGPL, GPL (solo programas aislados).
 - Lista prohibida: BSL, SSPL, licencias "source available", licencias propias que exijan clave.
