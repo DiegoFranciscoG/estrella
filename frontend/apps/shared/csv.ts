@@ -8,7 +8,8 @@ export function csv(rows: (string | number | null)[][], decimals = 2): string {
     if (typeof v === "number") {
       return Number.isFinite(v) ? v.toLocaleString("es", { minimumFractionDigits: decimals, maximumFractionDigits: decimals, useGrouping: false }) : "";
     }
-    const safe = /^[=+\-@\t\r]/.test(v) ? `'${v}` : v;
+    // OWASP's list: = + - @, tab, carriage return, line feed, and their full-width forms.
+    const safe = /^[=+\-@\t\r\n＝＋－＠]/.test(v) ? `'${v}` : v;
     return `"${safe.replace(/"/g, '""')}"`;
   };
   return "\uFEFF" + rows.map((row) => row.map(cell).join(";")).join("\r\n") + "\r\n";

@@ -150,6 +150,10 @@ describe("BIM elements, files and schedule", () => {
     expect(out.split("\r\n")).toEqual([
       "﻿\"Nombre\";\"Volumen (m³)\"", "\"Muro \"\"A\"\"\";2,40", "\"'=HYPERLINK(\"\"x\"\")\";", "\"'-1+1\";-0,15", "",
     ]);
+    // Line feeds and full-width signs also start formulas in some spreadsheets (OWASP).
+    expect(csv([["＝SUM(1)"], ["\ncmd"], ["texto normal"]]).split("\r\n").slice(0, 3)).toEqual([
+      "﻿\"'＝SUM(1)\"", "\"'\ncmd\"", "\"texto normal\"",
+    ]);
   });
 });
 
