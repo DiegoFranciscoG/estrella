@@ -46,7 +46,7 @@
 
   <ItemGroup>
     <!-- Only compiled against: its assemblies travel inside the .exe (below), not next to it. -->
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4258.31" GeneratePathProperty="true" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4314.35" GeneratePathProperty="true" ExcludeAssets="runtime" />
   </ItemGroup>
 
   <ItemGroup>
