@@ -104,6 +104,10 @@
       title.value = typeof m.title === "string" ? m.title : "";
       body.value = parse(m.data);
       updateCount();
+      // Read-only until here: on a slow connection the page shows before the project arrives,
+      // and anything typed in that moment would be replaced by the loaded text.
+      title.readOnly = false;
+      body.readOnly = false;
       ready = true;
       body.focus();
     } else if (m.type === "estrella:ping") {
