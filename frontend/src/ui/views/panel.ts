@@ -1,4 +1,5 @@
 import { Program, programs } from "../../core/catalog";
+import { ACCOUNTS_ENABLED } from "../../core/config";
 import { currentUser } from "../../core/session";
 import { needsUpload, Project, ProjectStore } from "../../core/store";
 import { onSyncStatus, requestSync, syncStatus } from "../../core/syncManager";
@@ -86,7 +87,11 @@ export function panelView(): HTMLElement {
   const user = currentUser()!;
   const projectList = h("ul", { class: "projects", "data-testid": "projects" });
   const main = h("main", { class: "panel", id: "main" },
-    user.offline ? h("p", { class: "notice", role: "status" }, "Sin conexión. Trabajas con lo guardado en este equipo; se sincroniza al volver la conexión.") : null,
+    user.guest
+      ? h("p", { class: "notice", role: "status", "data-testid": "guest-notice" },
+        "Estás probando ESTRELLA sin cuenta: tu trabajo se guarda solo en este navegador. Exporta desde cada programa lo que quieras conservar.",
+        ACCOUNTS_ENABLED ? h("span", {}, " ", h("a", { href: "#/registro" }, "Crear una cuenta")) : null)
+      : user.offline ? h("p", { class: "notice", role: "status" }, "Sin conexión. Trabajas con lo guardado en este equipo; se sincroniza al volver la conexión.") : null,
     h("section", {},
       h("h1", {}, "Tus programas"),
       h("p", { class: "lead" }, "Cada programa dice antes de abrirse qué hace, cuánto pesa y qué no hace."),
@@ -94,7 +99,7 @@ export function panelView(): HTMLElement {
     ),
     h("section", {},
       h("h2", {}, "Tus proyectos"),
-      syncBar(),
+      user.guest ? null : syncBar(),
       projectList,
     ),
   );

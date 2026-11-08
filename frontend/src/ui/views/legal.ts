@@ -30,7 +30,7 @@ export function licensesView(): HTMLElement {
 }
 
 /** Version of the privacy notice; consents are recorded with it (backend: app.privacy-notice-version). */
-export const PRIVACY_NOTICE_VERSION = "2026-11-07.1";
+export const PRIVACY_NOTICE_VERSION = "2026-11-08.1";
 
 const pending = (value: string | null) => value ?? "pendiente";
 
@@ -46,6 +46,9 @@ export function privacyView(): HTMLElement {
     h("h1", {}, "Aviso de privacidad"),
     h("p", { class: "muted" }, `Versión ${PRIVACY_NOTICE_VERSION}. Ley Orgánica de Protección de Datos Personales del Ecuador (LOPDP).`),
     incomplete ? h("p", { class: "notice", "data-testid": "privacy-draft" }, "Borrador: faltan datos del responsable (domicilio, teléfono o correo). No se deben abrir registros públicos hasta completarlos.") : null,
+
+    h("h2", {}, "Probar sin cuenta"),
+    h("p", {}, "Si usas ESTRELLA sin cuenta no pedimos ni guardamos ningún dato tuyo: tu trabajo queda solo en este navegador, nada se envía a nuestros servidores y lo borras al limpiar los datos del sitio. El resto de este aviso se aplica a quienes crean una cuenta."),
 
     h("h2", {}, "Quién es el responsable"),
     h("ul", {},

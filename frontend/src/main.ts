@@ -1,7 +1,8 @@
 import "./styles.css";
 import { finishConnection } from "./core/assistant";
+import { ACCOUNTS_ENABLED } from "./core/config";
 import { captureInstallPrompt, registerPanelWorker } from "./core/offline";
-import { currentUser, isSignedIn, onUserChange, restore } from "./core/session";
+import { currentUser, isGuest, isSignedIn, onUserChange, restore } from "./core/session";
 import { h } from "./ui/dom";
 import { header, liteActive, page } from "./ui/shell";
 import { starSpinner } from "./ui/star";
@@ -17,6 +18,7 @@ import { programView } from "./ui/views/program";
 
 const root = document.getElementById("root")!;
 const PUBLIC = new Set(["ingresar", "registro", "verificar", "olvide", "restablecer", "licencias", "privacidad", "guia", "instalar"]);
+const ACCOUNT_ROUTES = new Set(["ingresar", "registro", "verificar", "olvide", "restablecer", "cuenta"]);
 
 function parseHash(): { route: string; param: string | null; query: URLSearchParams } {
   const raw = location.hash.replace(/^#\/?/, "");
@@ -27,11 +29,16 @@ function parseHash(): { route: string; param: string | null; query: URLSearchPar
 
 function render(): void {
   const { route, param, query } = parseHash();
+  // Without the API there are no accounts to enter; a guest has no account page to show.
+  if ((!ACCOUNTS_ENABLED && ACCOUNT_ROUTES.has(route)) || (route === "cuenta" && isGuest())) {
+    location.replace("#/");
+    return;
+  }
   if (!PUBLIC.has(route) && !isSignedIn()) {
     location.replace("#/ingresar");
     return;
   }
-  if ((route === "ingresar" || route === "registro") && isSignedIn()) {
+  if ((route === "ingresar" || route === "registro") && isSignedIn() && !isGuest()) {
     location.replace("#/");
     return;
   }

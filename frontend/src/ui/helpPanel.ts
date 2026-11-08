@@ -102,6 +102,10 @@ function renderGuide(root: HTMLElement, program: Program): void {
 }
 
 async function renderAssistant(root: HTMLElement, program: Program, snapshot: HelpOptions["snapshot"]): Promise<void> {
+  if (currentUser()?.guest) {
+    root.replaceChildren(h("p", { "data-testid": "ai-guest" }, "El asistente necesita una cuenta. Sin cuenta puedes usar la guía, que funciona igual."));
+    return;
+  }
   if (currentUser()?.offline) {
     root.replaceChildren(h("p", {}, "Sin conexión con el servidor: el asistente necesita internet. La guía funciona igual."));
     return;

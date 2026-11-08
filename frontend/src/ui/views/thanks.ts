@@ -25,11 +25,11 @@ function seenLocally(userId: string): string[] {
   }
 }
 
-function remember(userId: string, programId: string): void {
+function remember(userId: string, programId: string, guest: boolean): void {
   const seen = new Set(seenLocally(userId));
   seen.add(programId);
   safeStorage.set(localKey(userId), JSON.stringify([...seen]));
-  void api(`/me/thanks/${programId}`, { method: "PUT", auth: true }).catch(() => undefined);
+  if (!guest) void api(`/me/thanks/${programId}`, { method: "PUT", auth: true }).catch(() => undefined);
 }
 
 /**
@@ -62,7 +62,7 @@ export function maybeShowThanks(program: Program, container: HTMLElement): void 
     );
     close.addEventListener("click", () => aside.remove());
     container.appendChild(aside);
-    remember(user.id, program.id);
+    remember(user.id, program.id, user.guest === true);
   };
 
   if (user.offline) {

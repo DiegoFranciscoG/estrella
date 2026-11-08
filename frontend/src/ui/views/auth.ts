@@ -1,7 +1,7 @@
 import { api, ApiError } from "../../core/api";
 import { DEV_MAILBOX } from "../../core/config";
 import { passwordProblems } from "../../core/password";
-import { completeReset, Consent, login, register } from "../../core/session";
+import { completeReset, Consent, enterGuest, login, register } from "../../core/session";
 import { announce, h } from "../dom";
 import { liteActive } from "../shell";
 import { starIcon, starSpinner } from "../star";
@@ -98,6 +98,9 @@ export function loginView(): HTMLElement {
     h("p", { class: "lead" }, "Programas de diseño, CAD y edición, libres y gratuitos."),
     form,
     h("p", {}, h("a", { href: "#/registro" }, "Crear una cuenta"), " · ", h("a", { href: "#/olvide" }, "Olvidé mi contraseña")),
+    h("p", {},
+      h("button", { type: "button", class: "link", "data-testid": "try-guest", onclick: () => { enterGuest(); location.hash = "#/"; } }, "Probar sin cuenta"),
+      h("span", { class: "muted" }, " · tu trabajo se queda en este navegador")),
   );
 }
 

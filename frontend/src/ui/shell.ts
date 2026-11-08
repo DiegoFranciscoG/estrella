@@ -1,4 +1,5 @@
 import contact from "../data/contacto.json";
+import { ACCOUNTS_ENABLED } from "../core/config";
 import { isInstalledApp, protectStorage, storageState, type StorageState } from "../core/offline";
 import { advice, formatMb, isLite, LiteSetting, liteReasons, readDevice } from "../core/resources";
 import { currentUser, logout } from "../core/session";
@@ -30,8 +31,9 @@ export function header(): HTMLElement {
       h("a", { class: "ghost", href: "#/guia" }, "Guía"),
       isInstalledApp() ? null : h("a", { class: "ghost", href: "#/instalar" }, "Instalar"),
       themeButton,
-      user ? h("a", { class: "ghost", href: "#/cuenta" }, "Mi cuenta") : null,
-      user ? h("button", { class: "ghost", type: "button", onclick: () => { void logout().then(() => (location.hash = "#/ingresar")); } }, "Salir") : null,
+      user && !user.guest ? h("a", { class: "ghost", href: "#/cuenta" }, "Mi cuenta") : null,
+      user && !user.guest ? h("button", { class: "ghost", type: "button", onclick: () => { void logout().then(() => (location.hash = "#/ingresar")); } }, "Salir") : null,
+      user?.guest && ACCOUNTS_ENABLED ? h("a", { class: "ghost", href: "#/ingresar" }, "Entrar") : null,
     ),
   );
 }

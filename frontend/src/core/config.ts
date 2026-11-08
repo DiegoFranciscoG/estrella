@@ -32,5 +32,15 @@ export function devMailbox(configured: string | undefined): string | null {
 
 export const DEV_MAILBOX = devMailbox(import.meta.env.VITE_DEV_MAILBOX);
 
+/**
+ * A build for a site without the API (`VITE_ACCOUNTS=off`): there is nothing to sign in to, so the
+ * panel opens straight in guest mode, with everything kept in the browser.
+ */
+export function accountsEnabled(setting: string | undefined): boolean {
+  return setting !== "off";
+}
+
+export const ACCOUNTS_ENABLED = accountsEnabled(import.meta.env.VITE_ACCOUNTS);
+
 /** Programs keep an offline copy only in production builds, where the programs site has its service worker. */
 export const OFFLINE_PROGRAMS = import.meta.env.PROD && APPS_ISOLATED;

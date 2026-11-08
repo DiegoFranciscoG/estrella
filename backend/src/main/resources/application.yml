@@ -105,7 +105,7 @@ app:
     # Longest answer, in tokens.
     max-output-tokens: ${APP_AI_MAX_OUTPUT:800}
     timeout: ${APP_AI_TIMEOUT:60s}
-  privacy-notice-version: "2026-11-07.1"
+  privacy-notice-version: "2026-11-08.1"
   unverified-account-retention: 7d
   # Emails of every kind per hour, all addresses together: a ceiling for the mail provider's quota
   # even if someone spreads requests over many addresses (OWASP API6).

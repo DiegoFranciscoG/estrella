@@ -176,7 +176,10 @@ describe("safe storage", () => {
 
 describe("local test mailbox hint", () => {
   it("is shown only for an http(s) address set by the local stack", async () => {
-    const { devMailbox } = await import("../../src/core/config");
+    const { accountsEnabled, devMailbox } = await import("../../src/core/config");
+    expect(accountsEnabled(undefined)).toBe(true);
+    expect(accountsEnabled("on")).toBe(true);
+    expect(accountsEnabled("off")).toBe(false);
     expect(devMailbox(undefined)).toBeNull();
     expect(devMailbox("")).toBeNull();
     expect(devMailbox("http://localhost:8025")).toBe("http://localhost:8025");

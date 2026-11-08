@@ -1,4 +1,5 @@
 import { api, ApiError, currentAccessToken, onSessionChange, refresh, setAccessToken, TokenResponse, userIdFromToken } from "./api";
+import { ACCOUNTS_ENABLED } from "./config";
 import { authKeyFrom, KeyBundle, masterSecret, prepareRegistration, rekey, unlockWithPassword, unlockWithRecovery } from "./crypto";
 import { safeStorage } from "./storage";
 import { forgetKeys, loadKeys, rememberKeys, startSync, stopSync } from "./syncManager";
@@ -8,11 +9,16 @@ export interface User {
   id: string;
   email: string;
   offline: boolean;
+  /** Trying ESTRELLA without an account: nothing leaves this browser. */
+  guest?: boolean;
 }
 
 export type Consent = "ACCOUNT" | "PROJECT_SYNC" | "SECURITY_EMAIL";
 
 const LAST_USER = "estrella:last-user";
+const GUEST_FLAG = "estrella:guest";
+/** A guest's projects live in their own database, apart from any account used in this browser. */
+export const GUEST_ID = "00000000-0000-4000-8000-000000000000";
 
 let user: User | null = null;
 /**
@@ -51,6 +57,17 @@ export function currentUser(): User | null {
   return user;
 }
 
+/** Opens the panel without an account. The server is never contacted. */
+export function enterGuest(): User {
+  safeStorage.set(GUEST_FLAG, "1");
+  setUser({ id: GUEST_ID, email: "", offline: true, guest: true });
+  return user!;
+}
+
+export function isGuest(): boolean {
+  return user?.guest === true;
+}
+
 export function hasVaultKey(): boolean {
   return vaultKey !== null;
 }
@@ -62,8 +79,9 @@ export function onUserChange(listener: (u: User | null) => void): () => void {
 
 /** Restores the session from the refresh cookie; offline, reopens the last account on this device. */
 export async function restore(): Promise<User | null> {
+  if (!ACCOUNTS_ENABLED) return enterGuest();
   // Nobody has signed in on this device: there is no session cookie to try.
-  if (!safeStorage.get(LAST_USER)) return null;
+  if (!safeStorage.get(LAST_USER)) return safeStorage.get(GUEST_FLAG) ? enterGuest() : null;
   try {
     if (await refresh()) {
       if (user) void resumeSync(user.id);
@@ -102,6 +120,7 @@ export async function login(email: string, password: string): Promise<User> {
   try {
     const body = await api<TokenResponse>("/auth/login", { method: "POST", body: { email, authKey: await authKeyFrom(master) } });
     setAccessToken(body.accessToken);
+    safeStorage.remove(GUEST_FLAG);
     vaultKey = await unlockWithPassword(master, body.keys.kdfSalt, body.keys.wrappedKeyPassword);
     wrapped = body.keys;
     const id = userIdFromToken(body.accessToken);
