@@ -7,7 +7,7 @@ COPY src ./src
 RUN mvn -B -q package -DskipTests && cp target/estrella-api-*.jar /src/app.jar
 
 # Run: JRE only, non-root, small heap for free-tier instances
-FROM eclipse-temurin:17.0.21_9-jre-alpine-3.24
+FROM eclipse-temurin:24-jre-alpine-3.22
 RUN addgroup -S app && adduser -S -G app -H app
 WORKDIR /app
 COPY --from=build --chown=app:app /src/app.jar app.jar
