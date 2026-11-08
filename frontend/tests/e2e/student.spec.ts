@@ -84,8 +84,12 @@ test("signs in and sees an honest catalog", async ({ page }) => {
   await signIn(page);
   await expect(page.locator('[data-program="apuntes"] .badge')).toHaveText("Disponible");
   await expect(page.locator('[data-program="visor"] .badge')).toHaveText("Disponible");
-  await expect(page.locator('[data-program="trazo"] button')).toBeDisabled();
-  await expect(page.locator('[data-program="sitio"]')).toContainText("hueco más grande");
+  await expect(page.locator('[data-program="sitio"] .badge')).toHaveText("Disponible");
+  await expect(page.getByTestId("new-bim")).toBeEnabled();
+  // Each card says what is still missing, and what the web does not do leads to a free desktop program.
+  await expect(page.locator('[data-program="sitio"]')).toContainText("Todavía sin pendientes, viento, ruido ni mapas");
+  await expect(page.locator('[data-program="video"] .badge')).toHaveText("Escritorio, gratis");
+  await expect(page.getByTestId("get-video")).toHaveText("Cómo conseguir Kdenlive");
   const sessionMail = await latestToken(email, "Confirma tu correo").catch(() => null);
   expect(sessionMail).not.toBeNull();
 });

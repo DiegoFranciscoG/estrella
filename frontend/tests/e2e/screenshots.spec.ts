@@ -61,6 +61,90 @@ test("README: sign-in, panel, Plano and the guide on a computer (dark theme)", a
   await page.screenshot({ path: `${IMG}/guia.png` });
 });
 
+test("README: BIM, Sólido, Análisis de sitio and Archivo (dark theme)", async ({ page }) => {
+  test.setTimeout(180_000);
+  await page.emulateMedia({ colorScheme: "dark" });
+  await signIn(page);
+  const open = async (id: string): Promise<FrameLocator> => {
+    await page.goto("/#/");
+    await page.getByTestId(`new-${id}`).click();
+    await page.getByTestId("thanks-close").click({ timeout: 10_000 }).catch(() => undefined);
+    return page.frameLocator('[data-testid="program-frame"]');
+  };
+
+  // BIM: a two-storey house, the facade wall selected with its properties.
+  let app = await open("bim");
+  await app.locator("#open").setInputFiles(new URL("../fixtures/casa-dos-plantas.ifc", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1"));
+  await expect(app.locator("#status")).toContainText("Modelo abierto", { timeout: 60_000 });
+  await app.getByLabel("Buscar elemento").fill("fachada");
+  await app.getByRole("button", { name: /Muro de fachada/ }).click();
+  await expect(app.locator("#properties h3")).toHaveText("Muro de fachada");
+  await page.waitForTimeout(600);
+  await page.screenshot({ path: `${IMG}/bim.png` });
+
+  // Sólido: a footprint raised as a prism, a tower and a gable roof.
+  app = await open("solido");
+  const canvas = app.locator("#view3d canvas");
+  await expect(canvas).toBeVisible();
+  const box = (await canvas.boundingBox())!;
+  const at = (fx: number, fy: number) => page.mouse.click(box.x + box.width * fx, box.y + box.height * fy);
+  await app.getByRole("button", { name: "Polígono" }).click();
+  for (const [fx, fy] of [[0.35, 0.55], [0.6, 0.55], [0.6, 0.66], [0.47, 0.66], [0.47, 0.78], [0.35, 0.78]]) await at(fx, fy);
+  await page.keyboard.press("Enter");
+  await app.getByRole("button", { name: "Caja", exact: true }).click();
+  await at(0.2, 0.45);
+  await app.getByLabel("Alto (m)").fill("6");
+  await app.getByLabel("Alto (m)").press("Tab");
+  await app.getByRole("button", { name: "Cubierta", exact: true }).click();
+  await at(0.75, 0.45);
+  await page.waitForTimeout(600);
+  await page.screenshot({ path: `${IMG}/solido.png` });
+
+  // Análisis de sitio: hours of sun on a lot in Quito at the December solstice.
+  app = await open("sitio");
+  await app.getByLabel("Fecha clave").selectOption("12-21");
+  await app.getByLabel("Hora", { exact: true }).fill("900");
+  await app.getByLabel("Ancho del lote (m)").fill("20");
+  await app.getByLabel("Fondo del lote (m)").fill("30");
+  await app.getByRole("button", { name: "Crear lote" }).click();
+  await app.getByLabel("Ancho del edificio (m)").fill("10");
+  await app.getByLabel("Fondo del edificio (m)").fill("12");
+  await app.getByLabel("Altura del edificio (m)").fill("12");
+  await app.getByRole("button", { name: "Añadir edificio" }).click();
+  await app.getByLabel("Horas de sol").check();
+  await expect(app.locator("#hours-summary")).toContainText("promedio", { timeout: 30_000 });
+  await page.waitForTimeout(600);
+  await page.screenshot({ path: `${IMG}/sitio.png` });
+
+  // Archivo: a few project files, rated and labelled.
+  app = await open("archivo");
+  const png = async (fill: string) => Buffer.from((await page.evaluate((color) => {
+    const c = document.createElement("canvas");
+    c.width = 400;
+    c.height = 300;
+    const ctx = c.getContext("2d")!;
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, 400, 300);
+    ctx.fillStyle = "#f2f2f2";
+    ctx.fillRect(110, 70, 180, 160);
+    return c.toDataURL("image/png");
+  }, fill)).split(",")[1], "base64");
+  await app.locator("#add").setInputFiles([
+    { name: "fachada-norte.png", mimeType: "image/png", buffer: await png("#3a4a5a") },
+    { name: "fachada-sur.png", mimeType: "image/png", buffer: await png("#5a4a3a") },
+    { name: "planta-baja.dxf", mimeType: "application/dxf", buffer: Buffer.from("0\nEOF\n") },
+    { name: "memoria.pdf", mimeType: "application/pdf", buffer: Buffer.from("%PDF-1.4\n%%EOF\n") },
+  ]);
+  await app.locator('.tile[data-path="fachada-norte.png"]').click();
+  await app.getByLabel("Calificación", { exact: true }).selectOption("5");
+  await app.getByLabel("Etiqueta de color", { exact: true }).selectOption("verde");
+  await app.getByLabel("Palabras clave").fill("fachada, entrega");
+  await app.getByLabel("Palabras clave").press("Tab");
+  await expect(app.locator('.tile[data-path="fachada-sur.png"] img')).toBeVisible();
+  await page.waitForTimeout(600);
+  await page.screenshot({ path: `${IMG}/archivo.png` });
+});
+
 test("README: the panel on a phone (light theme)", async ({ browser }) => {
   const context = await browser.newContext({
     ...devices["Pixel 7"],
