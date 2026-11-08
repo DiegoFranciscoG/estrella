@@ -8,13 +8,15 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-7-informational)
 ![PostgreSQL 18](https://img.shields.io/badge/PostgreSQL-18-informational)
 [![Licencia MIT](https://img.shields.io/badge/licencia-MIT-green)](LICENSE)
-![Demo: pendiente](https://img.shields.io/badge/demo-pendiente-lightgrey)
+[![Demo en línea](https://img.shields.io/badge/demo-en%20l%C3%ADnea-brightgreen)](https://estrella-panel.netlify.app)
 
 ## Demo en vivo
 
-**Pendiente de publicar.** El despliegue gratuito está listo y documentado en [docs/despliegue.md](docs/despliegue.md).
+**[estrella-panel.netlify.app](https://estrella-panel.netlify.app)**: abre directo, sin registro.
 
-No habrá usuario de prueba compartido: el trabajo de cada cuenta se cifra con su propia contraseña. Crear una cuenta toma un minuto. En local, el correo de confirmación llega a Mailpit.
+La demo corre en **modo sin cuenta**: los 12 programas funcionan y el trabajo se guarda solo en el navegador de quien la usa. No hay usuario de prueba porque no hace falta ninguno.
+
+Las cuentas, la sincronización cifrada y el asistente necesitan la API, que todavía no está desplegada. Los pasos están en [docs/despliegue.md](docs/despliegue.md). En local funcionan completas, y el correo de confirmación llega a Mailpit.
 
 ## Capturas
 
@@ -58,6 +60,7 @@ Todo funciona en equipos modestos y sin conexión, y el servidor nunca puede lee
   - **Archivo** (organiza archivos con miniaturas, estrellas, etiquetas y palabras clave; renombra en lote a un ZIP).
   - **Análisis de sitio** (sol y sombras sobre el lote, mapa de horas de sol, carta solar, COS PB y COS total; importa GeoJSON).
 - **Tres programas libres de escritorio con guía de instalación:** Blender (modelado y render), Scribus (maquetación) y Kdenlive (video).
+- **Probar sin cuenta:** un botón abre todos los programas sin registrarse. Nada sale del navegador.
 - **Autoguardado y recuperación:** tras un cierre brusco se pierden menos de 30 segundos. Un programa que se cuelga no tumba el panel.
 - **Cuenta con correo y contraseña.**
   - La contraseña nunca sale del equipo.
@@ -325,6 +328,7 @@ Para reportar una vulnerabilidad, ver [SECURITY.md](SECURITY.md).
 - **Programas propios donde lo libre no alcanza en la web:** la lógica de cada uno (geometría, unidades IFC, sol, catálogo) vive en módulos puros con pruebas unitarias; la pantalla solo dibuja. Así se prueban volúmenes, sombras o renombrados sin abrir un navegador.
 - **Sol con las ecuaciones de la NOAA:** se comprobaron contra valores conocidos (Quito, Nueva York, día y noche polar) antes de usarlas.
 - **La cuadrícula 3D es una superficie con textura, no líneas:** los equipos sin aceleración gráfica (render por software) no dibujan las líneas que pasan detrás de la cámara; la prueba visual automática lo detectó.
+- **Modo sin cuenta sobre el modo sin conexión:** el panel ya sabía trabajar sin servidor, así que el invitado reutiliza ese camino con su propia base local. Una compilación con `VITE_ACCOUNTS=off` permite publicar una demo estática, sin base de datos ni datos personales.
 - **Exportaciones que no hacen daño:** los CSV neutralizan fórmulas (OWASP, CSV injection) y el ZIP de Archivo arma copias sin cargar cada archivo dos veces en memoria.
 
 Las razones completas, con sus fuentes, están en [docs/investigacion.md](docs/investigacion.md) y [docs/plan.md](docs/plan.md).

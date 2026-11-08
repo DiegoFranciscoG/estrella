@@ -19,6 +19,40 @@ flowchart LR
 - Los programas van en **otro sitio**, para que el navegador los ejecute en un proceso aparte. Las cabeceras de los dos sitios salen de `frontend/nginx.conf.template`, las mismas del stack local; el generador está en `frontend/scripts/netlify-headers.ts`.
 - Render gratis **bloquea los puertos SMTP**, por eso los correos salen por la API HTTPS de Brevo (`APP_MAIL_PROVIDER=brevo`).
 
+## Demo sin servidor (la que está publicada)
+
+Sin la API no hay cuentas, así que esta versión abre directo en **modo sin cuenta**: los programas funcionan y el trabajo se queda en el navegador. No necesita Neon, Brevo, Render ni secretos, y no recoge datos personales. Publicarla solo requiere una sesión de Netlify.
+
+Desde `frontend/`, con la herramienta de Netlify autenticada (`npx netlify-cli login`):
+
+```bash
+export PANEL_ORIGIN=https://estrella-panel.netlify.app APPS_ORIGIN=https://estrella-programas.netlify.app VITE_APPS_ORIGIN=https://estrella-programas.netlify.app VITE_ACCOUNTS=off
+```
+
+```bash
+npm run build
+```
+
+```bash
+node scripts/netlify-site.mjs panel /tmp/estrella-panel && node scripts/netlify-site.mjs programs /tmp/estrella-programas
+```
+
+Publica cada carpeta desde **fuera del repositorio** (allí no hay `netlify.toml`, y el sitio del panel no intenta reenviar `/api`). Indica siempre `--site`: la herramienta recuerda el último sitio de esa carpeta y, sin ese dato, publicaría encima de él.
+
+```bash
+cd /tmp && npx netlify-cli deploy --prod --no-build --dir estrella-panel --site estrella-panel
+```
+
+```bash
+cd /tmp && npx netlify-cli deploy --prod --no-build --dir estrella-programas --site estrella-programas
+```
+
+Cada publicación a producción consume 15 de los 300 créditos mensuales del plan gratuito.
+
+En el plan gratuito, Netlify agrega a cada página un script suyo (`/.netlify/scripts/hud`). Nuestra CSP bloquea su parte en línea: verás ese aviso en la consola, sin efecto en la pantalla.
+
+Para pasar a la versión completa, con cuentas y nube, sigue el resto de esta guía. Los dos sitios de Netlify ya existen: en el paso 5 vincula el repositorio a cada uno en lugar de crearlos.
+
 ## Antes de empezar
 
 - El repositorio debe estar en GitHub. Lo publicas tú después de «VOY A SUBIR».

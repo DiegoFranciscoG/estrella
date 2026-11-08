@@ -32,8 +32,9 @@ Medición útil: las demos de LibreCAD y OpenSCAD abrieron con `crossOriginIsola
 | F8 Escritorio y móvil | 10 | Instalador para Windows; macOS y Linux según lo que se pueda probar. PWA móvil | Instalar, desinstalar y actualizar sin perder datos. **Hecho:** PWA instalable y sin conexión en todas las plataformas; ESTRELLA para Windows de 1,3 MB, probada de verdad en este equipo. macOS, Linux y teléfonos reales quedan sin probar (`docs/escritorio.md`) |
 | F9 Cierre | 8 | Auditoría OWASP, accesibilidad, rendimiento, README | T-01, T-02, T-06; checklist "VOY A SUBIR". **Hecho:** auditoría OWASP Top 10:2025, API 2023 y LLM 2025 con evidencia (`docs/seguridad.md`); WCAG 2.2 AA con axe en ambos temas; T-06 medido; OpenAPI; despliegue gratuito preparado (`docs/despliegue.md`). Se corrigió una suplantación de dirección que esquivaba los frenos de inicio de sesión |
 | F10 Programas propios | 12 | Trazo (vectores), Revelado (fotos), Sólido (maqueta 3D), BIM (modelos IFC), Archivo (organizar archivos) y Análisis de sitio (sol, sombras y COS) | Módulos puros con pruebas unitarias, una prueba de extremo a extremo por programa, axe WCAG 2.2 AA y revisión visual de capturas. **Hecho:** los seis, con su ficha en la guía y su peso medido (`docs/catalogo.md` §5) |
+| Publicación de la demo | 2 | Modo sin cuenta y demo estática en Netlify | Los 12 programas probados en el enlace público, sin llamadas a la API |
 
-**Total: unas 90 h.** T-12 (cinco estudiantes reales) depende de ti: no se puede simular.
+**Total: unas 92 h.** T-12 (cinco estudiantes reales) depende de ti: no se puede simular.
 
 ## Qué se puede garantizar y qué no
 

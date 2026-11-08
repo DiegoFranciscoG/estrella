@@ -17,6 +17,7 @@ Cada control lleva su evidencia, casi siempre una prueba automática que corre e
 - **Secretos solo por variables de entorno**, sin valores por defecto. Si falta uno, la API no arranca.
 - **Dos sitios**: el panel y los programas viven en orígenes distintos. Cada programa corre en un `iframe` aislado y solo habla con el panel por mensajes de origen verificado.
 - **Los archivos del estudiante no salen de su equipo.** Cada programa los lee en el navegador, con límites (IFC de 200 MB, GeoJSON de 20 MB, fotos de 36 MP), y valida campo por campo cada documento guardado antes de usarlo. Los SVG ajenos solo se muestran dentro de `<img>`, donde no ejecutan scripts, y el texto de los archivos (nombres en un IFC, propiedades) entra al DOM con `textContent`.
+- **Modo sin cuenta:** no crea cuenta, no pide datos y no llama a la API (`tests/e2e/guest.spec.ts` lo comprueba registrando las peticiones). Sus proyectos viven en una base local propia, separada de las de cada cuenta.
 - **WebAssembly solo donde hace falta:** `'wasm-unsafe-eval'` está permitido únicamente en `/apps/visor/`, `/apps/bim/` y en los workers; permite compilar el wasm del propio sitio, no ejecutar `eval()`.
 
 ## OWASP Top 10:2025
