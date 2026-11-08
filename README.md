@@ -24,6 +24,10 @@ No habrá usuario de prueba compartido: el trabajo de cada cuenta se cifra con s
 |---|---|---|---|
 | ![Pantalla para entrar, con la estrella](docs/img/ingresar.png) | ![Plano con un ambiente dibujado](docs/img/plano.png) | ![Plano con la guía abierta](docs/img/guia.png) | ![Panel en un teléfono, tema claro](docs/img/movil.png) |
 
+| BIM, modelos IFC | Sólido, maqueta 3D | Análisis de sitio | Archivo |
+|---|---|---|---|
+| ![BIM con una casa de dos plantas y las propiedades del muro de fachada](docs/img/bim.png) | ![Sólido con un prisma en L, una torre y una cubierta a dos aguas](docs/img/solido.png) | ![Análisis de sitio con el mapa de horas de sol de un lote en Quito](docs/img/sitio.png) | ![Archivo con miniaturas, estrellas y etiquetas de color](docs/img/archivo.png) |
+
 Las capturas salen del stack local con `E2E_SCREENSHOTS=1 npx playwright test --project=docs`.
 
 ## Problema que resuelve
@@ -40,13 +44,20 @@ Todo funciona en equipos modestos y sin conexión, y el servidor nunca puede lee
 
 ## Funcionalidades
 
-- **Seis programas en el navegador**:
+- **Doce programas en el navegador**:
   - **Apuntes** (notas).
   - **Plano** (CAD 2D con línea de comandos y capas; abre DXF y DWG e imprime en PDF a escala).
   - **Lienzo** (imagen por capas).
   - **Pizarra** (diagramas a mano alzada).
   - **Folio** (unir, girar y borrar páginas de PDF sin subirlos).
   - **Visor** (abre y convierte DWG, DXF, PDF, PSD, SVG, fotos y RAW de cámara, OBJ, STL, 3MF, glTF e IFC).
+  - **Trazo** (dibujo vectorial: formas, pluma, texto y capas; abre y exporta SVG).
+  - **Revelado** (exposición, balance de blancos, color, recorte y giro de fotos JPG, PNG, WebP y RAW).
+  - **Sólido** (maquetas 3D con medidas exactas: cajas, cilindros, cubiertas y prismas levantados desde una planta; exporta STL, OBJ y glTF).
+  - **BIM** (recorre modelos IFC por niveles y categorías, lee propiedades y cantidades, corta plantas, mide y saca cuadros en CSV).
+  - **Archivo** (organiza archivos con miniaturas, estrellas, etiquetas y palabras clave; renombra en lote a un ZIP).
+  - **Análisis de sitio** (sol y sombras sobre el lote, mapa de horas de sol, carta solar, COS PB y COS total; importa GeoJSON).
+- **Tres programas libres de escritorio con guía de instalación:** Blender (modelado y render), Scribus (maquetación) y Kdenlive (video).
 - **Autoguardado y recuperación:** tras un cierre brusco se pierden menos de 30 segundos. Un programa que se cuelga no tumba el panel.
 - **Cuenta con correo y contraseña.**
   - La contraseña nunca sale del equipo.
@@ -91,7 +102,7 @@ flowchart LR
 | Pieza | Elección | Por qué |
 |---|---|---|
 | Panel | Vite 8 + TypeScript, sin framework | Primera carga de 148 KB comprimidos; abre en menos de 1 s instalado |
-| Programas | Propios (Plano, Apuntes, Folio, Visor) e integrados (Excalidraw, miniPaint), cada uno aislado | Fallos y licencias quedan separados (GPL solo dentro de su propio worker) |
+| Programas | Propios (Apuntes, Plano, Folio, Visor, Trazo, Revelado, Sólido, BIM, Archivo y Análisis de sitio) e integrados (Excalidraw, miniPaint), cada uno aislado | Fallos y licencias quedan separados (GPL solo dentro de su propio worker) |
 | API | Spring Boot 4.1 y Java 17, Spring Security, `JdbcClient` | SQL explícito y parametrizado, sin ORM: se ve exactamente qué se consulta |
 | Base de datos | PostgreSQL 18 con Flyway | Migraciones versionadas; Neon gratis en producción |
 | Criptografía | Web Crypto (PBKDF2, HKDF, AES-GCM) en el equipo; Argon2id en el servidor | El servidor no puede leer el trabajo, y una base robada no revela contraseñas |
@@ -311,13 +322,17 @@ Para reportar una vulnerabilidad, ver [SECURITY.md](SECURITY.md).
 - **Correo por API HTTPS en producción**, porque Render gratis bloquea SMTP. El transporte se elige por configuración.
 - **Las cabeceras de Netlify se generan de la configuración de nginx:** una sola fuente de verdad, comparada archivo por archivo (511 archivos, 0 diferencias).
 - **Sin reintentos de escrituras:** mientras la API gratuita despierta, la app solo repite peticiones idempotentes (RFC 9110).
+- **Programas propios donde lo libre no alcanza en la web:** la lógica de cada uno (geometría, unidades IFC, sol, catálogo) vive en módulos puros con pruebas unitarias; la pantalla solo dibuja. Así se prueban volúmenes, sombras o renombrados sin abrir un navegador.
+- **Sol con las ecuaciones de la NOAA:** se comprobaron contra valores conocidos (Quito, Nueva York, día y noche polar) antes de usarlas.
+- **La cuadrícula 3D es una superficie con textura, no líneas:** los equipos sin aceleración gráfica (render por software) no dibujan las líneas que pasan detrás de la cámara; la prueba visual automática lo detectó.
+- **Exportaciones que no hacen daño:** los CSV neutralizan fórmulas (OWASP, CSV injection) y el ZIP de Archivo arma copias sin cargar cada archivo dos veces en memoria.
 
 Las razones completas, con sus fuentes, están en [docs/investigacion.md](docs/investigacion.md) y [docs/plan.md](docs/plan.md).
 
 ## Roadmap
 
 - Publicar la demo (después de revisar marca en SENADI y completar los datos del responsable del tratamiento).
-- Programas planificados: Trazo (vectores), Sólido (modelado 3D paramétrico), BIM, Revelado (fotos RAW), Archivo y Análisis de sitio.
+- Mejoras de los programas propios: curvas Bézier editables en Trazo; empujar caras y operaciones booleanas en Sólido; ajustes por zonas en Revelado; datos EXIF y colecciones en Archivo; terreno con pendiente y viento en Análisis de sitio; edición básica de IFC en BIM.
 - Probar en macOS, Linux, Safari y teléfonos reales, y con lectores de pantalla.
 - Firmar ESTRELLA para Windows (Microsoft Store) y escanear las imágenes Docker en CI.
 - Donaciones, al final y por configuración.
@@ -329,6 +344,8 @@ Las razones completas, con sus fuentes, están en [docs/investigacion.md](docs/i
   - Cada componente y la obligación que trae están en [docs/licencias.md](docs/licencias.md).
   - Cada compilación genera `THIRD-PARTY-NOTICES.txt`, enlazado desde la página de licencias de la app.
 - **Equivalencias de la guía:** salen de los manuales oficiales de cada programa, citados en cada ficha, o de las pruebas automáticas del repositorio.
+- **Cálculo solar:** ecuaciones de la NOAA Global Monitoring Laboratory, basadas en *Astronomical Algorithms* de Jean Meeus. COS PB y COS total siguen las definiciones de los documentos municipales de Quito; ESTRELLA usa áreas brutas y lo avisa.
+- **GeoJSON que importa el estudiante:** sus datos y su licencia son del estudiante. Si vienen de OpenStreetMap, se rigen por la ODbL y piden atribución.
 - **Datos de ejemplo:** las pruebas y los seeds usan datos ficticios (`example.com`); no hay datos personales reales.
 
 ## Autor

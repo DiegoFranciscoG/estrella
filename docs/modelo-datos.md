@@ -125,6 +125,7 @@ erDiagram
 - **Verificador PKCE y `state`:** en `sessionStorage` de la pestaña, solo mientras dura la conexión (máximo 10 minutos).
 - **Límite de preguntas al asistente:** en memoria, por estudiante; caduca solo.
 - **Autoguardado local:** IndexedDB/OPFS del dispositivo.
+- **Documento de cada programa:** JSON con versión (`v: 1`) guardado dentro del proyecto, como el resto del trabajo, y validado campo por campo al abrirlo (`parseModel` en Sólido, `parseView` en BIM, `parseCatalog` en Archivo, `parseSite` en Análisis de sitio). BIM guarda el IFC hasta 30 MB; Archivo guarda solo nombres, tamaños, fechas y las marcas del estudiante, nunca los archivos.
 - **Límite de intentos de login:** en memoria o caché; caduca solo.
 
 ## Claves

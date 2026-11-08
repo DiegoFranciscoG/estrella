@@ -379,7 +379,32 @@ Los pasos de Lienzo y Plano se tomaron de su interfaz real (menús de miniPaint 
 5. **Accesibilidad:** axe no revisa todos los criterios (por ejemplo, la experiencia con lector de pantalla). No se probó con NVDA ni VoiceOver.
 6. **Imágenes Docker:** no se escanearon; trivy no está instalado y Docker Scout no respondió.
 
-## 13. Conclusiones de diseño
+## 13. Fase 10: seis programas propios (2026-11-07 y 2026-11-08)
+
+Trazo, Revelado, Sólido, BIM, Archivo y Análisis de sitio. Fuentes consultadas el 2026-11-07, salvo las de la fase anterior que se reutilizan.
+
+| Tema | Fuente | URL | Qué sale de ahí |
+|---|---|---|---|
+| Posición del sol, amanecer y atardecer | NOAA Global Monitoring Laboratory, Solar Calculation Details | https://gml.noaa.gov/grad/solcalc/calcdetails.html | Ecuaciones basadas en *Astronomical Algorithms* de Jean Meeus; la versión de hoja de cálculo vale entre 1901 y 2099. Para amanecer y atardecer se asumen 0,833° de refracción. Se comprobaron contra valores conocidos: Quito el 21-jun (06:13 y 18:19), Nueva York el 21-jun (05:25 y 20:31), ecuación del tiempo de +16,5 min el 3-nov y −14,2 min el 11-feb, y día y noche polar en Tromsø (`tests/unit/sitio.test.ts`) |
+| Hora oficial de Ecuador | Base de zonas horarias de IANA, lista de sus mantenedores | https://mm.icann.org/pipermail/tz/2022-September/031915.html | Dos zonas sin horario de verano: America/Guayaquil (UTC−5, continente) y Pacific/Galapagos (UTC−6 desde 1986). Son los valores por defecto de las ciudades en Análisis de sitio |
+| COS PB y COS total | Municipio del Distrito Metropolitano de Quito, Secretaría de Territorio (presentación del PUGS sobre edificabilidad, 2021) | https://www7.quito.gob.ec/mdmq_ordenanzas/Administraci%C3%B3n%202019-2023/Comisiones%20del%20Concejo%20Metropolitano/Uso%20de%20Suelo/Presentaciones/2021/2021-04-05/20210331_PUGS_URBANISTICO_EDIFICABILIDAD_VF%20STHV.pdf | COS PB = área construida en planta baja ÷ área del lote; COS total = área construida total ÷ área del lote, y se obtiene multiplicando el COS PB por el número de pisos. Las normas usan áreas «computables»; ESTRELLA usa áreas brutas y lo avisa en pantalla |
+| GeoJSON | IETF, RFC 7946 | https://www.rfc-editor.org/rfc/rfc7946 | Coordenadas WGS 84 en orden [longitud, latitud]; anillo exterior primero. Análisis de sitio lo pasa a metros locales con una proyección equirectangular (error menor a 1 cm en unos cientos de metros) |
+| Formato ZIP | PKWARE, APPNOTE.TXT 6.3.x | https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT | Encabezado local, directorio central y registro final; el bit 11 de banderas indica nombres en UTF-8. Sin ZIP64: hasta 65 535 entradas y 4 GB. El ZIP de Archivo se validó con `zipfile` de Python (CRC correctos, acentos y fechas) |
+| Fórmulas escondidas en CSV | OWASP, CSV Injection | https://owasp.org/www-community/attacks/CSV_Injection | Las celdas que empiezan con `=`, `+`, `-`, `@`, tabulador, retorno de carro, salto de línea o sus formas de ancho completo se anteponen con `'` y van entre comillas. OWASP advierte que ninguna estrategia es segura para todos los programas: Excel puede quitar la comilla al guardar de nuevo |
+| Plano de corte en planta | Autodesk, ayuda de Revit: View Range | https://help.autodesk.com/cloudhelp/2014/ENU/Revit/files/GUID-58711292-AB78-4C8F-BAA1-0855DDB518BF.htm | El plano de corte define a qué altura se muestran cortados los elementos de una planta |
+| Lectura de IFC | web-ifc 0.0.78 (MPL-2.0), su API y una prueba propia | https://github.com/ThatOpen/engine_web-ifc | `GetWorldTransformMatrix` da la colocación de cada nivel en unidades del archivo y con Z hacia arriba; `GetCoordinationMatrix`, el desplazamiento que aplica `COORDINATE_TO_ORIGIN`. Con un IFC en milímetros y georreferenciado a 500 km se comprobó que los niveles caen a su altura real |
+| Manipuladores 3D | three.js r186 (MIT), código de TransformControls | https://github.com/mrdoob/three.js/blob/r186/examples/jsm/controls/TransformControls.js | Desde r169 el manipulador ya no es un objeto de la escena: se agrega `getHelper()` |
+
+**Hallazgo propio, verificado con pruebas:** en Chromium sin aceleración gráfica (ANGLE sobre SwiftShader, el mismo render por software que usa un equipo sin GPU disponible), una línea WebGL con un extremo detrás de la cámara no se dibuja. La cuadrícula y los ejes de Sólido pasaron a ser superficies con textura, que se recortan bien en cualquier equipo.
+
+**SUPUESTOS de esta fase:**
+1. **Altura de corte de 1,20 m en las plantas de BIM:** solo aparece en foros de usuarios como valor de las plantillas métricas, no en la documentación oficial. El estudiante puede mover el corte con el control deslizante.
+2. **Coordenadas de las ciudades:** son el centro aproximado, con dos decimales (±1 km), sin contrastar con un nomenclátor oficial. Para el sol basta; para el lote, el estudiante escribe las coordenadas exactas o importa un GeoJSON.
+3. **Altura de piso de 3 m:** para proponer el número de pisos (y el COS total) a partir de la altura. El estudiante lo corrige en el panel.
+4. **Muestras cada 10 minutos para las horas de sol:** cada salida o entrada de sombra puede variar ±5 minutos.
+5. **CSV con punto y coma y coma decimal:** es lo que esperan las hojas de cálculo configuradas en español; no se probó con cada configuración regional.
+
+## 14. Conclusiones de diseño
 
 - **La línea legal se mantiene:** cambiar el nombre no legaliza una copia. Código, interfaz, nombre e íconos propios, y programas libres con su licencia.
 - **"Todas las opciones de los 19 programas" no es alcanzable.** ESTRELLA debe decir qué hace cada herramienta y qué no.

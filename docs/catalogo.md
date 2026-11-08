@@ -1,6 +1,6 @@
 # Catálogo — programa por programa
 
-Verificado el **2026-11-05**. Los nombres de programas de pago aparecen aquí solo de forma descriptiva.
+Verificado el **2026-11-05**; los programas propios de la fase 10 se agregaron el **2026-11-08**. Los nombres de programas de pago aparecen aquí solo de forma descriptiva.
 
 **Sobre las mediciones:** Chrome 152 en un solo equipo de 16 GB, red doméstica, con transferencia real. "Abre" significa que la interfaz cargó; **no se probaron todas las herramientas**.
 
@@ -9,22 +9,22 @@ Verificado el **2026-11-05**. Los nombres de programas de pago aparecen aquí so
 | # | Programa de pago | Opción libre | Licencia | En ESTRELLA | Cobertura honesta |
 |---|---|---|---|---|---|
 | 1 | AutoCAD | LibreCAD web + MLightCAD | GPL-2.0 / MIT | Web | Dibujo 2D sí; automatización y ecosistema, no |
-| 2 | SketchUp | OpenSCAD web; Blender o FreeCAD en escritorio | GPL-3.0 / LGPL-2.1 | Web parcial + escritorio | Paramétrico sí; modelado por empuje directo en web, no |
-| 3 | Revit | FreeCAD BIM; visor IFC con web-ifc | LGPL-2.1 / MPL-2.0 | Visor web + escritorio | Ver IFC sí; flujo BIM colaborativo, no |
+| 2 | SketchUp | **Sólido** (propio, three.js); Blender o FreeCAD en escritorio | MIT / GPL / LGPL-2.1 | Web + escritorio | Maqueta por sólidos con medidas exactas y prismas desde una planta; empujar caras y booleanas, en escritorio |
+| 3 | Revit | **BIM** (propio, web-ifc + three.js); FreeCAD BIM en escritorio | MPL-2.0 / MIT / LGPL-2.1 | Web + escritorio | Recorrer por niveles, propiedades, cantidades, plantas por corte, medidas y cuadros CSV; modelar BIM, en escritorio |
 | 4 | Enscape | Blender EEVEE | Por confirmar | Escritorio | Depende de la GPU; no hay sincronía en vivo con BIM |
 | 5 | V-Ray | Blender Cycles, LuxCore | Por confirmar / Apache-2.0 | Escritorio | Render de calidad, pero materiales incompatibles |
 | 6 | 3ds Max | Blender | Por confirmar | Escritorio | Amplio; los plugins propios no funcionan |
-| 7 | Illustrator | SVG-Edit; Inkscape en escritorio | MIT y mezcla / por confirmar | Web + escritorio | Vector básico en web; lo avanzado, en escritorio |
+| 7 | Illustrator | **Trazo** (propio); Inkscape en escritorio | MIT / GPL | Web + escritorio | Formas, pluma, lápiz, texto y capas; SVG y PNG. Bézier editables y degradados, en escritorio |
 | 8 | Photoshop | miniPaint; Krita o GIMP en escritorio | MIT / GPL-3.0 | Web + escritorio | Capas y filtros sí; IA generativa y funciones avanzadas, no |
 | 9 | InDesign | Scribus | Por confirmar | Escritorio | Maquetación sí; INDD no se abre |
 | 10 | Acrobat | PDF.js + pdf-lib | Apache-2.0 / MIT | Web | Ver, anotar, unir, dividir. OCR y edición profunda: por evaluar |
-| 11 | Lightroom | libraw-wasm para vista; darktable en escritorio | ISC / GPL-3.0 | Vista web + escritorio | Revelado completo solo en escritorio |
-| 12 | Bridge | Gestor de archivos propio; digiKam | Propio / por confirmar | Web + escritorio | Organizar sí; catálogos enormes, no en web |
+| 11 | Lightroom | **Revelado** (propio); darktable en escritorio | MIT / GPL-3.0 | Web + escritorio | Luz, color, recorte y giro; de un RAW revela su vista previa JPG. Datos del sensor y ajustes por zonas, en escritorio |
+| 12 | Bridge | **Archivo** (propio); digiKam en escritorio | MIT / GPL | Web + escritorio | Miniaturas, estrellas, etiquetas, palabras clave, filtros, renombrado en lote a ZIP y lista CSV; EXIF y catálogos enormes, en escritorio |
 | 13 | Adobe Express | Plantillas propias sobre miniPaint o Excalidraw | Propio / MIT | Web | Sin banco de imágenes de pago |
-| 14 | Rhino | FreeCAD; OpenSCAD web | LGPL-2.1 / GPL-3.0 | Escritorio | NURBS libres limitadas; Grasshopper no tiene equivalente directo |
+| 14 | Rhino | **Sólido** para volúmenes; FreeCAD en escritorio | MIT / LGPL-2.1 | Web + escritorio | Sólidos exactos sí; NURBS libres limitadas y Grasshopper sin equivalente directo |
 | 15 | Blender | Blender | Por confirmar | Enlace al oficial | Ya es libre: solo se guía y se configura |
 | 19 | Notion | Editor propio de apuntes | Propio | Web | Notas y tablas simples; no la plataforma completa |
-| 20 | Autodesk Forma | QGIS + FreeCAD | GPL-2.0 / LGPL-2.1 | Escritorio | **El mayor hueco:** sin análisis urbano equivalente en web |
+| 20 | Autodesk Forma | **Análisis de sitio** (propio, ecuaciones de la NOAA); QGIS en escritorio | MIT / GPL-2.0 | Web + escritorio | Sol, sombras, horas de sol, carta solar y COS sobre terreno plano; pendientes, viento, ruido y mapas, en QGIS |
 | 21 | Miro | Excalidraw | MIT | Web | Muy bueno; colaboración en vivo, en una fase posterior |
 | 22 | Premiere Pro | Kdenlive, Shotcut | GPL-3.0 | Escritorio | Edición real sí; en navegador no se ofrece |
 
@@ -69,3 +69,16 @@ Para comparar: el panel de ESTRELLA tiene como límite 300 KB.
 | SKP, RVT, 3DM, MAX, FBX, BLEND | Sin lector libre en la web | **No se promete.** Visor dice qué exportación pedir | Mensaje probado |
 | INDD, IDML, XD | Sin lector libre | **No se promete.** Pide PDF o IDML | Mensaje probado |
 | TIFF, HEIC | — | Todavía no; Visor lo dice | Pendiente |
+
+## 5. Programas propios de la fase 10 (2026-11-08)
+
+| Programa | Reemplaza | Descarga al abrir (comprimido) | Prueba de extremo a extremo |
+|---|---|---|---|
+| Trazo | Illustrator | 16 KB | `tests/e2e/trazo.spec.ts` |
+| Revelado | Lightroom | 10 KB | `tests/e2e/revelado.spec.ts` |
+| Sólido | SketchUp, Rhino | 181 KB (incluye three.js) | `tests/e2e/solido.spec.ts` |
+| BIM | Revit | 14 KB; el lector IFC (1,1 MB) y el 3D se descargan al abrir un modelo | `tests/e2e/bim.spec.ts` |
+| Archivo | Bridge | 14 KB | `tests/e2e/archivo.spec.ts` |
+| Análisis de sitio | Autodesk Forma | 17 KB | `tests/e2e/sitio.spec.ts` |
+
+La descarga se mide como en la fase 3: HTML, estilos y scripts que el programa carga al abrirse, comprimidos. Cada programa pasa la revisión automática WCAG 2.2 AA (`tests/e2e/a11y.spec.ts`).
